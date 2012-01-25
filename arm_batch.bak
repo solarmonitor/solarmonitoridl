@@ -1,0 +1,130 @@
+#!/bin/csh -f
+
+# Script to run arm_batch.pro
+# Peter T. Gallagher (peter.t.gallagher@gsfc.nasa.gov)
+# Written: 21-feb-2001
+# Modified: 2004-07-08 Russ Hewett 
+
+	setenv OS OSX
+
+# Record the start time
+  
+	setenv start_time `date -u`
+	echo 'Start time: ' $start_time
+
+# Create a temporary directory to write data to 
+
+	setenv WORKING_PATH /Volumes/space1/arm/idl
+	setenv TEMP_PATH /Volumes/space1/arm/tmp
+	setenv OUTPUT_PATH /Volumes/space1/arm
+	setenv todays_date `date -u +%Y%m%d`
+	
+	mkdir -p $TEMP_PATH
+
+	mkdir -p $OUTPUT_PATH/data/$todays_date/ 
+	mkdir -p $OUTPUT_PATH/data/$todays_date/fits/bbso 
+	mkdir $OUTPUT_PATH/data/$todays_date/fits/gong
+	mkdir $OUTPUT_PATH/data/$todays_date/fits/gsxi
+	mkdir $OUTPUT_PATH/data/$todays_date/fits/seit
+	mkdir $OUTPUT_PATH/data/$todays_date/fits/smdi
+	mkdir -p $OUTPUT_PATH/data/$todays_date/pngs/bbso 
+	mkdir $OUTPUT_PATH/data/$todays_date/pngs/gong
+	mkdir $OUTPUT_PATH/data/$todays_date/pngs/gsxi
+        mkdir $OUTPUT_PATH/data/$todays_date/pngs/gxrs
+	mkdir $OUTPUT_PATH/data/$todays_date/pngs/seit
+	mkdir $OUTPUT_PATH/data/$todays_date/pngs/smdi
+	mkdir $OUTPUT_PATH/data/$todays_date/pngs/thmb
+	mkdir $OUTPUT_PATH/data/$todays_date/meta/
+
+# Set SSW environment up
+
+	setenv SSW /solarsoft
+	setenv SSW_INSTR "gen eit hessi"
+	source $SSW/gen/setup/setup.ssw
+  
+	setenv IDL_DIR /usr/local/rsi/idl
+	setenv IDL_PATH $WORKING_PATH
+
+	echo "arm_batch, '"$TEMP_PATH"', '"$OUTPUT_PATH"'" > $TEMP_PATH/arm_batch.tmp
+
+	echo 'exit' >> $TEMP_PATH/arm_batch.tmp
+
+	/solarsoft/gen/setup/ssw_idl $TEMP_PATH/arm_batch.tmp > $WORKING_PATH/arm1.log
+
+#	/solarsoft/gen/setup/ssw_idl /tmp/arm_batch.tmp > /tmp/arm1.log
+#	sswidl /tmp/arm_batch.tmp > /tmp/arm1.log
+
+# Convert the full-disk images to thumbnail images for the front page
+
+	/usr/local/bin/convert -crop 605x605+55+30 $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00284_thumb_pre.png $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00284_thumb_pre.png
+	/usr/local/bin/convert -size 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00284_thumb_pre.png -resize 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00284_thumb.png
+
+	/usr/local/bin/convert -crop 605x605+55+30 $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00195_thumb_pre.png $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00195_thumb_pre.png
+	/usr/local/bin/convert -size 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00195_thumb_pre.png -resize 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00195_thumb.png
+
+#	/usr/local/bin/convert -crop 605x605+55+30 images/gong_fd.png images/gong_thumb.png
+#	/usr/local/bin/convert -size 250x250 images/gong_thumb.png images/gong_thumb.png
+
+	/usr/local/bin/convert -crop 605x605+55+30 $OUTPUT_PATH/data/$todays_date/pngs/thmb/gsxi_flter_thumb_pre.png $OUTPUT_PATH/data/$todays_date/pngs/thmb/gsxi_flter_thumb_pre.png
+	/usr/local/bin/convert -size 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/gsxi_flter_thumb_pre.png -resize 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/gsxi_flter_thumb.png
+
+	/usr/local/bin/convert -crop 605x605+55+30 $OUTPUT_PATH/data/$todays_date/pngs/thmb/bbso_halph_thumb_pre.png $OUTPUT_PATH/data/$todays_date/pngs/thmb/bbso_halph_thumb_pre.png
+	/usr/local/bin/convert -size 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/bbso_halph_thumb_pre.png -resize 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/bbso_halph_thumb.png
+
+	/usr/local/bin/convert -crop 605x605+55+30 $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_maglc_thumb_pre.png $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_maglc_thumb_pre.png
+	/usr/local/bin/convert -size 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_maglc_thumb_pre.png -resize 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_maglc_thumb.png
+
+	/usr/local/bin/convert -crop 605x605+55+30 $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_igram_thumb_pre.png $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_igram_thumb_pre.png
+	/usr/local/bin/convert -size 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_igram_thumb_pre.png -resize 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_igram_thumb.png
+ 
+       rm -rf $OUTPUT_PATH/data/$todays_date/pngs/bbso/*pre*
+       rm -rf $OUTPUT_PATH/data/$todays_date/pngs/gong/*pre*
+       rm -rf $OUTPUT_PATH/data/$todays_date/pngs/gsxi/*pre*
+       rm -rf $OUTPUT_PATH/data/$todays_date/pngs/gxrs/*pre*
+       rm -rf $OUTPUT_PATH/data/$todays_date/pngs/seit/*pre*
+       rm -rf $OUTPUT_PATH/data/$todays_date/pngs/smdi/*pre*
+       rm -rf $OUTPUT_PATH/data/$todays_date/pngs/thmb/*pre*
+
+# Make a directory for todays date and copy html and png files from /tmp 
+
+	setenv todays_date `date -u +%Y%m%d`
+
+# Make a soft link to the yyyymmdd directory if needed
+
+#	$WORKING_PATH/make_arm_link
+
+# Record the end time
+  
+	setenv end_time `date -u`
+	echo 'End time: ' $end_time
+
+# Calculate the execution time for arm_batch
+
+	setenv start_mins `echo $start_time | cut -d: -f2` 
+	setenv end_mins   `echo $end_time | cut -d: -f2` 
+
+	setenv exec_time `expr $end_mins \- $start_mins`
+
+	echo 'Start: ' $start_time ' End: ' $end_time >> /tmp/arm_exec_times.log
+	echo 'Execution time: ' $exec_time mins '\n' >> /tmp/arm_exec_times.log
+
+# Every day email me the execution times file 
+
+	setenv new_day `date -u "+%H"`
+
+#	if ( $new_day == 00 ) then 
+#		mail -s 'ARM Times' peter.t.gallagher@gsfc.nasa.gov < /tmp/arm_exec_times.log
+#	endif
+
+# Move all fits files downloaded to the temp folder so they dont fubar the images
+
+	mv -f *.fits $TEMP_PATH
+	mv -f *.fts $TEMP_PATH
+	mv -f *.fts.gz $TEMP_PATH
+	mv -f *.FTS $TEMP_PATH
+	mv -f *.fits.gz $TEMP_PATH
+
+# Remove everything from the temp directory
+
+	rm -rf $TEMP_PATH
+

@@ -1,0 +1,12 @@
+#!/bin/csh -f
+
+        setenv OS OSX
+        setenv SSW /solarsoft
+        setenv SSW_INSTR "gen eit hessi"
+        source $SSW/gen/setup/setup.ssw
+
+        setenv IDL_DIR /usr/local/rsi/idl
+	setenv IDL_PATH /Users/ptg/arm/idl/
+
+        /solarsoft/gen/setup/ssw_idl /Users/ptg/arm/idl/hhsi.bat > /Users/ptg/arm/idl/hhsi.log
+

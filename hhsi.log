@@ -1,0 +1,24 @@
+OS->OSX
+--------------------------------------------------------
+Running SSW, Last Updated: Wed Nov 2 22:22:51 GMT 2005
+
+?? Why work with 1 FITS header when you can work with 100 FITS structures ??
+
+IDL> mreadfits, FITSFILES, fitsstruct                    ; headers->structs 
+IDL> ss=struct_where(fitsstruct,test=['naxis1>=512',$    ; some filter(s)
+               'wave_len=171,195',$                      ; 
+               'xcen=700~850','ycen= -100~100'], sscnt)  ; 
+IDL> if sscnt gt 0 then $                                ; any matches?   
+         mreadfits, FITSFILES(ss), index, data3d         ; then read data
+ 
+ 
+PROBLEMS? - e-mail TO: freeland@penumbra.nascom.nasa.gov
+--------------------------------------------------------
+Executing SSW IDL_STARTUP for: GEN
+Executing SSW IDL_STARTUP for: EIT
+executing EIT IDL_STARTUP
+Executing SSW IDL_STARTUP for: SITE
+Done date stuff
+2006/09/27 16:18:10.941
+/Users/ptg/arm/idl/hhsi_obs_times.pro
+2006/09/27 16:18:11.084

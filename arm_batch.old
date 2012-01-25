@@ -1,0 +1,142 @@
+;+
+; Project :	BBSO Active Region Monitor (ARM)
+;
+; Name    :	arm_batch
+;
+; Purpose :	IDL batch file to run 
+;
+; Syntax  :	arm_batch
+;
+; Inputs  :	none
+;
+; Examples:	IDL> arm_batch
+;                
+; Outputs :	index.html, halpha_fd.html, wl_fd.html, mag_fd.html,
+;         		eit_fd.html, and a page for each region in the fomat
+;         		RegionNumber.html
+;
+; Keywords:	None
+;
+; History :	Written 05-feb-2001, Peter Gallagher, BBSO
+; 			2004-07-07 - Russ Hewett: cleaned up formatting
+;
+; Contact : ptg@bbso.njit.edu
+;
+;-
+
+pro arm_batch, temp_path, output_path
+    
+  set_plot, 'z'
+
+	;journal, temp_path + '/arm_journal.log'
+
+	;Find todays date and convert to yyyymmdd format
+  
+	get_utc, utc, /ecs
+	date = strmid( utc, 0, 4 ) + strmid( utc, 5, 2 ) + strmid( utc, 8, 2 )
+	utc = strmid( anytim( utc, /vms ), 0, 17 )
+
+; Calculate the previous and next days date.
+
+	calc_date, date, -1, prev_date
+	calc_date, date,  1, next_date
+  
+	date_struct = { date : date, prev_date : prev_date, next_date : next_date, utc : utc }
+  
+; Read the active region summary for the requested and previous days.
+  
+	sock_list, 'www.sec.noaa.gov/ftpdir/forecasts/SRS/' + strmid( date, 4, 4 ) + 'SRS.txt', srs_today
+	sock_list, 'www.sec.noaa.gov/ftpdir/forecasts/SRS/' + strmid( prev_date, 4, 4 ) + 'SRS.txt', srs_yesterday
+	srs_today      = strupcase( srs_today )
+	srs_yesterday  = strupcase( srs_yesterday )
+
+; The following is a quick fix to deal with no active region summary existing
+; for the current date is arm_batch is run between 00:00 UT and ~ 00:40 UT.
+
+	if ( strmid( srs_today[ 0 ], 0, 8 ) ne ':PRODUCT' ) then begin
+
+		date_old = date
+                date = prev_date
+
+		prev_date_old = prev_date
+
+		calc_date, date, -1, prev_date
+	
+		sock_list, 'www.sec.noaa.gov/ftpdir/forecasts/SRS/' + strmid( date, 4, 4 ) + 'SRS.txt', srs_today
+		sock_list, 'www.sec.noaa.gov/ftpdir/forecasts/SRS/' + strmid( prev_date, 4, 4 ) + 'SRS.txt', srs_yesterday
+		srs_today      = strupcase( srs_today )
+		srs_yesterday  = strupcase( srs_yesterday )
+ 
+		date = date_old
+		prev_date = prev_date_old
+  
+	endif
+  
+; Identify the date and time the NOAA data was issued at
+  
+	date_noaa = srs_today( where( strpos( srs_today, 'ISSUED AT' ) ne -1 ) )
+	date_noaa = str_sep( date_noaa( 0 ), ' ' )
+	issued    = date_noaa( 7 ) + '-' + date_noaa( 8 ) + '-' + date_noaa( 9 ) + ' ' +$
+    				strmid( date_noaa( 5 ), 0, 2 ) + ':' + strmid( date_noaa( 5 ), 2, 2 )
+ 
+	t_noaa    = date_noaa( 7 ) + '-' + date_noaa( 8 ) + '-' + date_noaa( 9 ) + ' 00:00'
+  
+; Concat AR summary and events list for today and yesterday	    
+  
+	last_events2arm, date_struct, events
+
+; Concat AR summary and events list for today and yesterday
+
+	ar_comb, date_struct, srs_today, srs_yesterday, events, summary, no_region_today, no_region_yesterday
+		    
+	region_struct = { summary : summary, issued : issued, t_noaa : t_noaa }
+
+; Write a png for the GOES/RHESSI lightcurves
+
+  ;if ( float( strmid( anytim( utc, /time, /vms ), 0, 2 ) ) lt 4. ) then $
+  ;   hhsi_obs_times, /print, timerange = anytim([anytim(  utc ) - 24. * 60. *60., anytim( utc ) ],/date), $
+   ;              filename = output_path + '/data/' + prev_date + '/pngs/gxrs/gxrs_rhessi_' + prev_date + '.png'
+
+
+  ;hhsi_obs_times, /print, timerange = anytim([anytim(  utc), anytim( utc ) + 24. * 60. * 60. ],/date), $
+   ;              filename = output_path + '/data/' + date + '/pngs/gxrs/gxrs_rhessi_' + date + '.png'  
+
+; Generate a web page for H-alpha, MDI continuum & magnetogram, EIT EUV,
+; and GONG+ images. Also generate the transfer page, index, news, and
+; forecast pages.
+       
+	arm_fd, output_path, date_struct, summary, gong_map_struct, /gong_maglc
+	arm_fd, output_path, date_struct, summary, eit195_map_struct, /seit_00195
+	arm_fd, output_path, date_struct, summary, eit284_map_struct, /seit_00284
+	arm_fd, output_path, date_struct, summary, wl_map_struct, /smdi_igram
+	arm_fd, output_path, date_struct, summary, mag_map_struct, /smdi_maglc
+	arm_fd, output_path, date_struct, summary, ha_map_struct, /bbso_halph
+	arm_fd, output_path, date_struct, summary, eit171_map_struct, /seit_00171
+	arm_fd, output_path, date_struct, summary, eit304_map_struct, /seit_00304
+        arm_fd, output_path, date_struct, summary, sxig12_map_struct, /gsxi        
+
+; Extract each region and write a web page for each
+
+	arm_regions, output_path, date_struct, summary, gong_map_struct, /gong_maglc
+	arm_regions, output_path, date_struct, summary, eit195_map_struct, /seit_00195
+	arm_regions, output_path, date_struct, summary, eit284_map_struct, /seit_00284
+	arm_regions, output_path, date_struct, summary, wl_map_struct, /smdi_igram
+	arm_regions, output_path, date_struct, summary, mag_map_struct, /smdi_maglc
+	arm_regions, output_path, date_struct, summary, ha_map_struct, /bbso_halph
+	arm_regions, output_path, date_struct, summary, eit171_map_struct, /seit_00171
+	arm_regions, output_path, date_struct, summary, eit304_map_struct, /seit_00304
+        arm_regions, output_path, date_struct, summary, sxig12_map_struct, /gsxi        
+	
+;	get the region page titles
+	arm_ar_titles, output_path, date_struct, summary
+	arm_ar_table, output_path, date_struct, summary
+	arm_times, output_path, date_struct, issued
+	arm_na_events, output_path, date_struct, no_region_today, no_region_yesterday
+	mmmotd2arm, output_path, date_struct
+	;write_index_html, output_path, date_struct
+
+; Execute the forecast last as its prone to crashing
+
+	arm_forecast, output_path, date_struct, summary
+
+end

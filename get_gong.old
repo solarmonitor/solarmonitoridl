@@ -1,0 +1,142 @@
+;+
+;
+; Name        : get_gong
+;
+; Purpose     : get most recent GONG+ magnetogram
+;
+; Syntax      : get_gong, date, [,/today]
+;
+; Examples    : IDL> get_gong, '20000505'
+;               IDL> get_gong, /today
+;
+; Keywords    : today = get todays date
+;
+; History     : Written 20-jul-2001
+;
+; Contact     : ptg@bbso.njit.edu (Peter Gallagher, NJIT)
+;
+;-
+;
+
+pro get_gong, date, filename, today = today
+
+  if ( keyword_set( today ) ) then begin 
+    
+    get_utc, utc, /ecs
+    date = strmid( utc, 0, 4 ) + strmid( utc, 5, 2 ) + strmid( utc, 8, 2 )
+  
+  endif
+  
+  date_i = date
+
+;--------------------------------------------------------------
+; FTP an GONG+ magnetogram closest to requested date.
+
+  n = 0
+  dir = ''
+
+  jump1:
+  if (n ne 0) then date = prev_day
+  if (n ge 7) then goto, get_out
+  
+; First find the GONG+ magnetogram closest to the requested date
+
+  openw, file_no, 'ftp_data',/get_lun
+
+    printf, file_no , '#! /bin/csh -f'
+    printf, file_no , 'ftp -n solarch.tuc.noao.edu << EOF > ftptemp'
+    printf, file_no , 'user anonymous ptg@bbso.njit.edu'
+    printf, file_no , 'prompt off'
+    printf, file_no , 'binary'
+    printf, file_no , 'cd /pub/gong/magnetograms/bbgong' + dir  ; Big Bear, USA
+    printf, file_no , 'ls mag*' + strmid( date, 2, 6 ) + '*.fits.gz'
+;    printf, file_no , 'cd /pub/gong/magnetograms/ctgong' + dir  ; Cerro Tololo, Chile
+;    printf, file_no , 'ls mag*' + strmid( date, 2, 6 ) + '*.fits.gz'
+    printf, file_no , 'cd /pub/gong/magnetograms/legong' + dir  ; Learmonth, Australia
+    printf, file_no , 'ls mag*' + strmid( date, 2, 6 ) + '*.fits.gz'
+    printf, file_no , 'cd /pub/gong/magnetograms/mlgong' + dir  ; Mauna Loa, Hawaii
+    printf, file_no , 'ls mag*' + strmid( date, 2, 6 ) + '*.fits.gz'
+    ;printf, file_no , 'cd /pub/gong/magnetograms/tdgong' + dir ; Teide, Canaries
+    ;printf, file_no , 'ls mag*' + strmid( date, 2, 6 ) + '*.fits.gz'
+    ;printf, file_no , 'cd /pub/gong/magnetograms/udgong' + dir ; Udaipur, India
+    ;printf, file_no , 'ls mag*' + strmid( date, 2, 6 ) + '*.fits.gz'
+    printf, file_no , 'bye'
+    printf, file_no , 'EOF'
+
+  close, file_no
+  
+  print, ' '
+  print, 'Connecting to the GONG+ database (solarch.tuc.noao.edu) ...'
+  print, 'Locating file closest to ' + date + ' ...'
+  spawn, 'chmod 777 ftp_data'
+  spawn, './ftp_data'
+
+  spawn, 'grep mag ftptemp | cut -c55-75 | sort | tail -1', latest_mag
+  pos = strpos( latest_mag, 'mag' )
+  wo = where( pos ne -1 )
+  if wo( 0 ) eq -1 then goto, jump2
+  wo = wo( 0 )
+  mag = strmid( latest_mag( wo ), pos( wo ), 21 )
+  
+; Get most recent data - this should be improved.
+; At the moment, we just search all directories, which
+; is slow.
+
+  openw, file_no, 'ftp_data', /get_lun
+
+    printf, file_no, '#! /bin/csh -f'
+    printf, file_no, 'ftp -n solarch.tuc.noao.edu << EOF > ftptemp'
+    printf, file_no, 'user anonymous ptg@bbso.njit.edu'
+    printf, file_no, 'prompt off'
+    printf, file_no, 'binary'
+    printf, file_no ,'cd /pub/gong/magnetograms/bbgong' + dir
+    printf, file_no, 'get ' + mag
+;    printf, file_no ,'cd /pub/gong/magnetograms/ctgong' + dir
+;    printf, file_no, 'get ' + mag
+    printf, file_no ,'cd /pub/gong/magnetograms/legong' + dir
+    printf, file_no, 'get ' + mag
+    printf, file_no ,'cd /pub/gong/magnetograms/mlgong' + dir
+    printf, file_no, 'get ' + mag
+    ;printf, file_no ,'cd /pub/gong/magnetograms/tdgong' + dir
+    ;printf, file_no, 'get ' + mag
+    ;printf, file_no ,'cd /pub/gong/magnetograms/udgong' + dir
+    ;printf, file_no, 'get ' + mag
+    printf, file_no, 'bye'
+    printf, file_no, 'EOF'
+
+  close, file_no
+  spawn, 'chmod 777 ftp_data'
+  spawn, './ftp_data'
+
+;Check to see if data for the given date has been transferred.
+
+ file_list = strlen( findfile( mag[ 0 ] ) )
+
+ if ( file_list[ 0 ] ne 0 ) then begin
+
+   print, 'GONG+ magnetogram for ' + date + ' transferred.'
+   print, ''
+
+ endif else begin
+
+   jump2:
+   print, 'No GONG+ magnetogram available for ' + date + '.'
+
+   calc_date, date, -1, prev_day   
+   print, 'Searching for data on ' + prev_day + '...'
+   print,''
+   n = n + 1
+   dir = '/old'
+   goto, jump1
+
+ endelse
+
+  get_out:
+  if ( n ge 7) then mag = 'err'
+  
+  date = date_i
+  filename = mag
+
+  spawn, 'rm -f ftp_data ftptemp'
+
+end

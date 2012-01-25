@@ -1,0 +1,71 @@
+;+
+; Project :     Active Region Monitor (ARM)
+;
+; Name    :     get_srs
+;
+; Purpose :     Read in today's and yesterday's Solar Region Summaries from NOAA/SEC.
+;
+; Syntax  :     get_sts, srs_today, srs_yesterdaya
+;
+; Inputs  :     none
+;
+; Examples:     IDL> get_srs, srs_today, srs_yesterday
+;                
+; Outputs :     Today's and yesterday's Solar Region summaries
+;
+; Keywords:     None
+;
+; History :     Written 05-may-2005, Peter Gallagher, TCD
+;
+; Contact :     peter.gallagher@tcd.ie
+;-
+
+pro get_srs, date_struct, srs_today, srs_yesterday, issued, t_noaa
+
+; Test if website is active
+
+  sock_ping, 'w1.sec.noaa.gov', site_status
+
+; Read the most recent SRS into a string
+
+  if ( site_status eq 1 ) then begin
+ 
+    sock_list, 'w1.sec.noaa.gov/ftpdir/forecasts/SRS/', srs_list
+    ;srs_filenames = stregex( srs_list, '"[0-9][0-9][0-9][0-9]*.SRS.txt"', /extract )
+    ;srs_filenames = strmid( srs_filenames( where( srs_filenames ne '' ) ), 1, 11 )
+
+    sock_list, 'w1.sec.noaa.gov/ftpdir/forecasts/SRS/' + strmid( date_struct.date, 4, 4 ) + 'SRS.txt', srs_today
+    sock_list, 'w1.sec.noaa.gov/ftpdir/forecasts/SRS/' + strmid( date_struct.prev_date, 4, 4 ) + 'SRS.txt', srs_yesterday
+
+    srs_today = strupcase( srs_today )
+    srs_yesterday  = strupcase( srs_yesterday )
+
+    date_noaa = srs_today( where( strpos( srs_today, 'ISSUED AT' ) ne -1 ) )
+    date_noaa = str_sep( date_noaa( 0 ), ' ' )
+    issued    = date_noaa( 7 ) + '-' + date_noaa( 8 ) + '-' + date_noaa( 9 ) + ' ' +$
+                                strmid( date_noaa( 5 ), 0, 2 ) + ':' + strmid( date_noaa( 5 ), 2, 2 )
+ 
+    t_noaa    = date_noaa( 7 ) + '-' + date_noaa( 8 ) + '-' + date_noaa( 9 ) + ' 00:00'
+  
+  endif else begin
+
+    fls = findfile( '11*SRS.txt' )
+    srs_max = n_elements(fls)
+	srs_today = strupcase( rd_tfile(fls[ srs_max - 1 ] ))
+    srs_yesterday  = strupcase( rd_tfile(fls[ srs_max - 2 ] ))
+   
+
+   
+	print, srs_max, srs_today, srs_yesterday,  strpos( srs_today, 'ISSUED AT' )
+	
+	date_noaa = srs_today( where( strpos( srs_today, 'ISSUED AT' ) ne -1 ) )
+    date_noaa = str_sep( date_noaa( 0 ), ' ' )
+    issued    = date_noaa( 7 ) + '-' + date_noaa( 8 ) + '-' + date_noaa( 9 ) + ' ' +$
+                                strmid( date_noaa( 5 ), 0, 2 ) + ':' + strmid( date_noaa( 5 ), 2, 2 )
+
+    t_noaa    = date_noaa( 7 ) + '-' + date_noaa( 8 ) + '-' + date_noaa( 9 ) + ' 00:00'
+
+
+  endelse
+
+end

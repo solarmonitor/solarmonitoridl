@@ -1,0 +1,160 @@
+; Project     : SOLAR MONITOR
+;
+; Name        : SOLMON_REPOP
+;
+; Purpose     : Repopulate the Solar Monitor archive with the correct data and 
+;               images for the desired instrument and time range.
+;
+; Notes       : 1. Run this program in the folder where ARM_BATCH is normally run. 
+;               2. This program requires ARM_BATCH_REPOP.PRO and all of the other 
+;                  Solar Monitor software.
+;
+; Category    : Solar Monitor Software
+;
+; Syntax      : IDL> solmon_repop,timerange=['1-jan-1996','31-dec-1997'],/
+;
+; Keywords    : Timerange - Which dates are to be repopulated. 1 or 2-element 
+;               array of the form, [DD-Month-YY]
+;
+;               /Instrument - One of the ARM_FD instrument keywords.
+;
+; History     : Written 16-Jul-2007, Paul Higgins, (ARG/TCD)
+;
+; Contact     : P.A. Higgins: era {at} msn {dot} com
+;               P. Gallagher: peter.gallagher {at} tcd {dot} ie
+;-->
+;----------------------------------------------------------------------------->
+
+;----------------------------------------------->
+;-- Makes sure that months and days are 2 characters in length
+
+function i02,num
+
+if strlen(strcompress(num,/remo)) eq 1 then begin
+	num='0'+strcompress(num,/remo)
+endif
+
+return,num
+
+end
+
+;----------------------------------------------->
+;-- Generates a 3 element array holding the year, month, and day of some file name 
+
+function pathogen,tname
+
+fstart=strsplit(time2file(tname),'_',/extract)
+tstart=strarr(3)
+tstart[0]=strmid(fstart[0],0,4)
+tstart[1]=strmid(fstart[0],4,2)
+tstart[2]=strmid(fstart[0],6,2)
+tstart=fix(tstart)
+
+return,tstart
+
+end
+
+;----------------------------------------------->
+;-- Generate a path list 
+
+function timearrgen,tstarts,tends,instpath,path
+
+tstart=pathogen(tstarts)
+tend=pathogen(tends)
+
+tstartpath=strcompress(tstart[0],/remo)+strcompress(i02(tstart[1]),/remo)+strcompress(i02(tstart[2]),/remo)
+tendpath=strcompress(tend[0],/remo)+strcompress(i02(tend[1]),/remo)+strcompress(i02(tend[2]),/remo)
+year=tstart[0]
+month=tstart[1]
+day=tstart[2]
+path=tstartpath
+lastfile=1
+while lastfile ne 0 do begin
+	while month le 12 and lastfile ne 0 do begin
+
+	while day le 31 and lastfile ne 0 do begin
+
+	path=[[path],[strcompress(year,/remo)+strcompress(i02(month),/remo)+strcompress(i02(day+1),/remo)]]
+	if path[n_elements(path)-1] ge tendpath then begin
+	lastfile=0
+	endif
+	day=day+1
+
+	endwhile
+	day=0
+	month=month+1
+
+	endwhile
+	month=1
+	year=year+1
+endwhile
+
+fullpath=strarr(n_elements(path))
+
+for i=0,n_elements(path)-1 do begin
+	pathelem=strjoin([instpath[0],path[i],instpath[2]],'')
+	fullpath[i]=pathelem
+endfor
+
+return,fullpath
+
+end
+
+;----------------------------------------------->
+;-- 
+
+pro solmon_repop, timerange=timerange, output_path=output_path, _extra=_extra
+
+;--<< The pertinent paths. >>
+
+if not keyword_set(output_path) then output_path='~/idl/solarmonitor/mdi_repop'
+
+;maindir=''
+;urlcopy='~/solarmonitor'
+instpath=['/data/','insert','/fits/smdi']
+
+if not keyword_set(timerange) then begin
+	print, 'Please specify a 2 element timerange keyword!'
+	return
+endif
+if n_elements(timerange) eq 1 then tend=time2file(systim(),/date)
+if n_elements(timerange) eq 2 then tend=timerange[1]
+tstart = timerange[0]
+
+;--<< Generate the Date folder list. >>
+
+writepath=timearrgen(tstart,tend,instpath,path)
+
+daylist=anytim(file2time(path),/vms,/date)
+
+;--<< Run ARM_FD.PRO and ARM_REGIONS.PRO, using ARM_BATCH_REPOP. >>
+
+for i=0,n_elements(daylist)-1 do begin
+
+	utc=anytim(daylist[i],/ecs)
+	date = strmid( utc, 0, 4 ) + strmid( utc, 5, 2 ) + strmid( utc, 8, 2 )
+	utc = strmid( anytim( utc, /vms ), 0, 17 )
+	calc_date, date, -1, prev_date
+	calc_date, date,  1, next_date
+	date_struct = { date : date, prev_date : prev_date, next_date : next_date, utc : utc }
+
+	arm_batch_repop, temp_path, output_path, date_struct=date_struct, _extra=_extra
+
+endfor
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+return
+
+end

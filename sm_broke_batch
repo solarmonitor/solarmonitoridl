@@ -1,0 +1,26 @@
+#!/bin/csh -f
+  
+  setenv start_time `date -u`
+
+  mkdir /Users/solmon/Sites/data/latest_images/
+  mkdir /Users/solmon/Sites/data/logs/
+
+  echo 'Start time: ' $start_time >> /Users/solmon/Sites/data/logs/sm_batch_exec_times.log
+
+  cd /Users/solmon/Sites/idl/
+  /Users/solmon/Sites/idl/arm_batch
+ 
+  cd /Users/solmon/Sites/data/
+  tar cvfz /Users/solmon/Sites/data/sm_files.tar.gz .
+  ls -hl /Users/solmon/Sites/data/sm_files.tar.gz >> /Users/solmon/Sites/data/logs/sm_batch_exec_times.log
+
+  setenv end_time `date -u`
+  echo 'End time: ' $end_time >> /Users/solmon/Sites/data/logs/sm_batch_exec_times.log
+
+  /Users/solmon/Sites/idl/sm_move2tcd
+ 
+#  rm -rf /Users/solmon/Sites/data/sm_files.tar.gz
+  rm -rf /Users/solmon/Sites/data/20*
+  rm -rf /Users/solmon/Sites/data/latest_images/
+
+  echo 'End time: ' $end_time

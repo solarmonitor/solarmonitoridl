@@ -1,0 +1,5 @@
+ARM CODE LOG
+------------
+USER		DATE		FILE			DESCRIPTION
+----------------|---------------|-----------------------|------------>
+phiggins	25-nov-2009	arm_batch.pro		[128,129]  initialized error_satus to allow crashes in individual instruments.

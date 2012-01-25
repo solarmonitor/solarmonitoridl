@@ -1,0 +1,163 @@
+#!/bin/csh -f
+
+# Script to run arm_batch_repop.pro
+# Peter T. Gallagher (peter.t.gallagher@gsfc.nasa.gov)
+# Written: 21-feb-2001
+# Modified: 2004-07-08 Russ Hewett 
+# Modified: 2005-07-07 Amy Skowronek to not delete temp directory
+# Adapted to run RUN_SOLMON_REPOP: 2008-18-08 Paul Higgins 
+
+	setenv OS OSX
+
+# Record the start time
+  
+	setenv start_time `date -u`
+	echo 'Start time: ' $start_time
+
+# Create a temporary directory to write data to 
+
+	setenv WORKING_PATH /Users/solmon/Sites/idl
+	setenv TEMP_PATH /Users/solmon/Sites/phiggins/smart_run/
+	setenv OUTPUT_PATH /Users/solmon/Sites/
+	setenv todays_date `date -u +%Y%m%d`
+ 
+echo 'set PATHS'
+	
+	# Set the umask for all created files, so peter,
+	#	james, or russ can run arm by hand
+	umask 0002
+	
+
+# Directories are made in SOLMON_REPOP
+
+#	mkdir -p $TEMP_PATH
+
+# 	mkdir -p $OUTPUT_PATH/data/$todays_date/ 
+# 	mkdir -p $OUTPUT_PATH/data/$todays_date/fits/bbso 
+# 
+# 	mkdir $OUTPUT_PATH/data/$todays_date/fits/gong
+# 	mkdir $OUTPUT_PATH/data/$todays_date/fits/gsxi
+# 	mkdir $OUTPUT_PATH/data/$todays_date/fits/seit
+#         mkdir $OUTPUT_PATH/data/$todays_date/fits/hxrt
+# 	mkdir $OUTPUT_PATH/data/$todays_date/fits/smdi
+# 	mkdir $OUTPUT_PATH/data/$todays_date/fits/trce
+# 
+# 	mkdir -p $OUTPUT_PATH/data/$todays_date/pngs/bbso 
+# 	mkdir $OUTPUT_PATH/data/$todays_date/pngs/goes
+# 	mkdir $OUTPUT_PATH/data/$todays_date/pngs/gong
+# 	mkdir $OUTPUT_PATH/data/$todays_date/pngs/gsxi
+#         mkdir $OUTPUT_PATH/data/$todays_date/pngs/gxrs
+# 	mkdir $OUTPUT_PATH/data/$todays_date/pngs/seit
+#         mkdir $OUTPUT_PATH/data/$todays_date/pngs/hxrt        
+# 	mkdir $OUTPUT_PATH/data/$todays_date/pngs/smdi
+# 	mkdir $OUTPUT_PATH/data/$todays_date/pngs/trce
+# 	mkdir $OUTPUT_PATH/data/$todays_date/pngs/thmb
+# 	mkdir $OUTPUT_PATH/data/$todays_date/meta/
+
+# echo 'made directories'
+
+# Set SSW environment up
+
+	setenv SSW /Users/solmon/ssw
+	setenv SSW_INSTR "gen eit hessi ontology yohkoh"
+	source $SSW/gen/setup/setup.ssw
+
+echo 'sourced SSW'
+  
+	setenv IDL_DIR /Applications/itt/idl
+	setenv IDL_PATH $WORKING_PATH
+
+	echo "run_smart_arg2" > $TEMP_PATH/arm_batch_smart.tmp
+
+	echo 'exit' >> $TEMP_PATH/arm_batch_smart.tmp
+
+echo 'wrote arm_batch_smart.tmp'
+
+
+	$SSW/gen/setup/ssw_idl $TEMP_PATH/arm_batch_smart.tmp > $WORKING_PATH/arm_smart.log
+
+more $TEMP_PATH/arm_batch_smart.tmp
+
+#	/solarsoft/gen/setup/ssw_idl /tmp/arm_batch.tmp > /tmp/arm1.log
+#	sswidl /tmp/arm_batch.tmp > /tmp/arm1.log
+
+# Convert the full-disk images to thumbnail images for the front page
+
+#	/usr/local/bin/convert -crop 605x605+55+30 $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00284_thumb_pre.png $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00284_thumb_pre.png
+#	/usr/local/bin/convert -size 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00284_thumb_pre.png -resize 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00284_thumb.png
+
+#	/usr/local/bin/convert -crop 605x605+55+30 $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00195_thumb_pre.png $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00195_thumb_pre.png
+#	/usr/local/bin/convert -size 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00195_thumb_pre.png -resize 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/seit_00195_thumb.png
+
+#	/usr/local/bin/convert -crop 605x605+55+30 images/gong_fd.png images/gong_thumb.png
+#	/usr/local/bin/convert -size 250x250 images/gong_thumb.png images/gong_thumb.png
+
+#	/usr/local/bin/convert -crop 605x605+55+30 $OUTPUT_PATH/data/$todays_date/pngs/thmb/gsxi_flter_thumb_pre.png $OUTPUT_PATH/data/$todays_date/pngs/thmb/gsxi_flter_thumb_pre.png
+#	/usr/local/bin/convert -size 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/gsxi_flter_thumb_pre.png -resize 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/gsxi_flter_thumb.png
+
+#	/usr/local/bin/convert -crop 605x605+55+30 $OUTPUT_PATH/data/$todays_date/pngs/thmb/bbso_halph_thumb_pre.png $OUTPUT_PATH/data/$todays_date/pngs/thmb/bbso_halph_thumb_pre.png
+#	/usr/local/bin/convert -size 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/bbso_halph_thumb_pre.png -resize 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/bbso_halph_thumb.png
+
+#	/usr/local/bin/convert -crop 605x605+55+30 $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_maglc_thumb_pre.png $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_maglc_thumb_pre.png
+#	/usr/local/bin/convert -size 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_maglc_thumb_pre.png -resize 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_maglc_thumb.png
+
+#	/usr/local/bin/convert -crop 605x605+55+30 $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_igram_thumb_pre.png $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_igram_thumb_pre.png
+#	/usr/local/bin/convert -size 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_igram_thumb_pre.png -resize 250x250 $OUTPUT_PATH/data/$todays_date/pngs/thmb/smdi_igram_thumb.png
+ 
+ #      rm -rf $OUTPUT_PATH/data/$todays_date/pngs/bbso/*pre*
+  #     rm -rf $OUTPUT_PATH/data/$todays_date/pngs/gong/*pre*
+   #    rm -rf $OUTPUT_PATH/data/$todays_date/pngs/gsxi/*pre*
+    #   rm -rf $OUTPUT_PATH/data/$todays_date/pngs/gxrs/*pre*
+     #  rm -rf $OUTPUT_PATH/data/$todays_date/pngs/seit/*pre*
+      # rm -rf $OUTPUT_PATH/data/$todays_date/pngs/smdi/*pre*
+       #rm -rf $OUTPUT_PATH/data/$todays_date/pngs/thmb/*pre*
+
+# Thumb fixing is now handled in arm_batch.pro because this script does not want to call the perl script for some unknown reason
+
+	#/user/local/bin/perl $WORKING_PATH/process_thumbs.pl $todays_date
+
+
+# Make a directory for todays date and copy html and png files from /tmp 
+
+	setenv todays_date `date -u +%Y%m%d`
+
+# Make a soft link to the yyyymmdd directory if needed
+
+#	$WORKING_PATH/make_arm_link
+
+# Record the end time
+  
+	setenv end_time `date -u`
+	echo 'End time: ' $end_time
+
+# Calculate the execution time for arm_batch
+
+	setenv start_mins `echo $start_time | cut -d: -f2` 
+	setenv end_mins   `echo $end_time | cut -d: -f2` 
+
+	setenv exec_time `expr $end_mins \- $start_mins`
+
+	echo 'Start: ' $start_time ' End: ' $end_time >> $TEMP_PATH/arm_exec_times_smart.log
+	echo 'Execution time: ' $exec_time mins '\n' >> $TEMP_PATH/arm_exec_times_smart.log
+
+# Every day email me the execution times file 
+
+	setenv new_day `date -u "+%H"`
+
+#	if ( $new_day == 00 ) then 
+#		mail -s 'ARM Times' peter.t.gallagher@gsfc.nasa.gov < /tmp/arm_exec_times.log
+#	endif
+
+# Move all fits files downloaded to the temp folder so they dont fubar the images
+
+#	mv -f *.fits $TEMP_PATH
+#	mv -f *.fts $TEMP_PATH
+#	mv -f *.fts.gz $TEMP_PATH
+#	mv -f *.FTS $TEMP_PATH
+#	mv -f *.fits.gz $TEMP_PATH
+
+# Remove everything from the temp directory
+
+#	rm -rf $TEMP_PATH/*
+
+
