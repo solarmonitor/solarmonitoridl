@@ -9,7 +9,7 @@ pro arm_ar_titles, output_path, date_struct, summary
 	ll     = reform( summary( 6, * ) )
 	events = reform( summary( 7, * ) )
 	
-	date = date_struct.date
+	date = date_struct.date 
 	
 	ar_type = strarr(n_elements(type))
 	
@@ -29,7 +29,7 @@ pro arm_ar_titles, output_path, date_struct, summary
 	
 	endfor
 
-	file = output_path + "/data/" + date + "/meta/arm_ar_titles_" + date + ".txt"
+	file = output_path + "/meta/arm_ar_titles_" + date + ".txt"
 
 	openw, lun, file, /get_lun
 	

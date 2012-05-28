@@ -17,6 +17,7 @@ PRO get_bakeout_dates
 		st_list = STR_PICK( reverse_heater_list[1], '<td>', '<td>' )
 		
 		;higgo-20100202 - Damn it Gurman!
+                ; What does this mean?
 		if (strpos(st_list,'TBD'))[0] ne -1 then begin
 			print,'Damn it gurman!'
 			return

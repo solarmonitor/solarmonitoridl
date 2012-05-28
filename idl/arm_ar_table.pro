@@ -12,7 +12,7 @@ pro arm_ar_table, output_path, date_struct, summary
 	ll     = reform( summary( 6, * ) )
 	events = reform( summary( 7, * ) )
 	
-	file = output_path + "/data/" + date + "/meta/arm_ar_summary_" + date + ".txt"
+	file = output_path + "/meta/arm_ar_summary_" + date + ".txt"
 	
 	openw, lun, file, /get_lun
 		for i =  0 , n_elements( names ) - 1 do begin

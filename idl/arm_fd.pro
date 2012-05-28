@@ -370,7 +370,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
 		pos = strpos( filename, 'seit' )
     	    	flen = strlen(filename)
     	    	img = strmid(filename,pos,flen-pos-4)
-    	    	is_file = FILE_EXIST( '../data/'+date+'/fits/seit/'+img+'*.fts.gz' )
+    	    	is_file = FILE_EXIST( output_path+date_struct.date_dir+'/fits/seit/'+img+'*.fts.gz' )
     	    	IF (is_file) THEN GOTO, skip_195_transfer
 		
     	    	sock_copy,filename,err=err, passive=0
@@ -438,7 +438,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
 		pos = strpos( filename, 'seit' )
     	    	flen = strlen(filename)
     	    	img = strmid(filename,pos,flen-pos-4)
-    	    	is_file = FILE_EXIST( '../data/'+date+'/fits/seit/'+img+'*.fts.gz' )
+    	    	is_file = FILE_EXIST( output_path + date_struct.date_dir +'/fits/seit/'+img+'*.fts.gz' )
     	    	IF (is_file) THEN GOTO, skip_284_transfer
 		
 		sock_copy,filename,err=err, passive=0
@@ -493,7 +493,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
 		pos = strpos( filename, 'seit' )
     	    	flen = strlen(filename)
     	    	img = strmid(filename,pos,flen-pos-4)
-    	    	is_file = FILE_EXIST( '../data/'+date+'/fits/seit/'+img+'*.fts.gz' )
+    	    	is_file = FILE_EXIST( output_path + date_struct.date_dir +'/fits/seit/'+img+'*.fts.gz' )
     	    	IF (is_file) THEN GOTO, skip_171_transfer
 		
 		sock_copy,filename,err=err, passive=0
@@ -547,7 +547,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
 		pos = strpos( filename, 'seit' )
     	    	flen = strlen(filename)
     	    	img = strmid(filename,pos,flen-pos-4)
-    	    	is_file = FILE_EXIST( '../data/'+date+'/fits/seit/'+img+'*.fts.gz' )
+    	    	is_file = FILE_EXIST( output_path + date_struct.date_dir +'/fits/seit/'+img+'*.fts.gz' )
     	    	IF (is_file) THEN GOTO, skip_304_transfer
 		
 		sock_copy,filename,err=err, passive=0
@@ -670,7 +670,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
            1250 - ( sz[ 2 ] / 2 ) : 1250 + ( sz[ 2 ] / 2 ) - 1 ] = map.data
       add_prop, map, data = dum, /replace
 
-	  sz=size(map.data)           
+	  sz=size(map.data)
 	  dd=map.data[sz[1]*.3:sz[1]*2./3.,sz[2]*.3:sz[2]*2./3.]
 	  mdd=median(dd)
       if bbso eq 1 then add_prop, map, data = bytscl( map.data, mdd*.3, mdd*1.5 ), /replace
@@ -1639,13 +1639,13 @@ full_instrument = instrument + '_' + filter
 
   if ( map.id ne 'NO DATA' ) then begin
 
-    wr_png, output_path + '/data/' + strtrim(date_struct.date,2) + '/pngs/' + instrument + '/' + image_png_file, zb_plot
-    map2fits, unscaled_map, output_path + '/data/' + strtrim(date_struct.date,2) + '/fits/' + instrument + '/' + image_fts_file
-    gzip, output_path + '/data/' + strtrim(date_struct.date,2) + '/fits/' + instrument + '/' + image_fts_file
+    wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + image_png_file, zb_plot
+    map2fits, unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + image_fts_file
+    gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + image_fts_file
 
    ;if ((instrument eq 'gsxi') or (full_instrument eq 'seit_00195') or (full_instrument eq 'seit_00284') or (full_instrument eq 'smdi_maglc') or (full_instrument eq 'smdi_igram') or (full_instrument eq 'bbso_halph')) then begin
-      wr_png, output_path + '/data/' + strtrim(date_struct.date,2) + '/pngs/thmb/' + image_png_thumb_file, zb_plot
-      wr_png, output_path + '/data/latest_images/' + image_static_png_file, zb_plot
+      wr_png, output_path + date_struct.date_dir + '/pngs/thmb/' + image_png_thumb_file, zb_plot
+      wr_png, output_path + '/latest_images/' + image_static_png_file, zb_plot
    ;endif
 
   endif
@@ -1654,7 +1654,7 @@ full_instrument = instrument + '_' + filter
   ;map_coords_file = 'map_coords_' + instrument + '_' + filter + '_fd_' + date_time + '.txt'
 
   map_coords_file = instrument + '_' + filter + '_imagemap_' + date + '.txt'
-  openw, lun, output_path + '/data/' + date + '/meta/' + map_coords_file, /get_lun
+  openw, lun, output_path + date_struct.date_dir + '/meta/' + map_coords_file, /get_lun
 
     for i=0,n_elements(names)-1 do begin
       if (strlowcase(names[i]) eq 'none') then continue

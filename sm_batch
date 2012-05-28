@@ -1,7 +1,7 @@
 #!/bin/bash
 #  SolarMonitor batch script.
 #  It generates all the file structure and runs
-#  the IDL scripts for solarmonitor.
+#  the IDL and perl scripts for solarmonitor.
 #
 #
 sm_dirtree() 
@@ -18,7 +18,8 @@ sm_dirtree()
 
   # List of instruments for which fits and pngs are created
   instruments=('bbso' 'gong' 'gsxi' 'seit' 'hxrt' 'smdi' /
-               'trce' 'stra' 'strb' 'slis' 'swap' 'saia' 'shmi')
+               'trce' 'stra' 'strb' 'slis' 'swap' 'saia' /
+	       'shmi')
 
   # List of instruments for which movies (mpgs) are created
   inst_mpgs=('lsco' 'smdi' 'seit' 'stra' 'strb' 'iono')
@@ -40,7 +41,7 @@ sm_dirtree()
       fi
   done
   # pngs also contain a directory with thumbnails for frontpage.
-  mkdir -p $1/pngs/thmb $1/pngs/ace
+  mkdir -p $1/pngs/thmb $1/pngs/ace $1/pngs/goes $1/pngs/eve
   echo  ${0/\/*\//}':sm_dirtree: Directories created'
 }
 
@@ -97,6 +98,14 @@ sm_sswscript()
     $SSWCSH_FILE
 }
 
+sm_processimages()
+{
+    # It runs the perl scripts for the date
+    echo ${0/\/*\//}':sm_processimages:Doing Full-disk thumbs'
+    perl $WORKING_PATH/perl/process_thumbs.pl $1
+
+}
+
 # Load variables (local for the run, and global for SM)
 sm_var
 
@@ -104,11 +113,14 @@ sm_var
 sm_outlog
 
 # Create directories for SM
+mkdir -p $OUTPUT_PATH/latest_images
 sm_dirtree $OUTPUT_PATH/$TODAYS_DATE_DIR 
 
 # Create the scripts for running IDL SM batch and Run SM batch
 sm_sswscript
 
+# Resize and stamps the images with the perl scripts
+sm_processimages $OUTPUT_PATH/$TODAYS_DATE_DIR
 
 
 

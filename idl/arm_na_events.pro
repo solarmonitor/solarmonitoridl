@@ -4,7 +4,7 @@ pro arm_na_events, output_path, date_struct, no_region_today, no_region_yesterda
 	date = date_struct.date
 	prev_date = date_struct.prev_date
 	
-	file = output_path + "/data/" + date + "/meta/arm_na_events_" + date + ".txt"
+	file = output_path + "/meta/arm_na_events_" + date + ".txt"
 
 	no_c_today = 0
 	no_c_yesterday = 0

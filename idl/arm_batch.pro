@@ -43,74 +43,62 @@ pro arm_batch, temp_path, output_path
     date_struct = { date : date, prev_date : prev_date, next_date : next_date, utc : utc , date_dir: date_dir}
     print, 'Done date stuff'
 
+; Directory where to save everything
+    today_dir = output_path + date_struct.date_dir+'/'
+
 ; Retrieve any new bakeout dates
 
     didbakeout=execute('get_bakeout_dates',1,1)
-	if not didbakeout then print,'BAKEOUT DATES FAILED!!! or crashed. DAMN IT GURMAN!!!'
+    if not didbakeout then print,'BAKEOUT DATES FAILED!!! or crashed. DAMN IT GURMAN!!!'
 
 ; Read the active region summary for the requested and previous days.
-	
     print, 'getting srs'        
-    get_srs, date_struct, srs_today, srs_yesterday, issued, t_noaa
+    get_srs, date_struct, srs_today, srs_yesterday, issued, t_noaa,$
+             output_path=today_dir
     print, 'done getting srs'
 	
 ; Get latest events from SSW database	    
-  
     print, 'concating AR summary'
     last_events2arm2, date_struct, events
-    if var_type(events) ne 8 then begin
-    	events = { c_today : 0, c_today_xy : [0,0], $
-                   c_yesterday : 0, c_yesterday_xy : [0,0], $
-                   m_today : 0,  m_today_xy : [0,0], $
-                   m_yesterday : 0, m_yesterday_xy : [0,0], $
-                   x_today : 0, x_today_xy : [0,0], $
-                   x_yesterday : 0, x_yesterday_xy : [0,0] }
-    endif
     print, 'done concating AR summary'
 
 ; Concat AR summary and events list for today and yesterday
-
     if ( srs_today[ 0 ] ne 'No data' ) then begin
+       print, 'doing ar comb'
+       ar_comb, date_struct, srs_today, srs_yesterday, events, summary, $
+                no_region_today, no_region_yesterday
+       print, 'done ar_comb'
+       
+    endif else begin
+       summary = 'No data'
+    endelse
 
-      print, 'doing ar comb'
-      ar_comb, date_struct, srs_today, srs_yesterday, events, summary, no_region_today, no_region_yesterday
-      region_struct = { summary : summary, issued : issued, t_noaa : t_noaa }
-      print, 'done ar_comb'
- 
-   endif else begin
-
-     summary = 'No data'
-     region_struct = { summary : summary, issued : issued, t_noaa : t_noaa }
-
-  endelse
+    region_struct = { summary : summary, issued : issued, t_noaa : t_noaa }
 
 ; Get the region page titles
-   
-  print, 'generating meta data'
+    print, 'generating meta data'
   
-  if ( summary[ 0 ] ne 'No data' ) then begin
+    if ( summary[ 0 ] ne 'No data' ) then begin
+       arm_ar_titles, today_dir, date_struct, summary
+       arm_ar_table,  today_dir, date_struct, summary
+       arm_na_events, today_dir, date_struct, no_region_today, $
+                      no_region_yesterday
+    endif
 
-    arm_ar_titles, output_path, date_struct, summary
-    arm_ar_table, output_path, date_struct, summary
-    arm_na_events, output_path, date_struct, no_region_today, no_region_yesterday
-  endif
-
-  arm_times, output_path, date_struct, issued
+  arm_times, today_dir, date_struct, issued
     
   print, 'done generating meta data'
 
 ; Get the recent GOES Plots
-
-  get_goes_plots, temp_path, output_path, date
-  get_goes_events, temp_path, output_path, date
+  get_goes_plots, temp_path, today_dir, date
+  get_goes_events, temp_path, today_dir, date
 
 ; Get the latest ACE Plots
-
   get_ace, output_path=output_path, date_str=date_struct, /latest
   
 ; Get the latest SDO/EVE Plots
 
-  get_eve,date, output_path, /latest
+  get_eve,output_path=output_path, date_str=date_struct, /latest
 
 ; Write a png for the GOES/RHESSI lightcurves
 
@@ -137,10 +125,6 @@ error_status_gong_farsd=1 & error_status_slis_chrom=1 & error_status_stra_00195=
 error_status_saia_00171=1 & error_status_saia_00304=1 & error_status_saia_00193=1 & error_status_saia_04500=1 & error_status_saia_00094=1
 error_status_saia_00131=1 & error_status_saia_00211=1 & error_status_saia_00335=1 & error_status_saia_01600=1
 error_status_saia_01700=1 & error_status_shmi_maglc=1
-
-; COMMENTED OUT BY SHAUN ON FRIDAY 3RD DEC, WAS PREVIOUSLY SAVED BY SOMEONE ELSE ON:
-; -rw-r--r--@  1 solmon  staff    18K Dec  2 18:10 arm_batch.pro
-;stop
 
     didswap=execute('arm_fd, output_path, date_struct, summary, swap174_map_struct, /swap_00174, error_status=error_status_swap_00174',1,1) 
 didhxrt=0
@@ -197,17 +181,17 @@ if not did1700 then crashed=crashed+' AIA1700' & if not didshmi then crashed=cra
 
 if crashed[0] eq '' then begin 
 	print,'All Instruments have executed successfully! Score!'
-	spawn,'echo "'+systim(/utc)+' No Crashes." > /Users/solmon/Sites/idl/arm_crash_summary.txt'
+	spawn,'echo "'+systim(/utc)+' No Crashes." > '+temp_path+'/arm_crash_summary.txt'
 endif else begin
 	print,'These instruments have crashed!: '+strjoin(crashed,' ') 
-	spawn,'echo "'+systim(/utc)+' These instruments have crashed!: '+strjoin(crashed,' ')+'" > /Users/solmon/Sites/idl/arm_crash_summary.txt'
+	spawn,'echo "'+systim(/utc)+' These instruments have crashed!: '+strjoin(crashed,' ')+'" > '+temp_path+'arm_crash_summary.txt'
 endelse
 
 
 ; Create the thumbnails
-    print, 'Doing full-disk thumbs: ' + 'perl process_thumbs.pl ' + date
-    spawn, '/usr/bin/perl /Users/solmon/Sites/idl/process_thumbs.pl ' + date, errpl
-    print, 'Done full-disk thumbs: '
+;    print, 'Doing full-disk thumbs: ' + 'perl process_thumbs.pl ' + date
+;    spawn, 'perl process_thumbs.pl ' + date, errpl
+;    print, 'Done full-disk thumbs: '
 
 ; Extract each region and write a web page for each
 
@@ -260,20 +244,21 @@ regcrashed=''
 	if not regshmi then regcrashed=regcrashed+' HMIMAGLC'
 
 	if regcrashed[0] eq '' then begin
-		spawn,'echo "'+systim(/utc)+' No region crashes." >> /Users/solmon/Sites/idl/arm_crash_summary.txt'
+		spawn,'echo "'+systim(/utc)+' No region crashes." >> '+temp_path+'/arm_crash_summary.txt'
 		print,'All Regions have executed successfully! Score!'
 	endif else begin
 		print,'These region instruments have crashed!: '+strjoin(regcrashed,' ')
-		spawn,'echo "'+systim(/utc)+' These region instruments have crashed!: '+strjoin(regcrashed,' ')+'" >> /Users/solmon/Sites/idl/arm_crash_summary.txt'
+		spawn,'echo "'+systim(/utc)+' These region instruments have crashed!: '+strjoin(regcrashed,' ')+'" >> '+temp_path+'/arm_crash_summary.txt'
 	endelse
 
     ; Create the thumbnails
-        print, 'Doing AR zoom-in thumbs: ' + 'perl process_thumbs.pl ' + date
-        spawn, '/usr/bin/perl /Users/solmon/Sites/idl/process_thumbs.pl ' + date, errpl
-        print, 'Done AR zoom-in thumbs: '
+;        print, 'Doing AR zoom-in thumbs: ' + 'perl process_thumbs.pl ' + date
+;        spawn, '/usr/bin/perl /Users/solmon/Sites/idl/process_thumbs.pl ' + date, errpl
+;        print, 'Done AR zoom-in thumbs: '
 
-  endif else spawn,'echo "'+systim(/utc)+' No regions." >> /Users/solmon/Sites/idl/arm_crash_summary.txt'
-	
+  endif else spawn,'echo "'+systim(/utc)+' No regions." >>' +temp_path+'/arm_crash_summary.txt'
+
+;** CHECK till here!	
 ; Do Ionosphere stuff
 
   didaurora=execute('get_aurora, date=date_struct.date, /write_meta, err=err, /forecast',1,1)

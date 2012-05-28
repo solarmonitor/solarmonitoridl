@@ -9,9 +9,9 @@ pro get_goes_events, temp_path, output_path, date
 	sock_ping, 'www.swpc.noaa.gov', status
 
 	if (status eq 1) then begin
-		sock_copy, file
-
-		file_move, strdate + 'events.txt', output_path + '/data/' + strdate  + '/meta/noaa_events_raw_' + strdate  + '.txt',/overwrite
+           sock_copy, file,out_dir = temp_path
+           file_move, temp_path + strdate + 'events.txt', $
+                      output_path +'/meta/noaa_events_raw_' + strdate  + '.txt',/overwrite
 
 	endif
 	
