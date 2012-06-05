@@ -409,7 +409,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
     endelse
 
     add_prop, map, instrument = 'EIT', /replace
-    add_prop, map, wavelength = 'Fe XII (195 &Aring;)', /replace
+    add_prop, map, wavelength = 'Fe XII (195 '+string (197B )+')', /replace
     id = 'eit195'
     eit_colors, 195
 
@@ -463,7 +463,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
       add_prop, map, data = bytscl( map.data, 0.01, 25. )^.25, /replace  ; Changed scale 8-Aug-2006 - no idea why had to!        
 
     add_prop, map, instrument = 'EIT', /replace
-    add_prop, map, wavelength = 'Fe XV (284 &Aring;)', /replace
+    add_prop, map, wavelength = 'Fe XV (284 '+string( 197B )+')', /replace
     id = 'eit284'
     eit_colors, 284
 
@@ -517,7 +517,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
     if smart eq 1 then add_prop, map, data = bytscl( map.data, min = 800, max = 1150 )^.1, /replace else $
       add_prop, map, data = bytscl( map.data, 1., 900. )^.21, /replace
     add_prop, map, instrument = 'EIT', /replace
-    add_prop, map, wavelength = 'Fe IX/X (171 &Aring;)', /replace
+    add_prop, map, wavelength = 'Fe IX/X (171 '+string( 197B )+')', /replace
     id = 'eit171'
     eit_colors, 171
 
@@ -571,7 +571,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
     if smart eq 1 then add_prop, map, data = bytscl( map.data, min = 850, max = 1150)^.2, /replace else $
       add_prop, map, data = bytscl( map.data, 1., 300. )^.2, /replace
     add_prop, map, instrument = 'EIT', /replace
-    add_prop, map, wavelength = 'He II (304 &Aring;)', /replace
+    add_prop, map, wavelength = 'He II (304 '+string( 197B )+')', /replace
     id = 'eit304'
     eit_colors, 304
 
@@ -695,7 +695,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
     print, 'Got Mosaic'
     ;help,map,/str
 
-	if ( var_type( map ) ne 8 ) then map = dummy_map()
+    if ( var_type( map ) ne 8 ) then map = dummy_map()
     if ( n_elements( map.data ) eq 0 ) then map = dummy_map()
     ;if (status ne 0) then begin
        unscaled_map = map
@@ -703,7 +703,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
        print, 'Doing prop stuff'
        add_prop, map, data = bytscl( map.data, 10., 2700. )^.3, /replace
        add_prop, map, instrument = 'TRACE', /replace
-       add_prop, map, wavelength = 'Fe IX/X (171 &Aring;)', /replace
+       add_prop, map, wavelength = 'Fe IX/X (171 '+string( 197B )+')', /replace
        id = 'eit171'
        eit_colors, 171
 
@@ -808,9 +808,9 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
     add_prop, map, instrument = 'GONG', /replace
     add_prop, map, wavelength = 'Farside', /replace
     id = 'gongfarsd'
-    readcol,'/Users/solmon/Sites/idl/color_tables/blue_farside.dat',bbb
-    readcol,'/Users/solmon/Sites/idl/color_tables/green_farside.dat',ggg
-    readcol,'/Users/solmon/Sites/idl/color_tables/red_farside.dat',rrr
+    readcol,'./idl/color_tables/blue_farside.dat',bbb
+    readcol,'./idl/color_tables/green_farside.dat',ggg
+    readcol,'./idl/color_tables/red_farside.dat',rrr
     tvlct,rrr,ggg,bbb
 
     instrument = 'gong'
@@ -907,7 +907,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
 
     print, 'Doing prop stuff'
     add_prop, map, instrument = 'STEREO A', /replace
-    add_prop, map, wavelength = 'Fe XII (195 &Aring;)', /replace
+    add_prop, map, wavelength = 'Fe XII (195 '+string( 197B ) +')', /replace
     id = 'stra00195'
     eit_colors,195
 
@@ -955,7 +955,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
 
     print, 'Doing prop stuff'
     add_prop, map, instrument = 'STEREO B', /replace
-    add_prop, map, wavelength = 'Fe XII (195 &Aring;)', /replace
+    add_prop, map, wavelength = 'Fe XII (195 '+string( 197B )+')', /replace
     id = 'strb00195'
     eit_colors,195
 
@@ -970,14 +970,14 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( swap_00174 ) ) then begin
 
 ;TEMPORARY!!! should use SSW version of SWAP__define?
-	!Path = '/Users/solmon/Sites/idl/smart_system/objects' + ':' +!Path
+	!Path = './idl/smart_system/objects' + ':' +!Path
 
     print, 'Getting SWAP Image'
     swap_obj = obj_new('swap')
     swap_obj->set,filt='lv1',prep=0,local=0
 
 	;Filter out LED images
-	files=reverse(swap_obj->list(time=(str_Sep(systim(/utc),' '))[0]))
+	files=reverse(swap_obj->list(time=(str_Sep(utc,' '))[0]))
 ;	nfiles=n_elements(files)
 ;	ii=0
 ;	index=swap_obj->list_index(filelist=files[0])
@@ -1009,7 +1009,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
     add_prop, map, data = im, /replace
 
     add_prop, map, instrument = 'SWAP', /replace
-    add_prop, map, wavelength = 'Fe IX/X (174 &Aring;)', /replace
+    add_prop, map, wavelength = 'Fe IX/X (174 '+string( 197B )+')', /replace
     id = 'swap174'
     loadct, 1,/silent
 
@@ -1437,21 +1437,21 @@ full_instrument = instrument + '_' + filter
 
   case full_instrument of
 
-    'seit_00195':  plot_map, map, /square, fov = fov, grid = 10, $
-               title = 'EIT Fe XII (195 ' + string( 197B ) + ') ' + map.time, $
-           position = position, center = center, gcolor=255
+;    'seit_00195':  plot_map, map, /square, fov = fov, grid = 10, $
+;               title = 'EIT Fe XII (195 ' + string( 197B ) + ') ' + map.time, $
+;           position = position, center = center, gcolor=255
 
-    'seit_00284':  plot_map, map, /square, fov = fov, grid = 10, $
-               title = 'EIT Fe XV (284 ' + string( 197B ) + ') ' + map.time, $
-               position = position, center = center, gcolor=255
+;    'seit_00284':  plot_map, map, /square, fov = fov, grid = 10, $
+;               title = 'EIT Fe XV (284 ' + string( 197B ) + ') ' + map.time, $
+;               position = position, center = center, gcolor=255
 
-    'seit_00171':  plot_map, map, /square, fov = fov, grid = 10, $
-               title = 'EIT Fe IX/X (171 ' + string( 197B ) + ') ' + map.time, $
-           position = position, center = center, gcolor=255
+;    'seit_00171':  plot_map, map, /square, fov = fov, grid = 10, $
+;               title = 'EIT Fe IX/X (171 ' + string( 197B ) + ') ' + map.time, $
+;           position = position, center = center, gcolor=255
 
-    'seit_00304':  plot_map, map, /square, fov = fov, grid = 10, $
-               title = 'EIT He II (304 ' + string( 197B ) + ') ' + map.time, $
-           position = position, center = center, gcolor=255
+;    'seit_00304':  plot_map, map, /square, fov = fov, grid = 10, $
+;               title = 'EIT He II (304 ' + string( 197B ) + ') ' + map.time, $
+;           position = position, center = center, gcolor=255
 
     'gsxi_flter':  plot_map, map, /square, fov = fov, grid = 10, $
                title = map.wavelength + ' ' + map.time, $
@@ -1469,9 +1469,9 @@ full_instrument = instrument + '_' + filter
                title = map.instrument + ' ' + map.wavelength + ' ' + map.time, $
            position = position, center = center, gcolor=0
 
-    'trce_m0171':  plot_map, map, /square, fov = fov, grid = 10, $
-               title = 'TRACE Fe IX/X (171 ' + string( 197B ) + ') ' + map.time, $
-         position = position, center = center, gcolor=255
+;    'trce_m0171':  plot_map, map, /square, fov = fov, grid = 10, $
+;               title = 'TRACE Fe IX/X (171 ' + string( 197B ) + ') ' + map.time, $
+;         position = position, center = center, gcolor=255
 
     'hxrt_flter':  plot_map, map, /square, fov = fov, grid = 10, $
                title = 'Hinode XRT ' + map.time, $
@@ -1485,22 +1485,21 @@ full_instrument = instrument + '_' + filter
                title = 'SOLIS Chromospheric Magnetogram ' + map.time, $
          position = position, center = center, gcolor=255
 
-    'stra_00195':  plot_map, map, /square, grid = 10, fov = fov, $
-               title = 'STEREO A Fe XII (195 ' + string( 197B ) + ') ' + map.time, $
-         position = position, center = center, gcolor=255
+;    'stra_00195':  plot_map, map, /square, grid = 10, fov = fov, $
+;               title = 'STEREO A Fe XII (195 ' + string( 197B ) + ') ' + map.time, $
+;         position = position, center = center, gcolor=255
 
-    'strb_00195':  plot_map, map, /square, grid = 10, fov = fov, $
-               title = 'STEREO B Fe XII (195 ' + string( 197B ) + ') ' + map.time, $
-         position = position, center = center, gcolor=255
+ ;   'strb_00195':  plot_map, map, /square, grid = 10, fov = fov, $
+ ;              title = 'STEREO B Fe XII (195 ' + string( 197B ) + ') ' + map.time, $
+ ;        position = position, center = center, gcolor=255
 
-    'swap_00174':  plot_map, map, /square, grid = 10, fov = fov, $
-               title = 'SWAP Fe IX/X (174 ' + string( 197B ) + ') ' + map.time, $
-         position = position, center = center, gcolor=255
+;    'swap_00174':  plot_map, map, /square, grid = 10, fov = fov, $
+;               title = 'SWAP Fe IX/X (174 ' + string( 197B ) + ') ' + map.time, $
+;         position = position, center = center, gcolor=255
 
      else   :  plot_map, map, /square, fov = fov, grid = 10, $
-               title = map.instrument + ' ' + map.wavelength + ' ' + map.time, $
-           position = position, center = center, gcolor=255
-
+                   title = map.instrument + ' ' + map.wavelength + ' ' + map.time, $
+                   position = position, center = center, gcolor=255
   endcase
 
 ; Plot region names on full-disk images
