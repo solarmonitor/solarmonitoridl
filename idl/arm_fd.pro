@@ -849,8 +849,8 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
     ;add_prop, map, data = im, /replace
 
 	add_prop, map, data = bytscl(map.data, -100., 100.), /replace
-	add_prop, map, dx = index.CDELT1*1d3, /replace
-	add_prop, map, dy = index.CDELT2*1d3, /replace
+        ;add_prop, map, dx = index.CDELT1*1d3, /replace
+	;add_prop, map, dy = index.CDELT2*1d3, /replace
 
     print, 'Doing prop stuff'
     add_prop, map, instrument = 'SOLIS', /replace
