@@ -28,7 +28,7 @@
 ;
 ;-
 
-pro arm_forecast, output_path, date_struct, summary
+pro arm_forecast, output_path=output_path, date_struct, summary
   
 names  = reform( summary( 0, * ) )
   if (strlowcase(names[0]) eq 'none') then goto, no_ar
@@ -103,7 +103,7 @@ names  = reform( summary( 0, * ) )
 	endfor
 	
 
-	out_file = output_path + "/data/" + date + "/meta/arm_forecast_" + date + ".txt"
+	out_file = output_path + "/meta/arm_forecast_" + date + ".txt"
 	openw,lun,out_file,/get_lun
 	
     	for i = 0, n_elements( names ) - 1 do begin

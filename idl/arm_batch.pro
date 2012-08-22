@@ -45,6 +45,7 @@ pro arm_batch, temp_path, output_path
 
 ; Directory where to save everything
     today_dir = output_path + date_struct.date_dir+'/'
+    print, today_dir
 
 ; Retrieve any new bakeout dates
 
@@ -98,7 +99,8 @@ pro arm_batch, temp_path, output_path
   
 ; Get the latest SDO/EVE Plots
 
-  get_eve,output_path=output_path, date_str=date_struct, /latest
+;  get_eve,output_path=output_path, date_str=date_struct, /latest
+; Why get_eve does not work and the rest does???
 
 ; Write a png for the GOES/RHESSI lightcurves
 
@@ -277,7 +279,7 @@ regcrashed=''
   
 ; Execute the forecast last as its prone to crashing
 
-  if ( summary[ 0 ] ne 'No data' ) then arm_forecast, output_path, date_struct, summary
+  if ( summary[ 0 ] ne 'No data' ) then arm_forecast, output_path=today_dir, date_struct, summary
 
   mmmotd2arm, output_path, date_struct
  
