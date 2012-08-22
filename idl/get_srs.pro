@@ -47,15 +47,22 @@ fls=file_search(today_dir+'*SRS.txt',count=flsn)
 ; Read the most recent SRS into a string
 
   if ( site_status eq 1 ) then begin
-     sock_list, SERVER+'/ftpdir/forecasts/SRS/', srs_list
+     ftp_forecast_dir = '/ftpdir/forecasts/SRS/' 
+
+     sock_list, SERVER+ftp_forecast_dir, srs_list
     ;srs_filenames = stregex( srs_list, '"[0-9][0-9][0-9][0-9]*.SRS.txt"', /extract )
     ;srs_filenames = strmid( srs_filenames( where( srs_filenames ne '' ) ), 1, 11 )
 
-     
-     sock_list, SERVER+'/ftpdir/forecasts/SRS/' + strmid( date_struct.date, 4, 4 ) + 'SRS.txt', srs_today
-     sock_copy, SERVER+'/ftpdir/forecasts/SRS/' + strmid( date_struct.date, 4, 4 ) + 'SRS.txt', out_dir=today_dir
-     sock_list, SERVER+'/ftpdir/forecasts/SRS/' + strmid( date_struct.prev_date, 4, 4 ) + 'SRS.txt', srs_yesterday
-     sock_copy, SERVER+'/ftpdir/forecasts/SRS/' + strmid( date_struct.prev_date, 4, 4 ) + 'SRS.txt', out_dir=today_dir
+     ; today
+     sock_list, SERVER+ftp_forecast_dir+ strmid( date_struct.date, 4, 4 ) + $
+                'SRS.txt', srs_today
+     sock_copy, SERVER+ftp_forecast_dir+ strmid( date_struct.date, 4, 4 ) + $
+                'SRS.txt', out_dir=today_dir
+     ; yesterday
+     sock_list, SERVER+ftp_forecast_dir+ strmid( date_struct.prev_date, 4, 4 ) +$
+                'SRS.txt', srs_yesterday
+     sock_copy, SERVER+ftp_forecast_dir+ strmid( date_struct.prev_date, 4, 4 ) +$
+                'SRS.txt', out_dir=today_dir
      
      if ( srs_today[ 5 ] eq '<H1>Not Found</H1>' ) then begin
 
