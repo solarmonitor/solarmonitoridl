@@ -73,7 +73,7 @@ foreach $instname (sort readdir(dir)) {
 #		system(@args6) == 0  || die "Could't create stamped image $base_file .png, $!";
 
 		$result_file_th =  $inst_path . "/" . $base_file . "_small60.jpg";
-		system("/usr/local/bin/convert $file_use -crop 489x489+68+30 -resize 60x60 $result_file_th") == 0 || die "Could't create AR thumbnail $base_file_AR _small60.jpg, $!";
+		system("convert $file_use -crop 489x489+68+30 -resize 60x60 $result_file_th") == 0 || die "Could't create AR thumbnail $base_file_AR _small60.jpg, $!";
 	#	@args8 = ("rm", "-rf", $file_use);
 	#	system("rm -rf $file_use") == 0 or die "Couldn't remove $base_file _pre.png, $!";
 	      }
