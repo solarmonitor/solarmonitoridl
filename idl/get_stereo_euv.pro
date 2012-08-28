@@ -1,4 +1,4 @@
-pro get_stereo_euv, localfile, date, err, ahead=ahead, behind=behind, latest=latest
+pro get_stereo_euv, temp_path, localfile, date, err, ahead=ahead, behind=behind, latest=latest
 
 err=0
 
@@ -15,8 +15,6 @@ if file eq '' then begin
 	return
 endif
 
-localfile=(reverse(str_sep(file,'/')))[0]
-
-sock_copy,file
+sock_copy,file,out_path=temp_path,local_file=localfile
 
 end
