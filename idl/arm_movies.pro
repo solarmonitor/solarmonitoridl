@@ -38,11 +38,9 @@ inst=['seit','seit','seit','seit','smdi','smdi','lsco','lsco']
 
 ninst=n_elements(rfile)
 for i=0,ninst-1 do begin
-    is_file = FILE_EXIST( '../data/'+date+'/mpgs/'+inst[i]+'/'+fname[i]+date+'_000000.mpg' )
-    IF (is_file) THEN GOTO, skipfile
-	sock_copy,urlsoho+rfile[i]
-	spawn,'mv '+rfile[i]+' '+output_path+'/data/'+date+'/mpgs/'+inst[i]+'/'+fname[i]+date+'_000000.mpg'
-	skipfile:
+    if ~FILE_EXIST( output_path+'/mpgs/'+inst[i]+'/'+fname[i]+date+'_000000.mpg' ) then $
+       sock_copy,urlsoho+rfile[i],fname[i]+date+'_000000.mpg',out_dir=output_path+'/mpgs/'+inst[i]+'/'
+
 endfor
 
 nodata:
@@ -64,19 +62,13 @@ yyyy=strmid(date,0,4)
 mm=strmid(date,4,2)
 dd=strmid(date,6,2)
 
-is_file = FILE_EXIST( '../data/'+date+'/mpgs/strb/behind_'+date+'_euvi_195_512.mpg' )
-IF (is_file) THEN goto,skipbehind
-wait,1
-sock_copy,urlstr+'browse/'+yyyy+'/'+mm+'/'+dd+'/behind_'+date+'_euvi_195_512.mpg'
-spawn,'mv behind_'+date+'_euvi_195_512.mpg '+output_path+'/data/'+date+'/mpgs/strb/behind_'+date+'_euvi_195_512.mpg'
-skipbehind:
+;stereo behind
+if ~FILE_EXIST( output_path+'/mpgs/strb/behind_'+date+'_euvi_195_512.mpg' ) then $
+   sock_copy,urlstr+'browse/'+yyyy+'/'+mm+'/'+dd+'/behind_'+date+'_euvi_195_512.mpg','behind_'+date+'_euvi_195_512.mpg',out_dir=output_path+'/mpgs/strb/'
 
-is_file = FILE_EXIST( '../data/'+date+'/mpgs/stra/ahead_'+date+'_euvi_195_512.mpg' )
-IF (is_file) THEN goto,skipahead
-wait,1
-sock_copy,urlstr+'browse/'+yyyy+'/'+mm+'/'+dd+'/ahead_'+date+'_euvi_195_512.mpg'
-spawn,'mv ahead_'+date+'_euvi_195_512.mpg '+output_path+'/data/'+date+'/mpgs/stra/ahead_'+date+'_euvi_195_512.mpg'
-skipahead:
+;stereo ahead
+if ~FILE_EXIST( output_path+'/mpgs/stra/ahead_'+date+'_euvi_195_512.mpg' ) then $
+   sock_copy,urlstr+'browse/'+yyyy+'/'+mm+'/'+dd+'/ahead_'+date+'_euvi_195_512.mpg','ahead_'+date+'_euvi_195_512.mpg',out_dir=output_path+'/mpgs/stra/'
 
 nodata2:
 
