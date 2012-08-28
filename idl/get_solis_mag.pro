@@ -1,4 +1,6 @@
-pro get_solis_mag, filename, date, err, today=today, chrom=chrom, phot=phot
+pro get_solis_mag, filename, date, err, today=today, chrom=chrom, phot=phot,temp_path=temp_path
+
+temp_path=( n_elements(temp_path) eq 0)?'./':temp_path
 
 err=0
 
@@ -47,14 +49,14 @@ if keyword_set(today) then filename=(reverse(filelist))[0] else begin
 	filename=filelist[wclose]
 endelse
 
-sock_copy,filename
+sock_copy,filename,out_dir=temp_path,local_file=local_filename
+filename = local_filename
 
 ;if keyword_set(today) then begin
 ;	filelist=sock_find(url+path,'vsm_current_m630l_hr.fits.gz')
 ;endif
 
 
-filename=(reverse(str_sep(filename,'/')))[0]
 
 
 
