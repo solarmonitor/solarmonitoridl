@@ -20,15 +20,15 @@ if ff eq '' then begin
 endif
 remotefile=ff
 outfile='currentsdo'+strtrim(filt,2)+'.fits'
-sock_copy,remotefile,copy_file=copy_file,err=err
+sock_copy,remotefile,local_file=local_file,err=err
 
 if err ne '' then begin
    print,'SOCK_COPY failed.'
    return 
 endif
 
-if file_search(copy_file) eq '' then begin & err=-1 & print,'FILE_SEARCH failed.' & return & endif
+if file_search(local_file) eq '' then begin & err=-1 & print,'FILE_SEARCH failed.' & return & endif
 
-filename=copy_file
+filename=local_file
 
 end
