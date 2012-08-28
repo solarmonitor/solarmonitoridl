@@ -598,7 +598,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ;Limb corrected Kanzelhohe.
 	print,'Searching for KANZELHOHE data...'
 	if (err eq -1 and exist eq 0) then $
-		get_kanzel, date, filename, err, exist, /frfile
+		get_kanzel, date, filename, err, exist, /frfile,temp_path=temp_path
 	
 ;Limb darkened Kanzelhohe.
 ;	if (err eq -1) then begin

@@ -1,4 +1,6 @@
-pro get_kanzel, date, filename, err, exist, today = today, frfile=frfile
+pro get_kanzel, date, filename, err, exist, today = today, frfile=frfile,temp_path=temp_path
+
+temp_path=( n_elements(temp_path) eq 0)?'./':temp_path
 
   err=0
 
@@ -64,7 +66,8 @@ if filename[0] ne '' then begin
 	fsearch='../data/'+date+'/fits/bbso/bbso_halph_fd_'+strmid(filename,14,15)+'*.gz'
 	is_file = FILE_EXIST( fsearch )
 	IF (is_file) THEN begin & exist=1 & GOTO, get_out & endif
-	sock_copy, 'http://cesar.kso.ac.at/halpha2k/recent/'+strmid(strtrim(date),0,4)+'/'+filename[0]
+	sock_copy, 'http://cesar.kso.ac.at/halpha2k/recent/'+strmid(strtrim(date),0,4)+'/'+filename[0],out_dir=temp_path,local_file=local_file
+        filename=local_file ;in case it has a conflict with the filname var used
 endif else begin
 
 	print, 'No Kanzelhohe Halpha image available for ' + date + '.'
