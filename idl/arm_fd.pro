@@ -36,7 +36,7 @@
 ;
 ;-
 
-pro arm_fd, output_path, date_struct, summary, map_struct, $
+pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
             SEIT_00195 = seit_00195, SEIT_00284 = seit_00284, SMDI_IGRAM = smdi_igram, SMDI_MAGLC = smdi_maglc, $
          BBSO_HALPH = bbso_halph, GSXI = gsxi, GONG_MAGLC = gong_maglc, SEIT_00171 = seit_00171, $
          SEIT_00304 = seit_00304, TRCE_M0171 = trce_m0171, HXRT_FLTER = hxrt_flter, GONG_FARSD = gong_farsd, $
@@ -1024,7 +1024,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( saia_00171 ) ) then begin
 
     print, 'Getting SDO AIA 171'
-    get_sdo_latest, filename, filt=171, err=err
+    get_sdo_latest,temp_path, filename, filt=171, err=err
     if err ne '' or filename eq '' then begin
         error_type = 'saia_00171'
         goto, error_handler
@@ -1060,7 +1060,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( saia_00304 ) ) then begin
 
     print, 'Getting SDO AIA 304'
-    get_sdo_latest, filename, filt=304, err=err
+    get_sdo_latest,temp_path, filename, filt=304, err=err
     if err ne '' or filename eq '' then begin
         error_type = 'saia_00304'
         goto, error_handler
@@ -1095,7 +1095,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( saia_00193 ) ) then begin
 
     print, 'Getting SDO AIA 193'
-    get_sdo_latest, filename, filt=193, err=err
+    get_sdo_latest,temp_path, filename, filt=193, err=err
     if err ne '' or filename eq '' then begin
         error_type = 'saia_00193'
         goto, error_handler
@@ -1130,7 +1130,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( saia_04500 ) ) then begin
 
     print, 'Getting SDO AIA 4500'
-    get_sdo_latest, filename, filt=4500, err=err
+    get_sdo_latest,temp_path, filename, filt=4500, err=err
     if err ne '' or filename eq '' then begin
         error_type = 'saia_04500'
         goto, error_handler
@@ -1172,7 +1172,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( saia_00094 ) ) then begin
 
     print, 'Getting SDO AIA 094'
-    get_sdo_latest, filename, filt=094, err=err
+    get_sdo_latest,temp_path, filename, filt=094, err=err
     if err ne '' or filename eq '' then begin
         error_type = 'saia_00094'
         goto, error_handler
@@ -1207,7 +1207,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( saia_00131 ) ) then begin
 
     print, 'Getting SDO AIA 131'
-    get_sdo_latest, filename, filt=131, err=err
+    get_sdo_latest,temp_path, filename, filt=131, err=err
     if err ne '' or filename eq '' then begin
         error_type = 'saia_00131'
         goto, error_handler
@@ -1242,7 +1242,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( saia_00211 ) ) then begin
 
     print, 'Getting SDO AIA 211'
-    get_sdo_latest, filename, filt=211, err=err
+    get_sdo_latest,temp_path, filename, filt=211, err=err
     if err ne '' or filename eq '' then begin
         error_type = 'saia_00211'
         goto, error_handler
@@ -1277,7 +1277,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( saia_00335 ) ) then begin
 
     print, 'Getting SDO AIA 335'
-    get_sdo_latest, filename, filt=335, err=err
+    get_sdo_latest,temp_path, filename, filt=335, err=err
     if err ne '' or filename eq '' then begin
         error_type = 'saia_00335'
         goto, error_handler
@@ -1312,7 +1312,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( saia_01600 ) ) then begin
 
     print, 'Getting SDO AIA 1600'
-    get_sdo_latest, filename, filt=1600, err=err
+    get_sdo_latest,temp_path, filename, filt=1600, err=err
     if err ne '' or filename eq '' then begin
         error_type = 'saia_01600'
         goto, error_handler
@@ -1347,7 +1347,7 @@ pro arm_fd, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( saia_01700 ) ) then begin
 
     print, 'Getting SDO AIA 1700'
-    get_sdo_latest, filename, filt=1700, err=err
+    get_sdo_latest,temp_path, filename, filt=1700, err=err
     if err ne '' or filename eq '' then begin
         error_type = 'saia_01700'
         goto, error_handler
