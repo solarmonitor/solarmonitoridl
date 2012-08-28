@@ -1088,7 +1088,7 @@ end
 ;----------------------------------------------->
 ;-- Copy files from a remote host using a list of full-path file names
 
-pro xrt::copy,filelist=filelist
+pro xrt::copy,filelist=filelist,out_dir=out_dir
 
 fileslist=1
 
@@ -1114,7 +1114,7 @@ if n_elements(filelist) ne 0 then begin
 			fsize=sock_size(filelist[i])
 
 			if fsize gt 1 then begin
-				sock_copy,filelist[i],/verb
+				sock_copy,filelist[i],out_dir=out_dir,/verb
 			endif else begin
 				print,' '
 				print,'HTML link is empty.'

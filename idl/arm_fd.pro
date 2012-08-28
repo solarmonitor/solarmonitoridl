@@ -720,7 +720,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
     xrt_obj = obj_new('xrt')
     ;xrt_obj -> latest
     xrtfile=(reverse(xrt_obj -> list()))[0]
-    xrt_obj -> copy, filelist=xrtfile
+    xrt_obj -> copy, filelist=xrtfile,out_dir=temp_path
         
     ;map = xrt_obj -> getmap(index=index) 
     
@@ -730,11 +730,12 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
     
     xrtfilter=''
     ;if var_type(map) eq 8 then begin
-	if file_search((reverse(str_sep(xrtfile[0],'/')))[0]) ne '' then begin
+    xrtpath = temp_path + (reverse(str_sep(xrtfile[0],'/')))[0]
+	if file_search(xrtpath) ne '' then begin
 
     	;if xrtfile[0] ne '' then begin
         ;data = map.data
-    	mreadfits, (reverse(str_sep(xrtfile[0],'/')))[0],index, data
+    	mreadfits, xrtpath,index, data
 
     	smart_index2map,index,data,map
     	if (where(tag_names(index) eq 'EC_FW2_'))[0] ne -1 then xrtfilter=index.EC_FW2_ else xrtfilter=''
