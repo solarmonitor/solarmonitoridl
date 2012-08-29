@@ -22,8 +22,9 @@
                                                   ;  arm_batch all weekend
                                                   ;  resulting in no thmbs
 ;  
-pro get_halpha, date, filename, err, exist, today = today;, err = err
+pro get_halpha, date, filename, err, exist, today = today,temp_path=temp_path;, err = err
   
+  temp_path=( n_elements(temp_path) eq 0)?'./':temp_path
   err = ''
 
   if ( keyword_set( today ) ) then begin 
@@ -139,7 +140,7 @@ ha=(reverse(str_sep(latest_ha,'/')))[0]
   
   IF (is_file) THEN begin & exist=1 & GOTO, get_out & endif
   
-sock_copy,url+path+ha, err=err
+sock_copy,url+path+ha, out_dir=temp_path,local_file=local_file,err=err
 
 
 
@@ -252,7 +253,7 @@ sock_copy,url+path+ha, err=err
 ;  filename = halpha
 
   filename=ha
-
+  filename=local_file
   get_out:
              
 ;;  spawn, 'rm -f ftp_data ftptemp'

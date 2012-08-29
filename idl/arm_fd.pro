@@ -593,7 +593,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
 ;BBSO archive.
 	print,'Searching for BBSO data...'
-   	get_halpha, date, filename, err, exist
+   	get_halpha, date, filename, err, exist,temp_path=temp_path
 
 ;Limb corrected Kanzelhohe.
 	print,'Searching for KANZELHOHE data...'
