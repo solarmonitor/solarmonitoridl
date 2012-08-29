@@ -870,7 +870,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( stra_00195 ) ) then begin
 
     print, 'Getting Stereo A Image'
-    get_stereo_euv, temp_path, filename, dummy, err, /ahead, /latest
+    get_stereo_euv, filename, dummy, err, /ahead, /latest,temp_path=temp_path
     if err eq -1 then begin
     	error_type = 'stra_00195'
         goto, error_handler
@@ -923,7 +923,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( strb_00195 ) ) then begin
 
     print, 'Getting Stereo B Image'
-    get_stereo_euv, temp_path, filename, dummy, err, /behind, /latest
+    get_stereo_euv, filename, dummy, err, /behind, /latest, temp_path = temp_path
     if err eq -1 then begin
     	error_type = 'strb_00195'
         goto, error_handler

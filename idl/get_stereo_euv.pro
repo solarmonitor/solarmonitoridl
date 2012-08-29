@@ -1,4 +1,6 @@
-pro get_stereo_euv, temp_path, localfile, date, err, ahead=ahead, behind=behind, latest=latest
+pro get_stereo_euv, localfile, date, err, ahead=ahead, behind=behind, latest=latest,temp_path = temp_path
+
+  temp_path=( n_elements(temp_path) eq 0)?'./':temp_path
 
 err=0
 
@@ -15,6 +17,6 @@ if file eq '' then begin
 	return
 endif
 
-sock_copy,file,out_path=temp_path,local_file=localfile
+sock_copy,file,out_dir=temp_path,local_file=localfile
 
 end
