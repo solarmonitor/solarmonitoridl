@@ -44,6 +44,21 @@ sm_dirtree()
   mkdir -p $1/pngs/thmb $1/pngs/ace $1/pngs/goes $1/pngs/eve
   echo  ${0/\/*\//}':sm_dirtree: Directories created'
 }
+sm_dirtree5()
+{ 
+ # Create 5 days in advance for forecast
+  for day in {1..5}; do
+      if [[ `uname -s` =~ 'Linux' ]]; then
+      # Linux
+	  FUTURE_DAY=`date --date="+$day day" -u +%Y/%m/%d`
+      elif [[ `uname -s` =~ 'Darwin' ]]; then 
+      # Mac
+	  FUTURE_DAY=`date -v+${day}d -u +%Y/%m/%d`
+      fi
+      mkdir -p $1/$FUTURE_DAY/meta
+  done
+  echo  ${0/\/*\//}':sm_dirtree5: Future (5 days) directories created'
+}
 
 sm_var() 
 {
@@ -115,6 +130,7 @@ sm_outlog
 # Create directories for SM
 mkdir -p $OUTPUT_PATH/latest_images
 sm_dirtree $OUTPUT_PATH/$TODAYS_DATE_DIR 
+sm_dirtree5 $OUTPUT_PATH
 
 # Create the scripts for running IDL SM batch and Run SM batch
 sm_sswscript
