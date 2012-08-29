@@ -22,6 +22,7 @@
 
 pro get_srs, date_struct, srs_today, srs_yesterday, issued, t_noaa,output_path=output_path
 
+output_path = (n_elements(output_path) eq 0)?'./':output_path
 today_dir=output_path+'meta/'
 
 ;Does exist the file from previous call?

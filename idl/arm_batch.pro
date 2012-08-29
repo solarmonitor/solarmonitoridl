@@ -31,15 +31,15 @@ pro arm_batch, temp_path, output_path
 
 ; Find todays date and convert to yyyymmdd format
 
-    get_utc, utc, /ecs
-    date_dir = (strsplit(utc,' ',/ext))[0]
-    date = time2file(utc,/date)
-    utc = strmid( anytim( utc, /vms ), 0, 17 )
+    get_utc, utc, /ecs                          ;utc      = 2012/08/29 21:55:00.000
+    date_dir = (strsplit(utc,' ',/ext))[0]      ;date_dir = 2012/08/29
+    date = time2file(utc,/date)                 ;date     = 20120829
+    utc = strmid( anytim( utc, /vms ), 0, 17 )  ;utc      = 29-Aug-2012 21:55
 
 ; Calculate the previous and next days date.
 
-    calc_date, date, -1, prev_date
-    calc_date, date,  1, next_date
+    calc_date, date, -1, prev_date              ;prev_date=20120828
+    calc_date, date,  1, next_date              ;next_date=20120830
     date_struct = { date : date, prev_date : prev_date, next_date : next_date, utc : utc , date_dir: date_dir}
     print, 'Done date stuff'
 
@@ -264,8 +264,8 @@ regcrashed=''
 ;** CHECK till here!	
 ; Do Ionosphere stuff
 
-  didaurora=execute('get_aurora, date=date_struct.date, /write_meta, err=err, /forecast',1,1)
-  didauroranowcast=execute('get_aurora, /write_meta, err=err, /nowcast',1,1)
+  didaurora=execute('get_aurora, date=date_struct.date, /write_meta, err=err, /forecast,output_path=output_path',1,1)
+  didauroranowcast=execute('get_aurora, /write_meta, err=err, /nowcast,output_path=output_path',1,1)
   didionosphere=execute('get_ionosphere, /tec, /kyoto, /poes, /ovation, err=err',1,1)
   didionosphere=execute('get_ionosphere, /tec, /kyoto, /poes, /ovation, /kpind, err=err',1,1)
   didpoesmovie=execute('get_poes_movie, /north, date=date_struct.date, err=err, outpath=output_path',1,1)
