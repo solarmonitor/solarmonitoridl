@@ -226,7 +226,7 @@ sock_copy,url+path+ha, out_dir=temp_path,local_file=local_file,err=err
 
 ;Check to see if data for the given date has been transferred.
 
- ffile_list = strlen( findfile( ha[0] ) )
+ ffile_list = strlen( findfile( temp_path+ha[0] ) )
 
  if ( ffile_list[ 0 ] ne 0 ) then begin
 
