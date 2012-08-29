@@ -2,7 +2,8 @@ pro get_aurora_nowcast, write_meta=write_meta,err=err
 
 thisdate=time2file(systim(/utc),/date)
 
-aurpage='http://www.gedds.alaska.edu/auroraforecast/ShortTerm.asp'
+;aurpage='http://www.gedds.alaska.edu/auroraforecast/ShortTerm.asp'
+aurpage='http://www.gi.alaska.edu/AuroraForecast'
 
 sock_list,aurpage,aurhtml,err=err
 if err ne '' then begin
@@ -10,16 +11,19 @@ if err ne '' then begin
 	return
 endif
 
-if (where(strpos(aurhtml[160:269],'Sorry.  No forecast available') ne -1))[0] ne -1 then begin
-	aurinclude='No now-cast available. Check: <a href=http://www.gedds.alaska.edu/auroraforecast/ShortTerm.asp target=_blank>http://www.gedds.alaska.edu/auroraforecast/ShortTerm.asp</a>'
+;<h3>Short term (1hr) Aurora Forecast</h3>
+
+if (where(strpos(aurhtml[196],'Sorry.  No forecast available') ne -1))[0] ne -1 then begin
+	aurinclude='No now-cast available. Check: <a href=http://www.gi.alaska.edu/AuroraForecast target=_blank>http://www.gi.alaska.edu/AuroraForecast</a>'
 	print,'No now-cast available.'
 	goto,no_forecast
 endif
 
 ;Forecast word:
-condition=strlowcase((str_sep((str_sep(strtrim(aurhtml[245],2),'<b>'))[1],' '))[0])
+condition=strlowcase((str_sep((str_sep(strtrim(aurhtml[196],2),'>'))[5],':'))[0])
+datevalid=strlowcase((str_sep((str_sep(strtrim(aurhtml[196],2),'>'))[2],'<'))[0])
 
-print,strtrim(thisdate,2)+' - Auroral condition is: '+condition
+print,strtrim(datevalid,2)+' - Auroral condition is: '+condition
 
 case condition of
 	'minimum' : aurimg='aurora_world_0.png'
@@ -86,23 +90,54 @@ end
 
 ;----------------------------------------------------------->
 
-pro get_aurora_once, date=date, write_meta=write_meta,err=err
+pro get_aurora_once, date=date, write_meta=write_meta,err=err, nowcast=nowcast, datapath=datapath
 
-aurpage='http://www.gedds.alaska.edu/AuroraForecast/Printer.asp?Date='+strtrim(date,2)
+if n_elements(datapath) ne 1 then datapath='/Volumes/Data Disk/data/solmon/'
+
+;aurpage='http://www.gedds.alaska.edu/AuroraForecast/Printer.asp?Date='+strtrim(date,2)
+dd=strtrim(date,2)
+aururl='http://www.gi.alaska.edu/AuroraForecast/'
+aurpage=aururl+strmid(dd,0,4)+'/'+strmid(dd,4,2)+'/'+strmid(dd,6,2)+'/index.php'
 
 sock_list,aurpage,aurhtml,err=err
-if err ne '' then begin
+if err ne '' or n_elements(aurhtml) le 209 then begin
+	err='crashed'
 	print,strtrim(date,2)+' Crashed.'
 	return
 endif
 
-if strtrim(aurhtml[345],2) eq '<td width="100%" colspan="3"><br>' then begin
-	aurinclude='No forecast available. Check: <a href=http://www.gedds.alaska.edu/AuroraForecast/Default.asp?Date='+strtrim(date,2)+' target=_blank>http://www.gedds.alaska.edu/AuroraForecast</a>'
+if (str_sep(strtrim(aurhtml[178],2),' '))[0] eq '<div class="no-forecast">Sorry,' then begin
+	;aurinclude='No forecast available. Check: <a href='+aurpage+' target=_blank>'+aururl+'</a>'
 	print,'No forecast available.'
-	goto,no_forecast
+	;if not keyword_set(nowcast) then goto,no_forecast
+	err='crashed'
+	print,strtrim(date,2)+' Crashed.'
+	return	
 endif
 
-condition=strlowcase((str_sep((str_sep(aurhtml[345],'<b>'))[1],'</b>'))[0])
+if keyword_set(nowcast) then begin
+	;aurnow=(str_sep(aurhtml[196],'<a href'))[0]
+	;condition=strlowcase((reverse(str_sep((str_sep(aurnow,':</span>'))[0],'>')))[0])
+	wforecast=(where(strpos(aurhtml,'Short term (1hr) Aurora Forecast') ne -1))[0]
+	if wforecast[0] eq -1 then begin
+		err='crashed'
+		print,strtrim(date,2)+' Crashed.'
+		return
+	endif
+	condition=strlowcase((str_sep((str_sep(strtrim(aurhtml[wforecast],2),'>'))[5],':'))[0])
+	datevalidarr=str_sep(strlowcase((str_sep((str_sep(strtrim(aurhtml[wforecast],2),'>'))[2],'<'))[0]),' ')
+	datevalid=strmid(datevalidarr[1],0,2)+'-'+strmid(datevalidarr[0],0,3)+'-'+datevalidarr[2]+' '+datevalidarr[3]
+endif else begin
+	wforecast=(where(strpos(aurhtml,'<p><em>Forecast:</em> Auroral activity will be') ne -1))[0]
+	if wforecast[0] eq -1 then begin
+		err='crashed'
+		print,strtrim(date,2)+' Crashed.'
+		return
+	endif
+	condition=strtrim(strlowcase((str_sep((str_sep(aurhtml[wforecast],'Auroral activity will be'))[1],'.'))[0]),2)
+	datevalid=strtrim(date,2)
+endelse
+
 print,strtrim(date,2)+' - Auroral condition is: '+condition
 
 case condition of
@@ -119,11 +154,11 @@ case condition of
 	else : aurimg='none'
 endcase
 case condition of
-	'minimum' : aurtxt='Auroral activity will be minimal.  Weather permitting, minimum displays will be visible overhead along Alaskas north coast, and visible low on the horizon from Fort Yukon to as far south as Fairbanks, Kotzebue, and Dawson, Canada.'
-	'quiet' : aurtxt='Auroral activity will be quiet.  Weather permitting, quiet displays will be visible directly overhead from Barrow to Fort Yukon and visible low on the horizon from Fairbanks to as far south as Talkeetna and Whitehorse, Canada.'
-	'low' : aurtxt='Auroral activity will be low.  Weather permitting, low-level displays will be visible overhead from Barrow to Fairbanks and visible low on the northern horizon from as far south as Anchorage, Juneau and Whitehorse, Canada.'
-	'moderate' : aurtxt='Auroral activity will be moderate.  Weather permitting, moderate displays will be visible overhead from Barrow to as far south as Talkeetna and visible low on the horizon as far south as Bethel, Soldotna and southeast Alaska.'
-	'active' : aurtxt='Auroral activity will be active.  Weather permitting, active auroral displays will be visible overhead from Barrow to Anchorage and Juneau, and visible low on the horizon from  King Salmon, Prince Rupert, Bismark and Montreal.'
+	'minimum' : aurtxt='Auroral activity will be minimal. Weather permitting, minimum displays will be visible overhead along Alaska''s northern coast, Greenland''s southern coast, and Novaya Zemlya, Russia, and visible low on the horizon in Dawson, Canada, Tromsø, Norway and Tiksi, Russia.'
+	'quiet' : aurtxt='Auroral activity will be quiet. Weather permitting, quiet displays will be visible directly overhead in Yellowknife, Canada, northern Norway and Wrangel Island, Russia, and visible low on the horizon as far south as Fairbanks, Alaska, Rovaniemi, Finland and Cherskiy, Russia.'
+	'low' : aurtxt='Auroral activity will be low. Weather permitting, low-level displays will be visible overhead in Barrow, Alaska, Tromsø, Norway and Tiksi, Russia, and visible low on the northern horizon from as far south as Winnipeg, Canada, Trondheim, Norway, and Igarka, Russia.'
+	'moderate' : aurtxt='Auroral activity will be moderate. Weather permitting, moderate displays will be visible overhead in Fairbanks, Alaska, Tromsø, Norway and Cherskiy, Russia, and visible low on the horizon as far south as Marquette, Michigan, Sundsvall, Sweden and Arkhangelsk, Russia.'
+	'active' : aurtxt='Auroral activity will be active. Weather permitting, active auroral displays will be visible overhead as far south as Anchorage, Alaska, Trondheim, Norway and Igarka, Russia, and visible low on the horizon in Montreal, Stockholm, Helsinki and Yakutsk, Russia.'
 	'high' : aurtxt='Auroral activity will be high.  Weather permitting, highly active auroral displays will be visible overhead from Barrow to Bethel and Ketchikan, and visible low on the horizon from Seattle and Minneapolis.'
 	'high+' : aurtxt='Auroral activity will be high(+).  Weather permitting, highly active auroral displays will be visible overhead from Barrow to as far south as Kodiak and Minneapolis, and visible low on the horizon from  Salem, Oregon and Chicago.'
 	'high++' : aurtxt='Auroral activity will be high(++).  Weather permitting, highly active auroral displays will be visible overhead from Barrow to Seattle, Chicago, and visible low on the horizon as far south as New York.'
@@ -131,13 +166,44 @@ case condition of
 	'maximum' : aurtxt='Auroral activity will be at its maximum peak.  Highly active auroral displays will be visible over all of Alaska and low on the horizon in most of the northern U.S.'
 	else : aurtxt=''
 endcase
+case condition of
+	'minimum' : aurlev='0'
+	'quiet' : aurlev='1'
+	'low' : aurlev='2'
+	'moderate' : aurlev='3'
+	'active' : aurlev='4'
+	'high' : aurlev='5'
+	'high+' : aurlev='6'
+	'high++' : aurlev='7'
+	'high+++' : aurlev='8'
+	'maximum' : aurlev='9'
+	else : aurlev=''
+endcase
 
-aurinclude=aurhtml[335:352]
-aurinclude=[aurinclude ,'<img width=400 src=common_files/aurora/'+aurimg+'>']
-aurinclude=[aurinclude ,aurhtml[359:368],'<td><b>Forecast: </b>'+aurtxt,aurhtml[371:386],'<a href=http://www.gedds.alaska.edu/AuroraForecast/Default.asp?Date='+strtrim(date,2)+' target=_blank>http://www.gedds.alaska.edu/AuroraForecast</a>']
+if keyword_set(nowcast) then begin
+;	aurnow=strjoin(str_sep(aurnow,'<h3>'),' ') & aurnow=strjoin(str_sep(aurnow,'<h4>'),' ')
+;	aurnow=strjoin(str_sep(aurnow,'</h3>'),' ') & aurnow=strjoin(str_sep(aurnow,'</h4>'),' ')
+;	;aurnow=strjoin(str_sep(aurnow,'<br />'),' ')
+	
+;	aurinclude=['<h3><br>'+aurnow+' Level '+aurlev+'</h3>','<img width=400 src=common_files/aurora/'+aurimg+'><br>']
+;	aurinclude=[aurinclude,'<div align=left>'+aurtxt,'<br><br><a href='+aurpage+' target=_blank>'+aururl+'</a><br><br><br></div>']
+
+	aurinclude=[['date;'+strmid(time2file(anytim(datevalid,/vms)),0,8)],['datevms;'+anytim(datevalid,/vms)],['condition;'+condition],['level;'+aurlev]]
+	
+endif else begin
+;	aurinclude=['<h3><br>Forecast: '+strupcase(condition)+' Activity - Level '+aurlev+'</h3>','<img width=400 src=common_files/aurora/'+aurimg+'>']
+;	aurinclude=[aurinclude,'<div align=left>'+aurhtml[190:196],'<a href='+aurpage+' target=_blank>'+aururl+'</a><br><br><br></div>']
+
+	aurinclude=[['date;'+datevalid],['datevms;'+anytim(file2time(datevalid),/vms)],['condition;'+condition],['level;'+aurlev]]
+	
+endelse
+
+print,aurinclude
+
 no_forecast:
 
-metafile='/Volumes/Data Disk/data/solmon/'+strtrim(date,2)+'/meta/arm_aurora_forecast_'+strtrim(date,2)+'.txt'
+if keyword_set(nowcast) then metafile=datapath+strtrim(date,2)+'/meta/arm_aurora_nowcast_'+strtrim(date,2)+'.txt' $
+	else metafile=datapath+strtrim(date,2)+'/meta/arm_aurora_forecast_'+strtrim(date,2)+'.txt'
 ;metafile='../data/'+strtrim(date,2)+'/meta/arm_aurora_forecast_'+strtrim(date,2)+'.txt'
 
 if not keyword_set(write_meta) then return
@@ -181,8 +247,10 @@ if keyword_set(forecast) then begin
 	err=err[1:*]
 
 endif else begin
-	if keyword_set(nowcast) then get_aurora_nowcast, write_meta=write_meta,err=err $
-		else get_aurora_once, date=date, write_meta=write_meta, err=err
+;	if keyword_set(nowcast) then get_aurora_nowcast, write_meta=write_meta,err=err $
+;		else get_aurora_once, date=date, write_meta=write_meta, err=err
+
+	get_aurora_once, date=date, write_meta=write_meta, err=err,nowcast=nowcast
 
 endelse
 

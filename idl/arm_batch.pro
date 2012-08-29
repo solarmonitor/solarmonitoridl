@@ -228,6 +228,7 @@ regcrashed=''
 	reg1600=execute('if ( error_status_saia_01600 eq 0 ) then arm_regions, output_path, date_struct, summary, saia1600_map_struct, /saia_01600',1,1)
 	reg1700=execute('if ( error_status_saia_01700 eq 0 ) then arm_regions, output_path, date_struct, summary, saia1700_map_struct, /saia_01700',1,1)
 	regshmi=execute('if ( error_status_shmi_maglc eq 0 ) then arm_regions, output_path, date_struct, summary, shmimaglc_map_struct, /shmi_maglc',1,1)
+	regshmiss=execute('if ( error_status_shmi_maglc eq 0 ) and ( error_status_saia_04500 eq 0 ) then arm_regions, output_path, date_struct, summary, shmimaglc_map_struct, /shmi_magss,aux_map=saia4500_map_struct',1,1)
 ;    arm_regions, output_path, date_struct, summary, sxig12_map_struct, /gsxi  
 
 	if not reghxrt then regcrashed=regcrashed+' XRT' & if not regt171 then regcrashed=regcrashed+' TRACE'
@@ -243,7 +244,7 @@ regcrashed=''
 	if not regs094 then regcrashed=regcrashed+' AIA94' & if not regs131 then regcrashed=regcrashed+' AIA131'
 	if not regs211 then regcrashed=regcrashed+' AIA211' & if not regs335 then regcrashed=regcrashed+' AIA335'
 	if not reg1600 then regcrashed=regcrashed+' AIA1600' & if not reg1700 then regcrashed=regcrashed+' AIA1700'
-	if not regshmi then regcrashed=regcrashed+' HMIMAGLC'
+	if not regshmi then regcrashed=regcrashed+' HMIMAGLC' & if not regshmiss then regcrashed=regcrashed+' HMISS'
 
 	if regcrashed[0] eq '' then begin
 		spawn,'echo "'+systim(/utc)+' No region crashes." >> '+temp_path+'/arm_crash_summary.txt'
@@ -266,12 +267,15 @@ regcrashed=''
   didaurora=execute('get_aurora, date=date_struct.date, /write_meta, err=err, /forecast',1,1)
   didauroranowcast=execute('get_aurora, /write_meta, err=err, /nowcast',1,1)
   didionosphere=execute('get_ionosphere, /tec, /kyoto, /poes, /ovation, err=err',1,1)
+  didionosphere=execute('get_ionosphere, /tec, /kyoto, /poes, /ovation, /kpind, err=err',1,1)
   didpoesmovie=execute('get_poes_movie, /north, date=date_struct.date, err=err, outpath=output_path',1,1)
+  didplasmovie=execute('get_plasmasph_movie, date=date_struct.date, err=err, outpath=output_path',1,1)
   ionomodule=''
   if not didaurora then ionomodule=ionomodule+' AURORA_FORECAST' & if not didauroranowcast then ionomodule=ionomodule+' AURORA_NOWCAST'
   if not didionosphere then ionomodule=ionomodule+' IONOSPHERE_PLOTS' & if not didpoesmovie then ionomodule=ionomodule+' POES_MOVIE'
-  if ionomodule eq '' then spawn,'echo "'+systim(/utc)+' No ionosphere crashes." >> /Users/solmon/Sites/idl/arm_ionosphere_crash_summary.txt' $
-	else spawn,'echo "'+systim(/utc)+' These IONOSPHERE Modules crashed: '+ionomodule+'" >> /Users/solmon/Sites/idl/arm_ionosphere_crash_summary.txt'
+  if not didplasmovie then ionomodule=ionomodule+'  PLASMASPHERE_MOVIE'
+  if ionomodule eq '' then spawn,'echo "'+systim(/utc)+' No ionosphere crashes." >> '+temp_path+'arm_ionosphere_crash_summary.txt' $
+	else spawn,'echo "'+systim(/utc)+' These IONOSPHERE Modules crashed: '+ionomodule+'" >> '+temp_path+'arm_ionosphere_crash_summary.txt'
 
 ; Get the latest SOHO Movies
 
