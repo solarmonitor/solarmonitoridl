@@ -1,4 +1,4 @@
-pro get_poes_movie, north=north, south=south, date=indate, err=err, outpath=outpath
+pro get_poes_movie, north=north, south=south, date=indate, err=err, outpath=outpath,temp_path=temp_path
 
 err=''
 ff=''
@@ -8,7 +8,9 @@ calc_date,date,-1,prevdate
 
 if keyword_set(south) then hemi='S' else hemi='N'
 
-ff=[sock_find('http://www.swpc.noaa.gov/pmap/gif/','pmap_'+strmid(prevdate,0,4)+'_'+strmid(prevdate,4,2)+'_'+strmid(prevdate,6,2)+'*'+hemi+'*.gif'), sock_find('http://www.swpc.noaa.gov/pmap/gif/','pmap_'+strmid(date,0,4)+'_'+strmid(date,4,2)+'_'+strmid(date,6,2)+'*'+hemi+'*.gif'), sock_find('http://www.swpc.noaa.gov/pmap/gif/','pmap'+hemi+'.gif')]
+ff=[sock_find('http://www.swpc.noaa.gov/pmap/gif/','pmap_'+strmid(prevdate,0,4)+'_'+strmid(prevdate,4,2)+'_'+strmid(prevdate,6,2)+'*'+hemi+'*.gif'), $
+    sock_find('http://www.swpc.noaa.gov/pmap/gif/','pmap_'+strmid(date,0,4)+'_'+strmid(date,4,2)+'_'+strmid(date,6,2)+'*'+hemi+'*.gif'), $
+    sock_find('http://www.swpc.noaa.gov/pmap/gif/','pmap'+hemi+'.gif')]
 ff=ff[where(ff ne '')]
 ff=reverse((reverse(ff))[0:(39 < (n_elements(ff)-1))])
 
@@ -22,32 +24,20 @@ endif
 
 fflocal=strarr(nfile)
 
-spawn,'rm -f pmap*.gif
+spawn,'rm -f '+temp_path+'pmap*.gif'
 
 for i=0,nfile-1 do begin
-	sock_copy,ff[i],/clobber;,copy=localfile
+	sock_copy,ff[i],/clobber,out_dir=temp_path;,copy=localfile
     ;spawn,'mv '+localfile+' /Users/solmon/poes_frame_'+hemi+'_'+string(i,form='(I04)')+'.gif'
 	;fflocal[i]='/Users/solmon/poes_frame_'+hemi+'_'+string(i,form='(I04)')+'.gif'
 	fflocal[i]=(reverse(str_sep(ff[i],'/')))[0]
 endfor
 
-spawn,'mv -f pmapN.gif pmap_9999.gif'
+;spawn,'mv -f pmapN.gif pmap_9999.gif'
 
 
-mov='/usr/local/bin/montage ./pmap*.gif  -tile 1x -geometry 450x400+0+0 ./poes_'+date+'.gif';'+outpath+'/data/'+date+'/mpgs/iono/poes_num40_'+strlowcase(hemi)+'_'+date+'.gif'
+mov='montage '+temp_path+'pmap*.gif  -tile 1x -geometry 450x400+0+0 '+outpath+'mpgs/iono/poes_'+strlowcase(hemi)+'_'+date+'.gif'
 spawn,mov,sperr,/stderr & print,mov & print,sperr
-;spawn,'convert -loop 0 -delay 20 pmap*.gif '+outpath+'/data/'+date+'/mpgs/iono/poes_'+strlowcase(hemi)+'_'+date+'.gif'
-;spawn,'convert -loop 0 -delay 20 /Users/solmon/poes_frame_'+hemi+'_*.gif '+outpath+'/data/'+date+'/mpgs/iono/poes_'+strlowcase(hemi)+'_'+date+'.gif'
-;spawn,'convert -loop 0 -delay 20 poes_frame_'+strmid(date,0,4)+'_'+strmid(date,4,2)+'_*'+hemi+'*.gif ../data/'+date+'/mpgs/iono/poes_'+strlowcase(hemi)+'_'+date+'.gif'
-
-mvmov='mv -f ./poes_'+date+'.gif '+outpath+'/data/'+date+'/mpgs/iono/poes_'+strlowcase(hemi)+'_'+date+'.gif'
-spawn,mvmov,sperr,/stderr & print,mvmov & print,sperr
-
-rmmov='rm -f pmap*.gif
-spawn,rmmov,sperr,/stderr & print,rmmov & print,sperr
-;spawn,'rm -f /Users/solmon/poes_frame_'+hemi+'_*.gif'
-;spawn,'rm -f pmap_'+strmid(date,0,4)+'_'+strmid(date,4,2)+'_'+strmid(date,6,2)+'*'+hemi+'*.gif'
-;spawn,'rm -f pmap_'+strmid(prevdate,0,4)+'_'+strmid(prevdate,4,2)+'_'+strmid(prevdate,6,2)+'*'+hemi+'*.gif'
 
 print,'DID GET_POES_MOVIE'
 
