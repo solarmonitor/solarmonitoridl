@@ -102,8 +102,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( gong_maglc ) ) then begin
     
 ;    get_gong, filename, err = err
-	get_gong2_mag, date, filename, err, /mag
-
+     get_gong2_mag, date, filename, err, /mag,out_path=temp_path
     if ( err ne '' ) then begin
       
       map = dummy_map()

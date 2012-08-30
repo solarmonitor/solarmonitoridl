@@ -1,6 +1,6 @@
 ;Download intensitygrams from the GONG2.NSO.EDU server.
 
-pro get_gong2_mag, date, fname, err, mag=mag, int=int, remote_file=out_remote_file
+pro get_gong2_mag, date, fname, err, mag=mag, int=int, remote_file=out_remote_file,out_path=out_path
 
 err=''
 fname=''
@@ -104,11 +104,11 @@ if keyword_set(int) then filefull=url+'/QR/iqa/'+yyyy+mm+'/'+strmid(fname,0,5)+y
 	else filefull=url+'/QR/bqa/'+yyyy+mm+'/'+strmid(fname,0,5)+yy+mm+dd+'/'+fname
 ;	else filefull=url+'/dailyimages/img/hot-fits/'+fname
 
-sock_copy,'ftp://'+filefull, err=err
+sock_copy,'ftp://'+filefull, err=err,out_dir=out_path,local_file=local_file
 
 remote_file='ftp://'+filefull
 out_remote_file=remote_file
 
 if err[0] ne '' then begin & print,'% SOCK_COPY: '+err & err=-1 & return & endif
-
+fname = local_file
 end
