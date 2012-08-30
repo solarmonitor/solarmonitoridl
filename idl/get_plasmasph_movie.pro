@@ -1,4 +1,4 @@
-pro get_plasmasph_movie, date=indate, err=err, outpath=outpath
+pro get_plasmasph_movie, date=indate, err=err, outpath=outpath,temp_path=temp_path
 
 err=''
 ff=''
@@ -26,9 +26,9 @@ linkdir='http://swaciweb.dlr.de/./fileadmin/PUBLIC/TopsideReconstruction/'+yyyy+
 
 spawn,'rm -f iCH-AI-4-DENS+int-orb-plane_*.png'
 
-for i=0,n_elements(linkarr)-1 do sock_copy,linkdir+linkarr[i]
+for i=0,n_elements(linkarr)-1 do sock_copy,linkdir+linkarr[i],out_dir=temp_path
 
-ff=file_search('iCH-AI-4-DENS+int-orb-plane_*.png')
+ff=file_search(temp_path+'iCH-AI-4-DENS+int-orb-plane_*.png')
 nfile=n_elements(ff)
 
 if nfile lt 2 then begin
@@ -37,20 +37,14 @@ if nfile lt 2 then begin
 	return
 endif
 
-mov='/usr/local/bin/montage ./iCH-AI-4-DENS+int-orb-plane_*.png  -tile 1x -geometry 600x450+0+0 ./plasmasphere_'+date+'.gif'
+mov='montage '+temp_path+'iCH-AI-4-DENS+int-orb-plane_*.png  -tile 1x -geometry 600x450+0+0 '+outpath+'mpgs/iono/plasmasphere_'+date+'.gif'
 spawn,mov,sperr,/stderr & print,mov & print,sperr
 
-if strlen(file_search('plasmasphere_'+date+'.gif')) lt 5 then begin
+if strlen(file_search(outpath+'mpgs/iono/plasmasphere_'+date+'.gif')) lt 5 then begin
 	err=-1
 	print,'Epic Plasma Sphere Movie Fail! Movie not made!'
 	return
 endif
-
-mvmov='mv -f ./plasmasphere_'+date+'.gif '+outpath+'/data/'+date+'/mpgs/iono/plasmasphere_'+date+'.gif'
-spawn,mvmov,sperr,/stderr & print,mvmov & print,sperr
-
-rmmov='rm -f iCH-AI-4-DENS+int-orb-plane_*.png'
-spawn,rmmov,sperr,/stderr & print,rmmov & print,sperr
 
 print,'DID GET_PLASMASPH_MOVIE'
 

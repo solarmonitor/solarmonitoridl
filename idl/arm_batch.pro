@@ -261,7 +261,6 @@ regcrashed=''
 
   endif else spawn,'echo "'+systim(/utc)+' No regions." >>' +temp_path+'/arm_crash_summary.txt'
 
-;** CHECK till here!	
 ; Do Ionosphere stuff
 
   didaurora=execute('get_aurora, date_str=date_struct, /write_meta, err=err, /forecast,output_path=output_path',1,1)
@@ -269,7 +268,7 @@ regcrashed=''
   didionosphere=execute('get_ionosphere, outpath=today_dir,/tec, /kyoto, /poes, /ovation, err=err,temp_path=temp_path',1,1)
   didionosphere=execute('get_ionosphere, outpath=today_dir,/tec, /kyoto, /poes, /ovation, /kpind, err=err,temp_path=temp_path',1,1)
   didpoesmovie=execute('get_poes_movie, /north, date=date_struct.date, err=err, outpath=today_dir,temp_path=temp_path',1,1)
-  didplasmovie=execute('get_plasmasph_movie, date=date_struct.date, err=err, outpath=output_path',1,1)
+  didplasmovie=execute('get_plasmasph_movie, date=date_struct.date, err=err, outpath=output_path,temp_path=temp_path',1,1)
   ionomodule=''
   if not didaurora then ionomodule=ionomodule+' AURORA_FORECAST' & if not didauroranowcast then ionomodule=ionomodule+' AURORA_NOWCAST'
   if not didionosphere then ionomodule=ionomodule+' IONOSPHERE_PLOTS' & if not didpoesmovie then ionomodule=ionomodule+' POES_MOVIE'
