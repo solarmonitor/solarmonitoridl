@@ -30,17 +30,7 @@ pro arm_batch, temp_path, output_path
     set_plot, 'z'
 
 ; Find todays date and convert to yyyymmdd format
-
-    get_utc, utc, /ecs                          ;utc      = 2012/08/29 21:55:00.000
-    date_dir = (strsplit(utc,' ',/ext))[0]      ;date_dir = 2012/08/29
-    date = time2file(utc,/date)                 ;date     = 20120829
-    utc = strmid( anytim( utc, /vms ), 0, 17 )  ;utc      = 29-Aug-2012 21:55
-
-; Calculate the previous and next days date.
-
-    calc_date, date, -1, prev_date              ;prev_date=20120828
-    calc_date, date,  1, next_date              ;next_date=20120830
-    date_struct = { date : date, prev_date : prev_date, next_date : next_date, utc : utc , date_dir: date_dir}
+    date_struct=sm_date_struct()
     print, 'Done date stuff'
 
 ; Directory where to save everything
@@ -91,8 +81,8 @@ pro arm_batch, temp_path, output_path
   print, 'done generating meta data'
 
 ; Get the recent GOES Plots
-  get_goes_plots, temp_path, today_dir, date
-  get_goes_events, temp_path, today_dir, date
+  get_goes_plots, temp_path, today_dir, date_struct.date
+  get_goes_events, temp_path, today_dir, date_struct.date
 
 ; Get the latest ACE Plots
   get_ace, output_path=output_path, date_str=date_struct, /latest
