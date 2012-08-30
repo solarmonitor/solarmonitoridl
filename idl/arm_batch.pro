@@ -264,8 +264,8 @@ regcrashed=''
 ;** CHECK till here!	
 ; Do Ionosphere stuff
 
-  didaurora=execute('get_aurora, date=date_struct.date, /write_meta, err=err, /forecast,output_path=output_path',1,1)
-  didauroranowcast=execute('get_aurora, /write_meta, err=err, /nowcast,output_path=output_path',1,1)
+  didaurora=execute('get_aurora, date_str=date_struct, /write_meta, err=err, /forecast,output_path=output_path',1,1)
+  didauroranowcast=execute('get_aurora, date_str=date_struct/write_meta, err=err, /nowcast,output_path=output_path',1,1)
   didionosphere=execute('get_ionosphere, /tec, /kyoto, /poes, /ovation, err=err',1,1)
   didionosphere=execute('get_ionosphere, /tec, /kyoto, /poes, /ovation, /kpind, err=err',1,1)
   didpoesmovie=execute('get_poes_movie, /north, date=date_struct.date, err=err, outpath=output_path',1,1)

@@ -249,27 +249,28 @@ date_dir = date_str.date_dir
 if keyword_set(forecast) then begin
 	err=''
 	for i=0,5 do begin
-		if not file_exist(today_dir) then $
-                   spawn,'mkdir -p '+today_dir
+           print, 'checking '+today_dir
+           if not file_exist(today_dir) then $
+              spawn,'mkdir -p '+today_dir
 
-		get_aurora_once, date=date_dir, write_meta=write_meta, err=thiserr,output_path = today_dir
+           get_aurora_once, date=date_dir, write_meta=write_meta, err=thiserr,output_path = today_dir
 	
-		err=[err,thiserr]
-
-		date_dir = anytim(anytim(date)+24.*3600.,/ecs,/date)
-                today_dir=output_path+date_str.date_dir+'/meta/'
+           err=[err,thiserr]
+           
+           date_dir = anytim(anytim(date)+24.*3600.,/ecs,/date)
+           today_dir=output_path+date_str.date_dir+'/meta/'
 		
-	endfor
+        endfor
 	
-	err=err[1:*]
+        err=err[1:*]
 
-endif else begin
+     endif else begin
 ;	if keyword_set(nowcast) then get_aurora_nowcast, write_meta=write_meta,err=err $
 ;		else get_aurora_once, date=date, write_meta=write_meta, err=err
 
-	get_aurora_once, date=date_dir, write_meta=write_meta, err=err,nowcast=nowcast,output_path = today_dir
+        get_aurora_once, date=date_dir, write_meta=write_meta, err=err,nowcast=nowcast,output_path = today_dir
 
-endelse
+     endelse
 
 print,'DID GET_AURORA'
 
