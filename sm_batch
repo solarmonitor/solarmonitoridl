@@ -34,7 +34,7 @@ sm_dirtree()
 	  for inst in "${instruments[@]}"; do
 	      mkdir -p $1/$dir/$inst
 	  done
-      elif [[ $dir =~ 'mgps' ]]; then
+      elif [[ $dir = 'mpgs' ]]; then
 	  for inst in "${inst_mpgs[@]}"; do
 	      mkdir -p $1/$dir/$inst
 	  done
