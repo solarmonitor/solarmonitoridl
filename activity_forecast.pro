@@ -68,7 +68,7 @@ pro activity_forecast, output_path, summary, names, mci, cprob, mprob, xprob
  
 		index = where( mci[ i ] eq mcip )
    
-		if ( index[ 0 [ eq -1 ) then begin
+		if ( index[ 0 ] eq -1 ) then begin
    
 			cprob[ i ] = '...'
 			mprob[ i ] = '...'
