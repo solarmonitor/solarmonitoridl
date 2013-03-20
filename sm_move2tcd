@@ -1,0 +1,12 @@
+#!/usr/bin/expect
+
+  set timeout 600
+  spawn sftp gallagpt@www.tcd.ie:/www.tcd.ie/Physics/People/Peter.Gallagher/outgoing/
+  expect "password:"
+  send "4Adastra!\n"
+  expect "sftp>"
+  send "put /Users/solmon/Sites/data/sm_files.tar.gz\r"
+  send "bye\r"
+  
+  expect eof
+  exit
