@@ -24,8 +24,6 @@ yyyy=strmid(ftimetoday,0,4) & mm=strmid(ftimetoday,4,2) & dd=strmid(ftimetoday,6
 timesfile='http://sdowww.lmsal.com/sdomedia/SunInTime/'+yyyy+'/'+mm+'/'+dd+'/timespfss.txt'
 sock_list,timesfile,timeslist
 
-stop
-
 if instrument eq '_HMImag' then timeinst='HMIB' else timeinst=instrument
 
 ;if instrument ne '_HMImag' then begin 
@@ -48,7 +46,6 @@ jpgfile=strres+strtrim(instrument,2)+'.jpg'
 ;if files[0] eq '' then begin & err=-1 & goto,get_out & endif
 
 ;sock_copy,jpgurl+jpgfile, err=err
-
 sock_copy,jpgurl+jpgpath+jpgfile, err=err, copy_file=copy_file
 if err ne '' then begin & err=-1 & goto,get_out & endif
 
