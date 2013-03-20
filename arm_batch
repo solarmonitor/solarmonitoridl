@@ -16,6 +16,9 @@
 
 # Create a temporary directory to write data to 
 
+
+#	setenv http_proxy http://perezsud:nga2Rhaq@tcdproxy.tcd.ie:8080
+
 	setenv WORKING_PATH /Users/solmon/Sites/idl
 	setenv TEMP_PATH /Users/solmon/Sites/idl/tmp
 	setenv OUTPUT_PATH /Users/solmon/Sites

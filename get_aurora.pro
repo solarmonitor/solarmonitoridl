@@ -69,7 +69,7 @@ aurinclude=[aurinclude,aurhtml[213:220],'<a href=http://www.gedds.alaska.edu/aur
 ;aurinclude=[aurinclude ,aurhtml[359:368],'<td><b>Forecast: </b>'+aurtxt,aurhtml[371:386],'<a href=http://www.gedds.alaska.edu/AuroraForecast/Default.asp?Date='+strtrim(date,2)+' target=_blank>http://www.gedds.alaska.edu/AuroraForecast</a>']
 no_forecast:
 
-metafile='/Volumes/Data Disk/data/solmon/'+strtrim(thisdate,2)+'/meta/arm_aurora_nowcast_'+strtrim(thisdate,2)+'.txt'
+metafile='../data/'+strtrim(thisdate,2)+'/meta/arm_aurora_nowcast_'+strtrim(thisdate,2)+'.txt'
 ;metafile='../data/'+strtrim(date,2)+'/meta/arm_aurora_forecast_'+strtrim(date,2)+'.txt'
 
 if not keyword_set(write_meta) then return
@@ -137,7 +137,7 @@ aurinclude=[aurinclude ,'<img width=400 src=common_files/aurora/'+aurimg+'>']
 aurinclude=[aurinclude ,aurhtml[359:368],'<td><b>Forecast: </b>'+aurtxt,aurhtml[371:386],'<a href=http://www.gedds.alaska.edu/AuroraForecast/Default.asp?Date='+strtrim(date,2)+' target=_blank>http://www.gedds.alaska.edu/AuroraForecast</a>']
 no_forecast:
 
-metafile='/Volumes/Data Disk/data/solmon/'+strtrim(date,2)+'/meta/arm_aurora_forecast_'+strtrim(date,2)+'.txt'
+metafile='../data/'+strtrim(date,2)+'/meta/arm_aurora_forecast_'+strtrim(date,2)+'.txt'
 ;metafile='../data/'+strtrim(date,2)+'/meta/arm_aurora_forecast_'+strtrim(date,2)+'.txt'
 
 if not keyword_set(write_meta) then return
@@ -163,9 +163,9 @@ if keyword_set(forecast) then begin
 	err=''
 	nextdate=date
 	for i=0,5 do begin
-		if not file_exist('/Volumes/Data\ Disk/data/solmon/'+strtrim(nextdate,2)) then begin
-			spawn,'mkdir /Volumes/Data\ Disk/data/solmon/'+strtrim(nextdate,2)
-			spawn,'mkdir /Volumes/Data\ Disk/data/solmon/'+strtrim(nextdate,2)+'/meta'
+		if not file_exist('../data/'+strtrim(nextdate,2)) then begin
+			spawn,'mkdir ../data/'+strtrim(nextdate,2)
+			spawn,'mkdir ../data/'+strtrim(nextdate,2)+'/meta'
 		endif
 		
 		get_aurora_once, date=nextdate, write_meta=write_meta, err=thiserr

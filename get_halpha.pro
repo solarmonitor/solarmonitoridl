@@ -110,6 +110,9 @@ if (where(pos ne -1))[0] eq -1 then begin
 	pos = strpos( filelist, 'bbso' )
 	if (where(pos ne -1))[0] eq -1 then begin
 		pos = strpos( filelist, 'ynao' )
+		if (where(pos ne -1))[0] eq -1 then begin
+			pos = strpos( filelist, 'hsos' )
+		endif
 	endif
 endif
 

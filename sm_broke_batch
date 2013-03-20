@@ -11,15 +11,17 @@
   /Users/solmon/Sites/idl/arm_batch
  
   cd /Users/solmon/Sites/data/
+#  tar zcv --exclude '*.gz' --exclude '*.mpg' -f /Users/solmon/Dropbox/Public/sm_small.tar.gz .
   tar cvfz /Users/solmon/Sites/data/sm_files.tar.gz .
   ls -hl /Users/solmon/Sites/data/sm_files.tar.gz >> /Users/solmon/Sites/data/logs/sm_batch_exec_times.log
 
   setenv end_time `date -u`
   echo 'End time: ' $end_time >> /Users/solmon/Sites/data/logs/sm_batch_exec_times.log
-
-  /Users/solmon/Sites/idl/sm_move2tcd
- 
-#  rm -rf /Users/solmon/Sites/data/sm_files.tar.gz
+#  mv /Users/solmon/Sites/data/sm_files.tar.gz /Users/solmon/Dropbox/
+#  /Users/solmon/Sites/idl/sm_move2tcd
+   scp /Users/solmon/Sites/data/sm_files.tar.gz dperezsuarez@solarmonitor.org:/mnt/solar/solmon_storage/
+    ssh dperezsuarez@solarmonitor.org 'cd /mnt/solar/solmon_storage/ && tar zxvf sm_files.tar.gz'
+  rm -rf /Users/solmon/Sites/data/sm_files.tar.gz
   rm -rf /Users/solmon/Sites/data/20*
   rm -rf /Users/solmon/Sites/data/latest_images/
 

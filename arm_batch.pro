@@ -26,7 +26,7 @@
 
 pro arm_batch, temp_path, output_path
     print,'THE TIME IS NOW '+systim(/utc)
-    
+spawn,'env'    
     set_plot, 'z'
 
 ; Find todays date and convert to yyyymmdd format
@@ -109,7 +109,7 @@ pro arm_batch, temp_path, output_path
   
 ; Get the latest SDO/EVE Plots
 
-  get_eve,date, output_path, /latest
+  ;get_eve,date, output_path, /latest
 
 ; Write a png for the GOES/RHESSI lightcurves
 
