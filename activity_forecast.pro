@@ -33,8 +33,12 @@ pro activity_forecast, output_path, summary, names, mci, cprob, mprob, xprob
 ; MAKE SURE YOU CHANGE THIS!!!!!
 	flarehist_file = '/Users/solmon/Sites/idl/flarehist.txt'
 
-        readcol, flarehist_file, mcip, nc, nm, nx, nn, skipline=15, $
+        readcol, flarehist_file, mcip, nc_raw, nm_raw, nx_raw, nn_raw, skipline=15, $
                  format='A,D,D,D,D', /silent
+
+        nc = nc_raw / nn_raw
+        nm = nm_raw / nn_raw
+        nx = nx_raw / nn_raw
 
 ;; 	flarehist = rd_text( flarehist_file )   
 ;;
@@ -76,9 +80,9 @@ pro activity_forecast, output_path, summary, names, mci, cprob, mprob, xprob
     
 		endif else begin
      
-			cprob[ i ] = round( 100. * ( 1. - exp( -float( nc[ index ] ) ) ) ) ; Use Poisson distribution
-			mprob[ i ] = round( 100. * ( 1. - exp( -float( nm[ index ] ) ) ) )
-			xprob[ i ] = round( 100. * ( 1. - exp( -float( nx[ index ] ) ) ) )
+			cprob[ i ] = round( 100. * ( 1. - exp( -nc[ index ] ) ) ) ; Use Poisson distribution
+			mprob[ i ] = round( 100. * ( 1. - exp( -nm[ index ] ) ) )
+			xprob[ i ] = round( 100. * ( 1. - exp( -nx[ index ] ) ) )
 
 		endelse
 
