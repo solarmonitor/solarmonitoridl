@@ -129,8 +129,8 @@ sm_outlog
 
 # Create directories for SM
 mkdir -p $OUTPUT_PATH/latest_images
-sm_dirtree $OUTPUT_PATH/$TODAYS_DATE_DIR 
-sm_dirtree5 $OUTPUT_PATH
+sm_dirtree $OUTPUT_PATH/$TODAYS_DATE_DIR  # Directories for today data
+sm_dirtree5 $OUTPUT_PATH     # Future directories for forecasting data
 
 # Create the scripts for running IDL SM batch and Run SM batch
 sm_sswscript
