@@ -79,7 +79,7 @@ pro mmmotd2arm, output_path, date_struct
 
 ; If the server is down, then return an empty string
 
-	mmmotd_file = output_path + "/data/" + date + "/meta/arm_mmmotd_" + date + ".txt"
+	mmmotd_file = output_path + "/meta/arm_mmmotd_" + date + ".txt"
 	openw,lun,mmmotd_file,/get_lun
                 printf, lun, 'Subject: ' + subjectmm + '<br>'
 		printf, lun, message

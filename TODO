@@ -1,3 +1,9 @@
 1. installation script! -> to generate directories....
 2. clean up everything
 3. Fix troubles
+3.1 Files created where running: 
+    ftp_data
+    ftptemp
+    f_HMImag.jpg
+3.2 get_ionosphere fails with kpind (I believe)
+3.3

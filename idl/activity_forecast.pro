@@ -31,7 +31,7 @@ pro activity_forecast, output_path, summary, names, mci, cprob, mprob, xprob
 ; Read in flare occurrence statistics from Christopher Balch (NOAA/SEC)
 
 ; MAKE SURE YOU CHANGE THIS!!!!!
-	flarehist_file = '$WORKING_PATH/data/flarehist.txt'
+	flarehist_file = getenv('WORKING_PATH')+'/data/flarehist.txt'
 	flarehist = rd_text( flarehist_file )   
   
 	mcip = strmid( flarehist( 10:58 ),  0, 3 )
