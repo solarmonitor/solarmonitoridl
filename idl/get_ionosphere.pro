@@ -36,10 +36,12 @@ if keyword_set(kyoto) then begin
 	;sock_copy,url,err=err;,copy_file=copy_file
 	spawn,'curl '+url+' -o '+final_path+'kyoto_indices_'+date+'.png'
 ;get previous day:
-        if not file_exist(outpath+'/../../../'+prevdate_dir+'/pngs/iono/kyoto_indices_'+prevdate+'.png') then begin
+; TODO: this need to be fixed with current script which does not
+; check/create past directories
+        if not file_exist(outpath+'../../../'+prevdate_dir+'/pngs/iono/kyoto_indices_'+prevdate+'.png') then begin
            url='http://wdc.kugi.kyoto-u.ac.jp/ae_realtime/'+strmid(prevdate,0,6)+'/rtae_'+prevdate+'.png'
                                 ;sock_copy,url,err=err;,copy_file=copy_file
-           spawn,'curl '+url+' -o '+outpath+'/../../../'+prevdate_dir+'/pngs/iono/kyoto_indices_'+prevdate+'.png'
+           spawn,'curl '+url+' -o '+outpath+'../../../'+prevdate_dir+'/pngs/iono/kyoto_indices_'+prevdate+'.png'
         endif
         print,'Done Kyoto'
      endif

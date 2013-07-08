@@ -11,5 +11,5 @@ function sm_date_struct
   date_struct = { date : date, prev_date : prev_date, next_date : next_date, utc : utc , date_dir: date_dir}
 
 
-  return date_struct
+  return, date_struct
 end

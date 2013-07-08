@@ -19,7 +19,7 @@ sm_dirtree()
   # List of instruments for which fits and pngs are created
   instruments=('bbso' 'gong' 'gsxi' 'seit' 'hxrt' 'smdi' /
                'trce' 'stra' 'strb' 'slis' 'swap' 'saia' /
-	       'shmi')
+	       'shmi' 'iono')
 
   # List of instruments for which movies (mpgs) are created
   inst_mpgs=('lsco' 'smdi' 'seit' 'stra' 'strb' 'iono')
@@ -106,6 +106,7 @@ sm_sswscript()
     echo "source \$SSW/gen/setup/setup.ssw /quiet"          >> $SSWCSH_FILE
     echo "setenv IDL_DIR $IDL_DIR"                          >> $SSWCSH_FILE
     echo "setenv IDL_PATH $WORKING_PATH/idl"                >> $SSWCSH_FILE
+    echo "setenv WORKING_PATH "$WORKING_PATH                >> $SSWCSH_FILE
     echo "sswidl $SMIDL_FILE > $SMIDLLOG_FILE"              >> $SSWCSH_FILE
     # In the original file was calling sswidl -32; It does not work in linux
     

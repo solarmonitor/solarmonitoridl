@@ -43,7 +43,7 @@ pro arm_batch, temp_path, output_path
     if not didbakeout then print,'BAKEOUT DATES FAILED!!! or crashed. DAMN IT GURMAN!!!'
 
 ; Read the active region summary for the requested and previous days.
-    print, 'getting srs'        
+    print, 'getting srs'
     get_srs, date_struct, srs_today, srs_yesterday, issued, t_noaa,$
              output_path=today_dir
     print, 'done getting srs'
@@ -254,7 +254,7 @@ regcrashed=''
 ; Do Ionosphere stuff
 
   didaurora=execute('get_aurora, date_str=date_struct, /write_meta, err=err, /forecast,output_path=output_path',1,1)
-  didauroranowcast=execute('get_aurora, date_str=date_struct/write_meta, err=err, /nowcast,output_path=output_path',1,1)
+  didauroranowcast=execute('get_aurora, date_str=date_struct, /write_meta, err=err, /nowcast,output_path=output_path',1,1)
   didionosphere=execute('get_ionosphere, outpath=today_dir,/tec, /kyoto, /poes, /ovation, err=err,temp_path=temp_path',1,1)
   didionosphere=execute('get_ionosphere, outpath=today_dir,/tec, /kyoto, /poes, /ovation, /kpind, err=err,temp_path=temp_path',1,1)
   didpoesmovie=execute('get_poes_movie, /north, date=date_struct.date, err=err, outpath=today_dir,temp_path=temp_path',1,1)
@@ -268,12 +268,12 @@ regcrashed=''
 
 ; Get the latest SOHO Movies
 
-  arm_movies, output_path, date_struct
+  arm_movies, today_dir, date_struct
   
 ; Execute the forecast last as its prone to crashing
 
   if ( summary[ 0 ] ne 'No data' ) then arm_forecast, output_path=today_dir, date_struct, summary
 
-  mmmotd2arm, output_path, date_struct
+  mmmotd2arm, today_dir, date_struct
  
 end
