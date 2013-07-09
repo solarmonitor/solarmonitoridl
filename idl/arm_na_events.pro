@@ -1,5 +1,21 @@
-
-
+function latestevents_url_flare, flare_properties, date
+  ;+
+  ; Name      : LATESTEVENTS_URL_FLARE
+  ; 
+  ; Purpose   : Generate an url pointing to latest_events page from the flare properties
+  ;
+  ;-
+  datedir = strmid(date, 0, 4) + '/'+ strmid(date, 4, 2) + '/' + strmid(date, 6, 2)
+  url = 'http://www.lmsal.com/solarsoft/latest_events_archive/events_summary/' + $
+        datedir + '/' + 'gev_' + date + '_' + $
+        strmid(flare_properties, 16, 2) + $
+        strmid(flare_properties, 19, 2) + '/index.html ' + $
+        strmid(flare_properties, 0, 4) + '(' + $
+        strmid(flare_properties, 16, 5) + ')'
+  return, url
+end
+pro arm_na_events, output_path, date_struct, no_region_today, no_region_yesterday
+;+
 ; Name        : ARM_NA_EVENTS
 ;
 ; Purpose     : To find the Solarsoft webpage containing the information on the flares that are unassociated with a noaa actvie region.
@@ -26,17 +42,18 @@
 ;
 ; History     :
 ;               Amy Holden (2 of July 2013), changed the output url, should now link to correct page
+;-
 
 
-pro arm_na_events, output_path, date_struct, no_region_today, no_region_yesterday
 
 ;Seting up of dates, variables and output file location and name 
 
 
 	date = date_struct.date
 	prev_date = date_struct.prev_date
+        datedir = date_struct.date_dir
 	
-	file = output_path + "/data/" + date + "/meta/arm_na_events_" + date + ".txt"
+	file = output_path + "/meta/arm_na_events_" + date + ".txt"
 
 	no_c_today = 0
 	no_c_yesterday = 0
@@ -55,21 +72,14 @@ pro arm_na_events, output_path, date_struct, no_region_today, no_region_yesterda
  
 		if ( no_region_today.c_no_noaa_today( 0 ) ne '' ) then begin
 			for i = 0, n_elements( no_region_today.c_no_noaa_today ) - 1 do begin
-				printf, lun, 'http://www.lmsal.com/solarsoft/latest_events_archive/events_summary/' +$
-                                        strmid(date,0,4) + '/'+ strmid(date,4,2) + '/' + strmid(date,6,2) + '/' + 'gev_' + date + '_' +$
-                                        strmid( no_region_today.c_no_noaa_today( i ), 16, 2 ) + $
-					strmid( no_region_today.c_no_noaa_today( i ), 19, 2 ) + '/index.html '
+				printf, lun, latestevents_url_flare(no_region_today.c_no_noaa_today[i], date)
 			endfor
 		endif else begin
 			no_c_today = 1
 		endelse
                 if ( no_region_today.m_no_noaa_today( 0 ) ne '' ) then begin
                         for i = 0, n_elements( no_region_today.m_no_noaa_today ) - 1 do begin
-                                printf, lun, 'http://www.lmsal.com/solarsoft/latest_events_archive/events_summary/' +$
-                                        strmid(date,0,4) + '/'+ strmid(date,4,2) + '/' + strmid(date,6,2) + '/' + 'gev_' + date + '_' + $
-                                        strmid( no_region_today.m_no_noaa_today( i ), 16, 2 ) + $
-                                        strmid( no_region_today.m_no_noaa_today( i ), 19, 2 ) + '/index.html'
-                                       
+                                printf, lun, latestevents_url_flare(no_region_today.m_no_noaa_today[i], date)
                         endfor
                 endif else begin
                         no_m_today = 1
@@ -77,10 +87,7 @@ pro arm_na_events, output_path, date_struct, no_region_today, no_region_yesterda
 
                 if ( no_region_today.x_no_noaa_today( 0 ) ne '' ) then begin
                         for i = 0, n_elements( no_region_today.x_no_noaa_today ) - 1 do begin
-                                printf, lun,  'http://www.lmsal.com/solarsoft/latest_events_archive/events_summary/' +$
-                                        strmid(date,0,4) + '/'+ strmid(date,4,2) + '/' + strmid(date,6,2) + '/' + 'gev_' + date + '_' + $
-                                        strmid( no_region_today.x_no_noaa_today( i ), 16, 2 ) + $
-                                        strmid( no_region_today.x_no_noaa_today( i ), 19, 2 ) + '/index.html '
+                                printf, lun, latestevents_url_flare(no_region_today.x_no_noaa_today[i], date)
                         endfor
                 endif else begin
                         no_x_today = 1
@@ -95,11 +102,7 @@ pro arm_na_events, output_path, date_struct, no_region_today, no_region_yesterda
 		if ( no_region_yesterday.c_no_noaa_yesterday( 0 ) ne '' ) then begin
 			printf, lun, '/'
 			for i = 0, n_elements( no_region_yesterday.c_no_noaa_yesterday ) - 1 do begin
-				printf, lun, 'http://www.lmsal.com/solarsoft/latest_events_archive/events_summary/' +$
-                                        strmid(prev_date,0,4) + '/'+ strmid(prev_date,4,2) + '/' + strmid(prev_date,6,2) + '/' + 'gev_' + $
-                                        prev_date + '_' + $
-					strmid( no_region_yesterday.c_no_noaa_yesterday( i ), 16, 2 ) + $
-					strmid( no_region_yesterday.c_no_noaa_yesterday( i ), 19, 2 ) + '/index.html '
+				printf, lun, latestevents_url_flare(no_region_yesterday.c_no_noaa_yesterday[i], prev_date)
 			endfor
 		endif else begin
 			no_c_yesterday = 1
@@ -108,11 +111,7 @@ pro arm_na_events, output_path, date_struct, no_region_today, no_region_yesterda
                if ( no_region_yesterday.m_no_noaa_yesterday( 0 ) ne '' ) then begin
                         if (no_c_yesterday) then printf, lun, '/'
                         for i = 0, n_elements( no_region_yesterday.m_no_noaa_yesterday ) - 1 do begin
-                                printf, lun, 'http://www.lmsal.com/solarsoft/latest_events_archive/events_summary/' +$
-                                        strmid(prev_date,0,4) + '/'+ strmid(prev_date,4,2) + '/' + strmid(prev_date,6,2) + '/' + 'gev_' + $
-                                        prev_date + '_' + $
-                                        strmid( no_region_yesterday.m_no_noaa_yesterday( i ), 16, 2 ) + $
-                                        strmid( no_region_yesterday.m_no_noaa_yesterday( i ), 19, 2 ) + '/index.html '
+                                printf, lun, latestevents_url_flare(no_region_yesterday.m_no_noaa_yesterday[i], prev_date)
                         endfor
                 endif else begin
                         no_m_yesterday = 1
@@ -122,12 +121,7 @@ pro arm_na_events, output_path, date_struct, no_region_today, no_region_yesterda
                if ( no_region_yesterday.x_no_noaa_yesterday( 0 ) ne '' ) then begin
                         if (no_c_yesterday and no_m_yesterday) then printf, lun, '/'
                         for i = 0, n_elements( no_region_yesterday.x_no_noaa_yesterday ) - 1 do begin
-                                printf, lun, 'http://www.lmsal.com/solarsoft/latest_events_archive/events_summary/' +$
-                                        strmid(prev_date,0,4) + '/'+ strmid(prev_date,4,2) + '/' + strmid(prev_date,6,2) + '/' + 'gev_' + $
-                                        prev_date + '_' + $
-                                        strmid( no_region_yesterday.x_no_noaa_yesterday( i ), 16, 2 ) + $
-                                        strmid( no_region_yesterday.x_no_noaa_yesterday( i ), 19, 2 ) + '/index.html ' 
-                                    
+                                printf, lun, latestevents_url_flare( no_region_yesterday.x_no_noaa_yesterday[i], prev_date)
                         endfor
                 endif else begin
                         no_x_yesterday = 1
