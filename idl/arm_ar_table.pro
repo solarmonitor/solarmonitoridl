@@ -1,3 +1,5 @@
+PRO arm_ar_table, output_path, date_struct, summary
+;
 ; Name        : ARM_AR_TABLE
 ;
 ; Purpose     : To create a text file contianing information on active
@@ -23,11 +25,10 @@
 ;
 ; Keywords: None
 ;
-; History: Updated July-2013
+; History: Created by whoknows circa 2002 
+;          Updated by Aoife Mc July 2013  
 
 
-
-PRO arm_ar_table, output_path, date_struct, summary
 
 ; Get dates from date_struct
 
@@ -86,9 +87,9 @@ PRO arm_ar_table, output_path, date_struct, summary
 
                                      endfor
 
-; If no flare history event, output will print '-' instead of url
-
 			endif else begin
+
+; If no flare history event, output will print '-' instead of url
 
 				out_str = out_str + ' -'
 
@@ -100,6 +101,5 @@ PRO arm_ar_table, output_path, date_struct, summary
 
 	close, lun
 
-free_lun, lun
 END 
 ;EOS
