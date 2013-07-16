@@ -1,5 +1,6 @@
 PRO arm_ar_table, output_path, date_struct, summary
-;
+
+;+
 ; Name        : ARM_AR_TABLE
 ;
 ; Purpose     : To create a text file contianing information on active
@@ -27,6 +28,7 @@ PRO arm_ar_table, output_path, date_struct, summary
 ;
 ; History: Created by whoknows circa 2002 
 ;          Updated by Aoife Mc July 2013  
+;-
 
 
 
