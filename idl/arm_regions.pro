@@ -32,7 +32,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 				 SLIS_CHROM = slis_chrom, STRA_00195 = stra_00195, STRB_00195 = strb_00195, GONG_IGRAM=gong_igram, $
 				 SWAP_00174 = swap_00174, saia_00171 = saia_00171, saia_00304=saia_00304, saia_00193=saia_00193, $
                  saia_04500=saia_04500, saia_00094=saia_00094, saia_00131=saia_00131, saia_00211=saia_00211, $
-                 saia_00335=saia_00335, saia_01600=saia_01600, saia_01700=saia_01700, shmi_maglc=shmi_maglc
+                 saia_00335=saia_00335, saia_01600=saia_01600, saia_01700=saia_01700, shmi_maglc=shmi_maglc, chmi_06173=chmi_06173
 
 	angstrom = string( 197B )  
 	
@@ -1050,11 +1050,23 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 		endif
 		
-		; Plot the SAIA 4500 data  
-		if keyword_set(saia_04500) then begin
-			aia_lct,rr,gg,bb,wave=4500
-			bb[255]=255 ;added last value to bb range so the background of the image looks white. DPS 5/Nov/2010
-			tvlct,rr,gg,bb
+		; Plot the HMI 6173 
+		if keyword_set(chmi_06173) then begin
+                   loadct,3
+
+                   tvlct,r0,g0,b0,/get
+                   c0=byte(findgen(256))
+                   c1=byte(sqrt(findgen(256))*sqrt(255.))
+                   c2=byte(findgen(256)^2/255.)
+                   c3=byte((c1+c2/2.)*255./(max(c1)+max(c2)/2.))
+
+
+                   r=c0
+                   g=c0
+                   b=byte(b0/2)
+                   b[255]=255 ;added last value to bb range so the background of the image looks white. DPS 5/Nov/2010
+
+                        tvlct,r,g,b
 			!p.color = 0
 			!p.background = 255
 			
@@ -1069,7 +1081,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			sub_scaled_map.data(0,0)=min(scaled_map.data)
 			sub_scaled_map.data(0,1)=max(scaled_map.data)
 				
-			plot_map, sub_scaled_map, /square, grid = 10, title = 'AIA 4500 ' + angstrom + ' ' + sub_scaled_map.time, $
+			plot_map, sub_scaled_map, /square, grid = 10, title = 'HMI 6173 ' + angstrom + ' ' + sub_scaled_map.time, $
 				dmin = min( sub_scaled_map.data ), dmax = max( sub_scaled_map.data ), gcolor=255
 			
 			for j = 0, n_elements( names ) - 1 do begin
@@ -1087,8 +1099,8 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			
 			image = tvrd()
 			date_time = time2file(sub_scaled_map.time,/seconds)
-			instrument = 'saia'
-			filter = '04500'
+			instrument = 'chmi'
+			filter = '06173'
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
