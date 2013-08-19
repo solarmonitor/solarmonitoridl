@@ -19,10 +19,10 @@ sm_dirtree()
   # List of instruments for which fits and pngs are created
   instruments=('bbso' 'gong' 'gsxi' 'seit' 'hxrt' 'smdi' /
                'trce' 'stra' 'strb' 'slis' 'swap' 'saia' /
-	       'shmi' 'iono')
+	       'shmi' 'iono' 'chmi')
 
   # List of instruments for which movies (mpgs) are created
-  inst_mpgs=('lsco' 'smdi' 'seit' 'stra' 'strb' 'iono')
+  inst_mpgs=('lsco' 'smdi' 'seit' 'stra' 'strb' 'iono' )
   
   # List of directories for each day of SM archives
   dirs=('fits' 'pngs' 'mpgs' 'meta')
