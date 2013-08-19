@@ -63,6 +63,13 @@ sm_dirtree5()
 sm_var() 
 {
     WORKING_PATH=${0/sm_batch/}  # Where all the code resides 
+    if [ ! -f $WORKING_PATH/sm_batch.cfg ]; then 
+        echo "Configuration file $WORKING_PATH/sm_batch.cfg does not exist!"
+        echo ""
+        echo "You can find an example sm_batch.cfg in $WORKING_PATH/doc/examples."
+        echo "Copy this example and modify it to suit your environment."
+        exit 2;
+    fi
     . $WORKING_PATH/sm_batch.cfg # Load the config file variables
     TIME_START=`date -u`
     TODAYS_DATE=`date -u +%Y%m%d`
