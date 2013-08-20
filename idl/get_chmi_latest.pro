@@ -15,9 +15,13 @@ pro get_chmi_latest, filename, err=err
 ;
 ;-
 
+;Set to null
 
-; Query JSOC Database for last 2 hours to download an HMI Cont. fits
-; file
+ filename= ''
+
+ err=''
+
+; Query JSOC Database for last 2 hours to download HMI Cont. fits file
 
   ssw_jsoc_time2data, anytim(systim(/utc))-7200., anytim(systim(/utc)), index, data, $
                       ds='hmi.Ic_noLimbDark_720s_nrt', max_files=1, locfiles= locfiles
