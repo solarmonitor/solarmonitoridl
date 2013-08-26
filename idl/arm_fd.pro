@@ -1129,16 +1129,18 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
   endif
 
 ; Download latest HMI 6173 Fits Data
+
   if ( keyword_set( chmi_06173 ) ) then begin
 
      print, 'Getting HMI Continuum Data'
      
-     get_chmi_latest, filename, err=err
+     get_chmi_latest, temp_path, filename, err=err
      
+;Check that file was downloaded and exists
 
      if err ne '' or filename eq '' then begin
         error_type = 'chmi_06173'
-        goto, error_handler
+       goto, error_handler
      endif
 
 ; Read in fits file
@@ -1152,7 +1154,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      map=map2earth(map)
      
      
-  ;Pad the image
+; Pad the image
 
      map=arm_img_pad(map)
      
@@ -1163,6 +1165,8 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      add_prop, map, wavelength = '(6173 ' +string (197B ) + ')', /replace
 
      id = 'chmi06173'
+
+; Load correct colour table
 
      loadct,3
 
