@@ -109,7 +109,7 @@ sm_sswscript()
     # Write cshell config/runing file
     echo "#!/bin/csh"                                       >  $SSWCSH_FILE
     echo "setenv SSW "$SSW_PATH                             >> $SSWCSH_FILE
-    echo "setenv SSW_INSTR \"gen eit hessi secchi stereo\"" >> $SSWCSH_FILE
+    echo "setenv SSW_INSTR \"gen eit hessi secchi stereo vobs ontology\"" >> $SSWCSH_FILE
     echo "source \$SSW/gen/setup/setup.ssw /quiet"          >> $SSWCSH_FILE
     echo "setenv IDL_DIR $IDL_DIR"                          >> $SSWCSH_FILE
     echo "setenv IDL_PATH $WORKING_PATH/idl"                >> $SSWCSH_FILE
