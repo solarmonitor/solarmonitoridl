@@ -129,6 +129,22 @@ sm_processimages()
 
 }
 
+sm_upload()
+{
+  tar -cvz -C $OUTPUT_PATH --exclude '*sm_files*.tar.gz' -f $OUTPUT_PATH/sm_files.tar.gz .
+  scp $OUTPUT_PATH/sm_files.tar.gz $REMOTE_HOST:$REMOTE_PATH
+  ssh $REMOTE_HOST "cd $REMOTE_PATH && tar -xvz -f sm_files.tar.gz"
+}
+
+sm_cleanup()
+{
+    if [ -d $OUTPUT_PATH ]; then
+        rm -rf $OUTPUT_PATH/sm_files.tar.gz
+        rm -rf $OUTPUT_PATH/20*
+        rm -rf $OUTPUT_PATH/latest_images/
+    fi
+}
+
 # Load variables (local for the run, and global for SM)
 sm_var
 
@@ -146,7 +162,7 @@ sm_sswscript
 # Resize and stamps the images with the perl scripts
 sm_processimages $OUTPUT_PATH/$TODAYS_DATE_DIR
 
-
-
+sm_upload
+sm cleanup
 
 echo "everything sounds good!"
