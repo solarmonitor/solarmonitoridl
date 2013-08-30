@@ -163,6 +163,6 @@ sm_sswscript
 sm_processimages $OUTPUT_PATH/$TODAYS_DATE_DIR
 
 sm_upload
-sm cleanup
+sm_cleanup
 
 echo "everything sounds good!"
