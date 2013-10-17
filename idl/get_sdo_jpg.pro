@@ -41,15 +41,18 @@ case res of
 endcase	
 
 jpgfile=strres+strtrim(instrument,2)+'.jpg'
+print, jpgurl+jpgpath+jpgfile
+
 
 ;files=sock_find(jpgurl,jpgfile,path=jpgpath)
 ;if files[0] eq '' then begin & err=-1 & goto,get_out & endif
 
 ;sock_copy,jpgurl+jpgfile, err=err
-sock_copy,jpgurl+jpgpath+jpgfile, err=err, copy_file=copy_file
+sock_copy,jpgurl+jpgpath+jpgfile, err=err
+
 if err ne '' then begin & err=-1 & goto,get_out & endif
 
-outfilename=copy_file
+outfilename= strres+'_HMImag.jpg'
 
 if not keyword_set(getmap) then return
 
@@ -79,6 +82,24 @@ map={data:data,xc:0.,yc:0.,dx:dx,dy:dy,time:datatime,id:'SDO',dur:0.,xunits:'arc
 
 outmap=map
 
+unscaled_map = map
+     map=map2earth(map)
+                                ;Pad the image.
+     map=arm_img_pad(map,/loads)
+
+     print, 'Doing prop stuff'
+     add_prop, map, instrument = 'SDO HMI', /replace
+     add_prop, map, wavelength = 'Magnetogram', /replace
+     id = 'shmimaglc'
+     loadct, 0,/silent
+
+plot_map, map
+
+im=tvrd()
+
+x2png, 'HMI_mag.png'
+
+
 ;GET INDEXED COLOR IMAGE
 ;READ_JPEG,filename,data,ctout,colors=256
 ;tvlct,ctout;[*,0],ctout[*,1],ctout[*,2]
@@ -101,5 +122,6 @@ get_out:
 if err eq  -1 then print,'An error occured. No file was copied.'
 
 return
+
 
 end
