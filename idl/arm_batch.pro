@@ -147,7 +147,7 @@ didhxrt=0
 	dids171=execute('arm_fd, temp_path, output_path, date_struct, summary, saia171_map_struct, /saia_00171, error_status=error_status_saia_00171',1,1)
 	dids304=execute('arm_fd, temp_path, output_path, date_struct, summary, saia304_map_struct, /saia_00304, error_status=error_status_saia_00304',1,1)
 	dids193=execute('arm_fd, temp_path, output_path, date_struct, summary, saia193_map_struct, /saia_00193, error_status=error_status_saia_00193',1,1)
-	;did4500=execute('arm_fd, temp_path, output_path, date_struct, summary, saia4500_map_struct, /saia_04500, error_status=error_status_saia_04500',1,1)
+	did4500=execute('arm_fd, temp_path, output_path, date_struct, summary, saia4500_map_struct, /saia_04500, error_status=error_status_saia_04500',1,1)
 	dids094=execute('arm_fd, temp_path, output_path, date_struct, summary, saia94_map_struct, /saia_00094, error_status=error_status_saia_00094',1,1)
 	dids131=execute('arm_fd, temp_path, output_path, date_struct, summary, saia131_map_struct, /saia_00131, error_status=error_status_saia_00131',1,1)
 	dids211=execute('arm_fd, temp_path, output_path, date_struct, summary, saia211_map_struct, /saia_00211, error_status=error_status_saia_00211',1,1)
@@ -169,6 +169,7 @@ if not didslis then crashed=crashed+' SOLIS' & if not didstra then crashed=crash
 if not didstrb then crashed=crashed+' STEREOB'; & if not didgsxi then crashed=crashed+' GOESSXI'
 if not didswap then crashed=crashed+' SWAP174' & if not dids171 then crashed=crashed+' AIA171'
 if not dids304 then crashed=crashed+ ' AIA304' & if not dids193 then crashed=crashed+' AIA193'
+if not did4500 then crashed=crashed+ ' AIA4500' & if not dids094 then crashed=crashed+' AIA94'
 if not dids131 then crashed=crashed+' AIA131' & if not dids211 then crashed=crashed+' AIA211'
 if not dids335 then crashed=crashed+' AIA335' & if not did1600 then crashed=crashed+' AIA1600'
 if not did1700 then crashed=crashed+' AIA1700' & if not didshmi then crashed=crashed+ ' HMIMAGLC'
@@ -214,7 +215,7 @@ regcrashed=''
 	regs171=execute('if ( error_status_saia_00171 eq 0 ) then arm_regions, output_path, date_struct, summary, saia171_map_struct, /saia_00171',1,1)
 	regs304=execute('if ( error_status_saia_00304 eq 0 ) then arm_regions, output_path, date_struct, summary, saia304_map_struct, /saia_00304',1,1)
 	regs193=execute('if ( error_status_saia_00193 eq 0 ) then arm_regions, output_path, date_struct, summary, saia193_map_struct, /saia_00193',1,1)
-	;reg4500=execute('if ( error_status_saia_04500 eq 0 ) then arm_regions, output_path, date_struct, summary, saia4500_map_struct, /saia_04500',1,1)
+	reg4500=execute('if ( error_status_saia_04500 eq 0 ) then arm_regions, output_path, date_struct, summary, saia4500_map_struct, /saia_04500',1,1)
 	regs094=execute('if ( error_status_saia_00094 eq 0 ) then arm_regions, output_path, date_struct, summary, saia94_map_struct, /saia_00094',1,1)
 	regs131=execute('if ( error_status_saia_00131 eq 0 ) then arm_regions, output_path, date_struct, summary, saia131_map_struct, /saia_00131',1,1)
 	regs211=execute('if ( error_status_saia_00211 eq 0 ) then arm_regions, output_path, date_struct, summary, saia211_map_struct, /saia_00211',1,1)
@@ -235,7 +236,7 @@ regcrashed=''
 	if not regslis then regcrashed=regcrashed+' SOLIS' & if not regstra then regcrashed=regcrashed+' STEREOA'
 	if not regstrb then regcrashed=regcrashed+' STEREOB' & if not regswap then regcrashed=regcrashed+' SWAP174'
 	if not regs171 then regcrashed=regcrashed+' AIA171' & if not regs304 then regcrashed=regcrashed+' AIA304'
-	if not regs193 then regcrashed=regcrashed+' AIA193'
+	if not regs193 then regcrashed=regcrashed+' AIA193' & if not reg4500 then regcrashed=regcrashed+' AIA4500'
 
 	if not regs094 then regcrashed=regcrashed+' AIA94' & if not regs131 then regcrashed=regcrashed+' AIA131'
 	if not regs211 then regcrashed=regcrashed+' AIA211' & if not regs335 then regcrashed=regcrashed+' AIA335'

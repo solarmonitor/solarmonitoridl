@@ -42,10 +42,9 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
          SEIT_00304 = seit_00304, TRCE_M0171 = trce_m0171, HXRT_FLTER = hxrt_flter, GONG_FARSD = gong_farsd, $
          SLIS_CHROM = slis_chrom, STRA_00195 = stra_00195, STRB_00195 = strb_00195, GONG_IGRAM = gong_igram, $
          swap_00174 = swap_00174, saia_00171=saia_00171, saia_00304=saia_00304, saia_00193=saia_00193, $
-         saia_00094=saia_00094, saia_00131=saia_00131, saia_00211=saia_00211, $
-            saia_00335=saia_00335, saia_01600=saia_01600, saia_01700=saia_01700, shmi_maglc=shmi_maglc, chmi_06173= chmi_06173, $
-
-            error_status = error_status, error_type = error_type
+         saia_04500=saia_04500, saia_00094=saia_00094, saia_00131=saia_00131, saia_00211=saia_00211, $
+         saia_00335=saia_00335, saia_01600=saia_01600, saia_01700=saia_01700, shmi_maglc=shmi_maglc, chmi_06173= chmi_06173, $
+         error_status = error_status, error_type = error_type
   
 ;set up error stuff (assume no error to begin with)
   error_type = ''
@@ -1125,6 +1124,70 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      instrument = 'saia'
      filter = '00193'
      print, 'done sdo aia 193 stuff'
+
+  endif
+
+; Download latest AIA 4500 Fits Data
+  if ( keyword_set( saia_04500 ) ) then begin
+     print, 'Getting SDO AIA 4500'
+     
+     get_sdo_latest,temp_path, filename, filt=4500, err=err
+     
+     if err ne '' or filename eq '' then begin
+        
+        error_type = 'saia_04500'
+        
+        goto, error_handler
+        
+     endif
+
+    mreadfits, filename, index, data
+
+    smart_index2map,index,data,map
+
+    unscaled_map = map
+    
+    map=map2earth(map)
+    
+    ;correct limb dark
+
+    xyz = [ index.crpix1-2.5, index.crpix2+.5, 396 ]
+
+    darklimb_correct, data, odata, limbxyr = xyz, lambda = 4500
+
+    data=odata
+
+    map.data=data
+   
+    ;Pad the image.
+
+    map=arm_img_pad(map)
+
+    data_scl=aia_intscale(map.data,exptime=index.exptime,wavelnth=4500,/bytescale)
+
+    add_prop, map, data = data_scl, /replace
+
+    ;add_prop, map, data = bytscl(abs(map.data < 10800)), /replace
+
+    print, 'Doing prop stuff'
+
+    add_prop, map, instrument = 'SDO AIA', /replace
+
+    add_prop, map, wavelength = '(4500 '+string( 197B )+')', /replace
+
+    id = 'saia04500'
+
+    aia_lct,rr,gg,bb,wave=4500
+
+    bb[255]=255 ;added last value to bb range so the background of the image looks white. DPS 5/Nov/2010
+
+    tvlct,rr,gg,bb
+
+    instrument = 'saia'
+
+    filter = '04500'
+
+    print, 'done sdo aia 4500 stuff'
 
   endif
 
