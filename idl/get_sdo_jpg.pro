@@ -3,12 +3,12 @@ pro get_sdo_jpg, outmap, date=indate, instrument=instrument, filename=outfilenam
 ;+
 ;  Name     : GET_SDO_JPG
 ;
-;  Purpose  : Download latest HMI Magnetogram jpg and output a data
+;  Purpose  : Download latest SDO jpg images (HMI, AIA) and output a data
 ;             map, set /MAP, and  provide OUTMAP as an empty output
 ;             variable.Otherwise file will simply be downloaded
 ;             locally.
 ;
-;  Syntax   : IDL> get_sdo_jpg, map
+;  Syntax   : IDL> get_sdo_jpg, map, INSTRUMENT= '_HMImag'
 ;
 ;  Inputs   : OUTMAP = Map structure name 
 ;            
@@ -58,12 +58,11 @@ outfilename=''
 
 ; Checking if full disk, thumbnail etc. is to be downloaded
 
-     if n_elements(res) lt 1 then res='full'
         case res of
-	'thumb' :	strres='t'
-	'low'	:	strres='l'
-	'full'	:	strres='f'
-	else	:	strres='f'
+	'thumb' :strres='t'
+	'low'	:strres='l'
+	'full'	:strres='f'
+	else	:strres='f'
      endcase	
 
 ;Name of file to download
@@ -92,7 +91,11 @@ if not keyword_set(getmap) then return
 ; Generate map structure 
 
     imgsz=size(data)
+
+;Get rid of time stamp on image
+
     data[0:imgsz[1]/2.,0:imgsz[2]/10.]=data[0,0]
+
     pb0r_var=pb0r(systim(/utc),l0=l0_var,/arcsec,/earth)
 
     dx=.51 & dy=.51
