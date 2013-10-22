@@ -12,7 +12,8 @@ pro get_sdo_jpg, outmap, date=indate, instrument=instrument, filename=outfilenam
 ;
 ;  Inputs   : OUTMAP = Map structure name 
 ;            
-;  Keywords : DATE       = Date in YYYYMMDD format
+;  Keywords : DATE       = Date in anytim format (e.g. 2012-02-23,
+;                          2012/02/23, 2000343242.23, ...)
 ;             INSTRUMENT = String input: 0094, 0131, 0171, 0193, 0211
 ;                          0335, 1600, 1700, 4500  or _HMImag,
 ;                          _211_193_171, _304_211_171, or _094_335_193
@@ -43,9 +44,9 @@ outfilename=''
 
 ;If no date is provided then date is set as present day
 
-     if n_elements(indate) lt 1 then ftimetoday=time2file(systim(/utc),/date) else ftimetoday=indate
-     yyyy=strmid(ftimetoday,0,4) & mm=strmid(ftimetoday,4,2) & dd=strmid(ftimetoday,6,2)
-     timesfile='http://sdowww.lmsal.com/sdomedia/SunInTime/'+yyyy+'/'+mm+'/'+dd+'/timespfss.txt'
+     if n_elements(indate) lt 1 then indate=systim(/utc) else ftimetoday=indate
+     ftimetoday = anytim(indate, /ecs, /date)
+     timesfile='http://sdowww.lmsal.com/sdomedia/SunInTime/'+ftimetoday+'/timespfss.txt'
      sock_list,timesfile,timeslist
 
 ;Checking if HMI images are available for given date
@@ -96,7 +97,7 @@ if not keyword_set(getmap) then return
 
     data[0:imgsz[1]/2.,0:imgsz[2]/10.]=data[0,0]
 
-    pb0r_var=pb0r(systim(/utc),l0=l0_var,/arcsec,/earth)
+    pb0r_var=pb0r(datatime,l0=l0_var,/arcsec,/earth)
 
     dx=.51 & dy=.51
 
