@@ -1050,6 +1050,56 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 		endif
 		
+                ; Plot the SAIA 4500 data  
+
+		if keyword_set(saia_04500) then begin
+
+			aia_lct,rr,gg,bb,wave=4500
+
+			bb[255]=255 ;added last value to bb range so the background of the image looks white. DPS 5/Nov/2010
+
+			tvlct,rr,gg,bb
+			!p.color = 0
+			!p.background = 255
+			
+			;	scaled map	
+			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
+				yrange=[ y( 0, i ) - 5 * 60., y( 0, i ) + 5 * 60. ]
+			
+			;	unscaled (raw) map
+			sub_map, unscaled_map, sub_unscaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
+				yrange=[ y( 0, i ) - 5 * 60., y( 0, i ) + 5 * 60. ]
+							
+			sub_scaled_map.data(0,0)=min(scaled_map.data)
+			sub_scaled_map.data(0,1)=max(scaled_map.data)
+				
+			plot_map, sub_scaled_map, /square, grid = 10, title = 'AIA 4500 ' + angstrom + ' ' + sub_scaled_map.time, $
+				dmin = min( sub_scaled_map.data ), dmax = max( sub_scaled_map.data ), gcolor=255
+			
+			for j = 0, n_elements( names ) - 1 do begin
+				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
+					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
+					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
+					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
+				
+					xyouts, x( 0 , j), y( 0 , j) + labeloffset, names( j ), align = 0.5, $
+						charthick = charthreg[0], color = 0, charsize = charregsz
+					xyouts, x( 0 , j), y( 0 , j) + labeloffset, names( j ), align = 0.5, $
+						charthick = charthreg[1], color = 255, charsize = charregsz
+				endif
+			endfor
+			
+			image = tvrd()
+			date_time = time2file(sub_scaled_map.time,/seconds)
+			instrument = 'saia'
+			filter = '04500'
+			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
+			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
+			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
+		endif
+
+
+
 		; Plot the HMI 6173 
 		if keyword_set(chmi_06173) then begin
                    loadct,3
