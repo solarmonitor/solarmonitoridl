@@ -59,6 +59,7 @@ outfilename=''
 
 ; Checking if full disk, thumbnail etc. is to be downloaded
 
+       if n_elements(res) lt 1 then res='full'
         case res of
 	'thumb' :strres='t'
 	'low'	:strres='l'
