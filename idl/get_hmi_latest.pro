@@ -29,10 +29,6 @@ Pro get_hmi_latest,  temp_path, filename, err=err
 
  filename = temp_path + '/HMI' + time2file(index.date_obs, /sec) + '_6173.fits'
 
-print, filename
-
-stop
-
  
  ;Check that file exists
 
