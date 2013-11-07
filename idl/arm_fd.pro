@@ -1471,15 +1471,24 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( shmi_maglc ) ) then begin
 
      print, 'Getting SDO HMI MAG'
-     get_sdo_jpg, map, instrument='_HMImag', filename=filename, err=err, /getmap,reso='full'
-     if err ne '' or var_type(map) ne 8 then begin
+     get_hmi_latest, temp_path, filename, err=err
+     if err ne '' then begin
         error_type = 'shmi_maglc'
         goto, error_handler
      endif
-     
+  
+     mreadfits, filename, index, data
+
+     index2map,index,data,map
+
+     map=rot_map(map,180)
+
      unscaled_map = map
+
      map=map2earth(map)
-                                ;Pad the image.
+
+    ;Pad the image
+
      map=arm_img_pad(map,/loads)
 
      print, 'Doing prop stuff'
