@@ -108,6 +108,9 @@ sm_sswscript()
     
     # Write cshell config/runing file
     echo "#!/bin/csh"                                       >  $SSWCSH_FILE
+    if [[ -n $PROXY ]]; then
+        echo "setenv http_proxy "$PROXY                     >> $SSWCSH_FILE
+    fi
     echo "setenv SSW "$SSW_PATH                             >> $SSWCSH_FILE
     echo "setenv SSW_INSTR \"gen eit hessi secchi stereo vobs ontology\"" >> $SSWCSH_FILE
     echo "source \$SSW/gen/setup/setup.ssw /quiet"          >> $SSWCSH_FILE
