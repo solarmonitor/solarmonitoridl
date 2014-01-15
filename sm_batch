@@ -109,7 +109,11 @@ sm_sswscript()
     # Write cshell config/runing file
     echo "#!/bin/csh"                                       >  $SSWCSH_FILE
     if [[ -n $PROXY ]]; then
-        echo "setenv http_proxy "$PROXY                     >> $SSWCSH_FILE
+	proxy_list="http_proxy https_proxy ftp_proxy"
+	for proxyset in $proxy_list; do
+            echo "setenv" $proxyset $PROXY                 >> $SSWCSH_FILE
+            echo "setenv" ${proxyset^^} $PROXY             >> $SSWCSH_FILE
+	done
     fi
     echo "setenv SSW "$SSW_PATH                             >> $SSWCSH_FILE
     echo "setenv SSW_INSTR \"gen eit hessi secchi stereo vobs ontology\"" >> $SSWCSH_FILE
