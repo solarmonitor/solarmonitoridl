@@ -65,7 +65,7 @@ foreach $instname (sort readdir(dir)) {
 		system("convert -size 600x100 xc:none -font AvantGarde-Book -pointsize 50 -gravity center -stroke black -strokewidth 2 -annotate 0 'SolarMonitor.org' -background none -shadow 100x3+0+0 +repage -stroke none -fill white -annotate 0 'SolarMonitor.org' $file_use +swap -gravity southeast -geometry -90+50 -composite $result_file") == 0  || die "Could't create stamped image $base_file .png, $!";
 
 
-	      } 
+	      } # close if fd 
 	      if  ($filename =~ /_ar_/){
 		$base_file = substr($filename,0,35);
 		$result_file = $inst_path . "/" . $base_file . ".png";
@@ -76,15 +76,27 @@ foreach $instname (sort readdir(dir)) {
 		system("convert $file_use -crop 489x489+68+30 -resize 60x60 $result_file_th") == 0 || die "Could't create AR thumbnail $base_file_AR _small60.jpg, $!";
 	#	@args8 = ("rm", "-rf", $file_use);
 	#	system("rm -rf $file_use") == 0 or die "Couldn't remove $base_file _pre.png, $!";
-	      }
+	      } # close if ar
 
              @args8 = ("rm", "-rf", $file_use);
              system(@args8) == 0 or die "Couldn't remove $filename, $!";
 
-	    }
-	  }
+	    } # close if _pre files
+	  } # close foreach loop
 	  closedir(Instfold);
-	}
-      }
+	} elsif ($instname =~ /(\w)([^ace])/) { # we work with goes now
+	    $inst_path = $dir_use."/".$instname;
+	    opendir(Instfold,$inst_path) || die "no $instname?: $!";
+	    print "Converting to png the files in $inst_path \n";
+	    foreach $filename (sort readdir(Instfold)){
+		if ($filename =~ /.gif/){
+		    $file_use = "$inst_path/$filename";
+		    print "Converting GOES: $filename to png\n"; 
+		    @args1 = ("mogrify", "-format","png", $file_use,);
+		    system(@args1) == 0 or die "Couldn't open directory, $!";		
+		}
+	    }
+	} # Closes elsif and if
+} # closes foreach dir
 closedir(dir);
 
