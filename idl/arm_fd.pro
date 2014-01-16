@@ -969,9 +969,6 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
   if ( keyword_set( swap_00174 ) ) then begin
 
-;TEMPORARY!!! should use SSW version of SWAP__define?
-     !Path = './idl/smart_system/objects' + ':' +!Path
-
      print, 'Getting SWAP Image'
      swap_obj = obj_new('swap')
      swap_obj->set,filt='lv1',prep=0,local=0
