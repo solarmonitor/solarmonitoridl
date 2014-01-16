@@ -121,7 +121,7 @@ sm_sswscript()
     echo "setenv IDL_DIR $IDL_DIR"                          >> $SSWCSH_FILE
     echo "setenv IDL_PATH $WORKING_PATH/idl"                >> $SSWCSH_FILE
     echo "setenv WORKING_PATH "$WORKING_PATH                >> $SSWCSH_FILE
-    echo "sswidl $SMIDL_FILE > $SMIDLLOG_FILE"              >> $SSWCSH_FILE
+    echo "sswidl $SMIDL_FILE >& $SMIDLLOG_FILE"             >> $SSWCSH_FILE
     # In the original file was calling sswidl -32; It does not work in linux
     
     chmod 700 $SSWCSH_FILE
