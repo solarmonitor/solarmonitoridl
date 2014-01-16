@@ -108,13 +108,20 @@ sm_sswscript()
     
     # Write cshell config/runing file
     echo "#!/bin/csh"                                       >  $SSWCSH_FILE
+    if [[ -n $PROXY ]]; then
+	proxy_list="http_proxy https_proxy ftp_proxy"
+	for proxyset in $proxy_list; do
+            echo "setenv" $proxyset $PROXY                 >> $SSWCSH_FILE
+            echo "setenv" ${proxyset^^} $PROXY             >> $SSWCSH_FILE
+	done
+    fi
     echo "setenv SSW "$SSW_PATH                             >> $SSWCSH_FILE
     echo "setenv SSW_INSTR \"gen eit hessi secchi stereo vobs ontology swap\"" >> $SSWCSH_FILE
     echo "source \$SSW/gen/setup/setup.ssw /quiet"          >> $SSWCSH_FILE
     echo "setenv IDL_DIR $IDL_DIR"                          >> $SSWCSH_FILE
     echo "setenv IDL_PATH $WORKING_PATH/idl"                >> $SSWCSH_FILE
     echo "setenv WORKING_PATH "$WORKING_PATH                >> $SSWCSH_FILE
-    echo "sswidl $SMIDL_FILE > $SMIDLLOG_FILE"              >> $SSWCSH_FILE
+    echo "sswidl $SMIDL_FILE >& $SMIDLLOG_FILE"             >> $SSWCSH_FILE
     # In the original file was calling sswidl -32; It does not work in linux
     
     chmod 700 $SSWCSH_FILE
