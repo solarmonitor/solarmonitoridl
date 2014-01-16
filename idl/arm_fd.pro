@@ -1481,8 +1481,6 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
      smart_index2map,index,data,map
 
-     map=rot_map(map,180)
-
      unscaled_map = map
 
      add_prop, map, data = bytscl( data, min = -150, max = 150 ), /replace
