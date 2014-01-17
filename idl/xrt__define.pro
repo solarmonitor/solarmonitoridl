@@ -106,7 +106,7 @@ self.setend = ptr_new(/allocate)
 self.sat_prop = ptr_new(/allocate)
 sat_prop={explot:{log:1,grid:1,center:1,colortable:1}, $
 	plot_prop:{log:1,grid:15,center:[0,0],colortable:3}, $
-	fspan:{url:'http://www.lmsal.com',ftype:'*.fits',path:'/solarsoft/sdb/hinode/xrt/l1q_synop'}, $
+	fspan:{url:'http://solar.physics.montana.edu',ftype:'*.fits',path:'/HINODE/XRT/QL/syn_comp_fits/'}, $
 	xstd:2100,ystd:2100,loadct:3}
 *(self.sat_prop) = sat_prop
 
