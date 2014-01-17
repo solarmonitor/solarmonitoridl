@@ -746,7 +746,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      map=arm_img_pad(map,/loads)
      
      case xrtfilter of
-        'Al_mesh' : im = bytscl(alog10(map.data>10)
+        'Al_mesh' : im = bytscl(alog10(map.data>10))
         'Ti_poly' : im = bytscl(abs(map.data))^.5
         'Open'    : im = bytscl(abs(map.data))^.5
         else      : im = bytscl(alog10( abs(map.data) + 1 ))
