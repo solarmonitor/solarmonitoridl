@@ -809,9 +809,10 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      add_prop, map, instrument = 'GONG', /replace
      add_prop, map, wavelength = 'Farside', /replace
      id = 'gongfarsd'
-     readcol,'./idl/color_tables/blue_farside.dat',bbb
-     readcol,'./idl/color_tables/green_farside.dat',ggg
-     readcol,'./idl/color_tables/red_farside.dat',rrr
+     colortables = getenv('WORKING_PATH') + 'color_tables/'
+     readcol,colortables + 'blue_farside.dat',bbb
+     readcol,colortables + 'green_farside.dat',ggg
+     readcol,colortables + 'red_farside.dat',rrr
      tvlct,rrr,ggg,bbb
 
      instrument = 'gong'
