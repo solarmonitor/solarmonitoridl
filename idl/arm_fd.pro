@@ -47,6 +47,9 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
          error_status = error_status, error_type = error_type
   
 ;set up error stuff (assume no error to begin with)
+; COMMENT, JUST TESTING GIT FUNCTIONALITY. E. CARLEY.
+
+
   error_type = ''
   error_status = 0
   
