@@ -46,10 +46,9 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
          saia_00335=saia_00335, saia_01600=saia_01600, saia_01700=saia_01700, shmi_maglc=shmi_maglc, chmi_06173= chmi_06173, $
          error_status = error_status, error_type = error_type
   
+  
+  
 ;set up error stuff (assume no error to begin with)
-; COMMENT, JUST TESTING GIT FUNCTIONALITY. E. CARLEY.
-
-
   error_type = ''
   error_status = 0
   
@@ -103,6 +102,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ; GONG+ properties
 
   if ( keyword_set( gong_maglc ) ) then begin
+  
      
 ;    get_gong, filename, err = err
      get_gong2_mag, date, filename, err, /mag,out_path=temp_path
@@ -182,8 +182,9 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ; GONG+ IGRAM properties
 
   if ( keyword_set( gong_igram ) ) then begin
+  
 
-     get_gong2_mag, date, filename, err, /int
+     get_gong2_mag, date, filename, err, /int, out_path=temp_path
 ;	get_gong, filename, /int, err=err
 
      if err eq -1 then begin
@@ -257,6 +258,8 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ; MDI continuum properties
 
   if ( keyword_set( smdi_igram ) ) then begin
+  
+ 	
      get_wl, date, filename     ; ftp in the most recent data
 
      if (filename eq '') then begin
@@ -304,6 +307,8 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ; MDI magnetogram properties
 
   if ( keyword_set( smdi_maglc ) ) then begin
+  
+  
      get_mag, date, filename, err
      
      if ( filename[0] eq '' ) then begin
@@ -352,6 +357,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
 
   if ( keyword_set( seit_00195 ) ) then begin
+  
 
      map=''
      index=''
@@ -422,6 +428,8 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ; EIT FeXV 284 properties
 
   if ( keyword_set( seit_00284 ) ) then begin
+  
+  
      map=''
      index=''
      smart=''
@@ -476,6 +484,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ; EIT FeIX/X 171 properties
 
   if ( keyword_set( seit_00171 ) ) then begin
+  
 
      map=''
      index=''
@@ -530,6 +539,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ;EIT HeII 304 properties
 
   if ( keyword_set( seit_00304 ) ) then begin
+  
 
      map=''
      index=''
@@ -584,6 +594,8 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ; H-alpha properties
 
   if ( keyword_set( bbso_halph ) ) then begin
+
+  
      date=date_struct.date
 
      kanzel=0
@@ -690,6 +702,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ; TRACE Fe IX/X 171 properties
 
   if ( keyword_set( trce_m0171 ) ) then begin
+  
      print, 'Getting TRACE Mosaic'
      get_trace_mosaic, map, status
      map2index,map,index
@@ -718,6 +731,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ; XRT properties
 
   if ( keyword_set( hxrt_flter ) ) then begin
+
      print, 'Getting XRT Image'
      xrt_obj = obj_new('xrt')
                                 ;xrt_obj -> latest
@@ -1025,6 +1039,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
   if ( keyword_set( saia_00171 ) ) then begin
 
+
      print, 'Getting SDO AIA 171'
      get_sdo_latest,temp_path, filename, filt=171, err=err
      if err ne '' or filename eq '' then begin
@@ -1061,6 +1076,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
   if ( keyword_set( saia_00304 ) ) then begin
 
+
      print, 'Getting SDO AIA 304'
      get_sdo_latest,temp_path, filename, filt=304, err=err
      if err ne '' or filename eq '' then begin
@@ -1095,6 +1111,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
   endif
   
   if ( keyword_set( saia_00193 ) ) then begin
+
 
      print, 'Getting SDO AIA 193'
      get_sdo_latest,temp_path, filename, filt=193, err=err
@@ -1131,6 +1148,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
 ; Download latest AIA 4500 Fits Data
   if ( keyword_set( saia_04500 ) ) then begin
+
      print, 'Getting SDO AIA 4500'
      
      get_sdo_latest,temp_path, filename, filt=4500, err=err
@@ -1261,7 +1279,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
   endif
 
   if ( keyword_set( saia_00094 ) ) then begin
-
+   
      print, 'Getting SDO AIA 094'
      get_sdo_latest,temp_path, filename, filt=094, err=err
      if err ne '' or filename eq '' then begin
@@ -1296,6 +1314,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
   endif
 
   if ( keyword_set( saia_00131 ) ) then begin
+ 
 
      print, 'Getting SDO AIA 131'
      get_sdo_latest,temp_path, filename, filt=131, err=err
@@ -1332,6 +1351,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
   if ( keyword_set( saia_00211 ) ) then begin
 
+
      print, 'Getting SDO AIA 211'
      get_sdo_latest,temp_path, filename, filt=211, err=err
      if err ne '' or filename eq '' then begin
@@ -1367,6 +1387,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
   if ( keyword_set( saia_00335 ) ) then begin
 
+
      print, 'Getting SDO AIA 335'
      get_sdo_latest,temp_path, filename, filt=335, err=err
      if err ne '' or filename eq '' then begin
@@ -1399,8 +1420,11 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      print, 'done sdo aia 335 stuff'
 
   endif
-
+;------------------------------------------------------------------;
+;	   						AIA 1600	                       
+;------------------------------------------------------------------; 
   if ( keyword_set( saia_01600 ) ) then begin
+  
 
      print, 'Getting SDO AIA 1600'
      get_sdo_latest,temp_path, filename, filt=1600, err=err
@@ -1435,7 +1459,11 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
   endif
 
+;------------------------------------------------------------------;
+;	   						AIA 1700	                       
+;------------------------------------------------------------------;  
   if ( keyword_set( saia_01700 ) ) then begin
+
 
      print, 'Getting SDO AIA 1700'
      get_sdo_latest,temp_path, filename, filt=1700, err=err
@@ -1469,17 +1497,33 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      print, 'done sdo aia 1700 stuff'
 
   endif
+;------------------------------------------------------------------;
+;	   					HMI Magnemtometer	                       ;
+;------------------------------------------------------------------;  
 
   if ( keyword_set( shmi_maglc ) ) then begin
 
+
      print, 'Getting SDO HMI MAG'
+   
      get_hmi_latest, temp_path, filename, err=err
+     
      if err ne '' then begin
+     	print,'-----------------------------'
+     	print,' 	 HMI MAG ERROR			'
+     	print,'-----------------------------'
         error_type = 'shmi_maglc'
         goto, error_handler
      endif
-  
+ 
      mreadfits, filename, index, data
+<<<<<<< HEAD
+	
+     smart_index2map,index,data,map
+     map=rot_map(map,180)
+
+     unscaled_map = map
+=======
 
      smart_index2map,index,data,map
 
@@ -1487,22 +1531,48 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
      add_prop, map, data = bytscl( data, min = -150, max = 150 ), /replace
 
+>>>>>>> upstream/allinone
      map=map2earth(map)
-
-    ;Pad the image
-
-     map=arm_img_pad(map,/loads)
+	
+	 rsun = map.rsun
+	 pixrad=rsun/map.cdelt1
+	 sun_cen_hmi = scc_SUN_CENTER(map)
+	 
+	 ;------------------------------------------------------------------------------------------;
+	 ; The following are the components of circ_mask.pro. However, if circ_mask is used here 
+	 ; arm_fd ends prematurely and now png is plotted. There may be a conflict between the error
+	 ; statements inside circ_mask and the error messages in this code. Eoin Carley 20-Nov-2013
+	 r0=pixrad
+	 sz = SIZE(map.data)
+	 x = sz(1)
+  	 a = sz(2)
+     x1 = LONG(sun_cen_hmi.XCEN)
+     y1 = LONG(sun_cen_hmi.YCEN)
+     r = r0*r0
+     a = LINDGEN(x*a)
+     tmptmp = LONG(a/x)
+     yy = tmptmp - 1L
+     xx = a - tmptmp*x - 1L
+     a = (xx-x1)^2 + (yy-y1)^2
+     ii = WHERE(a GE r)
+	 ;------------------------------------------------------------------------------------------;
+	
+	 data_tmp = map.data
+	 data_tmp[ii]  = min(data_tmp)
+	 map.data = data_tmp
+     ;Pad the image 
+     map=arm_img_pad(map)
 
      print, 'Doing prop stuff'
      add_prop, map, instrument = 'SDO HMI', /replace
      add_prop, map, wavelength = 'Magnetogram', /replace
      id = 'shmimaglc'
-     loadct, 0,/silent
+     loadct, 0, /silent
 
      instrument = 'shmi'
      filter = 'maglc'
-     print, 'done sdo hmi maglc stuff'
-
+     print, 'Finshed SDO HMI magnetometer image processing'
+ 
   endif
 
 ;Check to see if map is all 0's etc (prevents plotting map for diff. inst. in wrong file...)
@@ -1585,6 +1655,10 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
       'slis_chrom':  plot_map, map, /square, grid = 10, fov = fov, $
                                title = 'SOLIS Chromospheric Magnetogram ' + map.time, $
                                position = position, center = center, gcolor=255
+                               
+      'shmi_maglc':  plot_map, map, /square, fov = fov, grid = 10, $
+        					   title = map.instrument + ' ' + map.wavelength + ' ' + map.time, $
+        					   position = position, center = center, gcolor=255, dmin=-150, dmax=150               
 
 
 ;    'stra_00195':  plot_map, map, /square, grid = 10, fov = fov, $
@@ -1739,7 +1813,7 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
 ; Write fulldisk pngs and fits to /data/yyyymmdd/[png,fits]
 
    if ( map.id ne 'NO DATA' ) then begin
-
+   
       wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + image_png_file, zb_plot
       map2fits, unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + image_fts_file
       gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + image_fts_file
@@ -1780,6 +1854,7 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
    error_handler:
    
     if (error_type ne '') then error_status = 1
+    print, error_type
 
 
 end
