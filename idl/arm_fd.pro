@@ -47,7 +47,6 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
          error_status = error_status, error_type = error_type
   
 ;set up error stuff (assume no error to begin with)
-; COMMENT, JUST TESTING GIT FUNCTIONALITY. E. CARLEY.
 
 
   error_type = ''
@@ -594,42 +593,49 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      date=date_struct.date
 
 ;BBSO archive.
-     print,'Searching for BBSO data...'
-     get_halpha, date, filename, err, exist,temp_path=temp_path
+   ;print,'Searching for BBSO data...'
+     ;get_halpha, date, filename, err, exist,temp_path=temp_path
 
 ;Limb corrected Kanzelhohe.
-     print,'Searching for KANZELHOHE data...'
-     if (err eq -1 and exist eq 0) then $
-        get_kanzel, date, filename, err, exist, /frfile,temp_path=temp_path
+     ;print,'Searching for KANZELHOHE data...'
+     ;if (err eq -1 and exist eq 0) then $
+        ;get_kanzel, date, filename, err, exist, /frfile,temp_path=temp_path
      
+     
+     ;print, '!!!!!! Error is: '+string(err)
 ;Limb darkened Kanzelhohe.
 ;	if (err eq -1) then begin
 ;		get_kanzel, date, filename, err, /today
 ;       if (err ne -1) then begin & filename = ( REVERSE( STR_SEP( filename, '/' ) ) )[0] & kanzel=1 & limb=1 & endif
 ;   endif
-
+     
+    get_halpha_v2, /today, temp_path = TEMP_PATH, filename = FILENAME, err=ERR
+     
      if (err eq -1 or exist eq 1) then begin
+     	print,'Found error in Kanz or BBSO'
         error_type = 'bbso_halph'
                                 ; do any other error handling stuff
         goto, error_handler
      endif
-
-                                ;filename = ( REVERSE( STR_SEP( filename, '/' ) ) )[0]
      
+	 file_loc = filename
+     filename = ( REVERSE( STR_SEP( filename, '/' ) ) )[0]
+     print, filename
      obsname=strmid(filename,0,4)
+     print, obsname
      case obsname of
         'bbso' : bbso=1
         'kanz' : kanzel=1
      endcase
-     
      limbname=strmid(filename,11,2)
+     print, limbname
      case limbname of 
         'fr' : limb=0
         'fl' : limb=1
      endcase
-
-     mreadfits, filename, index, data
-     if limb eq 1 then kanzel_prep, data, localfile=filename ; kanzel_prep,data,local=filetrunc
+     
+     mreadfits, file_loc, index, data
+     ;if limb eq 1 then kanzel_prep, data, localfile=file_loc ; kanzel_prep,data,local=filetrunc
 
 ;   if ( n_elements( data ) eq 0 ) then begin
 ;      map = dummy_map()
@@ -1474,22 +1480,28 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
      print, 'Getting SDO HMI MAG'
      get_hmi_latest, temp_path, filename, err=err
+     help, err
+     print,'Error from get_hmi_latest: '+string(err)
+     
      if err ne '' then begin
         error_type = 'shmi_maglc'
         goto, error_handler
      endif
-  
      mreadfits, filename, index, data
 
      smart_index2map,index,data,map
 
-     unscaled_map = map
+     pixrad = map.rsun/map.cdelt1    
+     mask_index = circle_mask(map.data, map.crpix1, map.crpix2, 'GE', pixrad)   
+     data_tmp = map.data
+     data_tmp[mask_index]  = min(data_tmp)
 
-     add_prop, map, data = bytscl( data, min = -150, max = 150 ), /replace
+     unscaled_map = map
+    
+     add_prop, map, data = bytscl( data_tmp, min = -150, max = 150 ), /replace
 
      map=map2earth(map)
-
-    ;Pad the image
+     ;Pad the image
 
      map=arm_img_pad(map,/loads)
 
@@ -1498,14 +1510,18 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      add_prop, map, wavelength = 'Magnetogram', /replace
      id = 'shmimaglc'
      loadct, 0,/silent
-
      instrument = 'shmi'
      filter = 'maglc'
-     print, 'done sdo hmi maglc stuff'
+     print, 'Done sdo hmi maglc stuff'
 
   endif
+;				        				        				    ;
+;				        End of image reading 	  					;  
+;-------------------------------------------------------------------;
 
+  
 ;Check to see if map is all 0's etc (prevents plotting map for diff. inst. in wrong file...)
+
 if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_type=instrument+'_'+filter & goto, error_handler & endif
 
 ; Plot the data
@@ -1775,7 +1791,7 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
       map_struct = {scaled_map : map, unscaled_map : unscaled_map, scaled_db_map : dB_map, unscaled_db_map : unscaled_dB_map} $
    else $
       map_struct = {scaled_map : map, unscaled_map : unscaled_map} ;,dbmap gong stuff
-
+   help, map_struct
                                 ;Crude IDL error handling.  uses a goto! (eek)
    error_handler:
    

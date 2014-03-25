@@ -119,14 +119,14 @@ error_status_saia_00131=1 & error_status_saia_00211=1 & error_status_saia_00335=
 error_status_saia_01700=1 & error_status_shmi_maglc=1 & error_status_chmi_06173=1
 
     didswap=execute('arm_fd, temp_path, output_path, date_struct, summary, swap174_map_struct, /swap_00174, error_status=error_status_swap_00174',1,1) 
-didhxrt=0
+    didhxrt=0
     didhxrt=execute('arm_fd, temp_path, output_path, date_struct, summary, hxrt_map_struct, /hxrt_flter',1,1) 
-;    dide195=execute('arm_fd, temp_path, output_path, date_struct, summary, eit195_map_struct, /seit_00195, error_status=error_status_seit_00195',1,1) 
-;    dide284=execute('arm_fd, temp_path, output_path, date_struct, summary, eit284_map_struct, /seit_00284',1,1) 
-;    didmigr=execute('arm_fd, temp_path, output_path, date_struct, summary, wl_map_struct, /smdi_igram, error_status=error_status_smdi_igram',1,1) 
-;    didmmag=execute('arm_fd, temp_path, output_path, date_struct, summary, mag_map_struct, /smdi_maglc, error_status=error_status_smdi_maglc',1,1) 
-;    dide171=execute('arm_fd, temp_path, output_path, date_struct, summary, eit171_map_struct, /seit_00171',1,1) 
-;    dide304=execute('arm_fd, temp_path, output_path, date_struct, summary, eit304_map_struct, /seit_00304',1,1) 
+;   dide195=execute('arm_fd, temp_path, output_path, date_struct, summary, eit195_map_struct, /seit_00195, error_status=error_status_seit_00195',1,1) 
+;   dide284=execute('arm_fd, temp_path, output_path, date_struct, summary, eit284_map_struct, /seit_00284',1,1) 
+;   didmigr=execute('arm_fd, temp_path, output_path, date_struct, summary, wl_map_struct, /smdi_igram, error_status=error_status_smdi_igram',1,1) 
+;   didmmag=execute('arm_fd, temp_path, output_path, date_struct, summary, mag_map_struct, /smdi_maglc, error_status=error_status_smdi_maglc',1,1) 
+;   dide171=execute('arm_fd, temp_path, output_path, date_struct, summary, eit171_map_struct, /seit_00171',1,1) 
+    ;dide304=execute('arm_fd, temp_path, output_path, date_struct, summary, eit304_map_struct, /seit_00304',1,1) 
     didt171=execute('arm_fd, temp_path, output_path, date_struct, summary, trce_mosaic171_map_struct, /trce_m0171',1,1) 
     didgmag=execute('arm_fd, temp_path, output_path, date_struct, summary, gong_map_struct, /gong_maglc',1,1) 
     didgigr=execute('arm_fd, temp_path, output_path, date_struct, summary, gongint_map_struct, /gong_igram, error_status=error_status_gong_igram',1,1) 
@@ -135,9 +135,9 @@ didhxrt=0
 	didslis=execute('arm_fd, temp_path, output_path, date_struct, summary, slischrom_map_struct, /slis_chrom, error_status=error_status_slis_chrom',1,1) 
 	didstra=execute('arm_fd, temp_path, output_path, date_struct, summary, stereoa_map_struct, /stra_00195, error_status=error_status_stra_00195',1,1) 
 	didstrb=execute('arm_fd, temp_path, output_path, date_struct, summary, stereob_map_struct, /strb_00195, error_status=error_status_strb_00195',1,1)
-        
+    
 
-;Free up all the LUN's used in ARM_BATCH etc.
+    ;Free up all the LUN's used in ARM_BATCH etc.
 	free_lun,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31, $
 		32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61, $
 		62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91, $
@@ -155,9 +155,9 @@ didhxrt=0
 	did1600=execute('arm_fd, temp_path, output_path, date_struct, summary, saia1600_map_struct, /saia_01600, error_status=error_status_saia_01600',1,1)
 	did1700=execute('arm_fd, temp_path, output_path, date_struct, summary, saia1700_map_struct, /saia_01700, error_status=error_status_saia_01700',1,1)
 	didshmi=execute('arm_fd, temp_path, output_path, date_struct, summary, shmimaglc_map_struct, /shmi_maglc, error_status=error_status_shmi_maglc',1,1)
-        didchmi=execute('arm_fd, temp_path, output_path, date_struct, summary, chmi6173_map_struct, /chmi_06173, error_status=error_status_chmi_06173',1,1)
-        
-;    didgsxi=execute('arm_fd, temp_path, output_path, date_struct, summary, sxig12_map_struct, /gsxi',1,1) 
+    didchmi=execute('arm_fd, temp_path, output_path, date_struct, summary, chmi6173_map_struct, /chmi_06173, error_status=error_status_chmi_06173',1,1)
+  
+	;didgsxi=execute('arm_fd, temp_path, output_path, date_struct, summary, sxig12_map_struct, /gsxi',1,1) 
 
 if not didhxrt then crashed=crashed+' XRT' & if not didt171 then crashed=crashed+' TRACE'
 ;if not dide195 then crashed=crashed+' EIT195' if not dide284 then crashed=crashed+' EIT284' & if not dide171 then crashed=crashed+' EIT171'
@@ -197,10 +197,10 @@ endelse
 regcrashed=''
 
 	reghxrt=execute('if ( var_type(hxrt_map_struct) eq 8 ) then arm_regions, output_path, date_struct, summary, hxrt_map_struct, /hxrt_flter',1,1)
-;    rege195=execute('if ( error_status_seit_00195 eq 0 ) then arm_regions, output_path, date_struct, summary, eit195_map_struct, /seit_00195',1,1)
-;    rege284=execute('if ( var_type(eit284_map_struct) eq 8 ) then arm_regions, output_path, date_struct, summary, eit284_map_struct, /seit_00284',1,1)
-;    regmigr=execute('if ( error_status_smdi_igram eq 0 ) then arm_regions, output_path, date_struct, summary, wl_map_struct, /smdi_igram',1,1)
-;    regmmag=execute('if ( error_status_smdi_maglc eq 0 ) then arm_regions, output_path, date_struct, summary, mag_map_struct, /smdi_maglc',1,1)
+;   rege195=execute('if ( error_status_seit_00195 eq 0 ) then arm_regions, output_path, date_struct, summary, eit195_map_struct, /seit_00195',1,1)
+;   rege284=execute('if ( var_type(eit284_map_struct) eq 8 ) then arm_regions, output_path, date_struct, summary, eit284_map_struct, /seit_00284',1,1)
+;   regmigr=execute('if ( error_status_smdi_igram eq 0 ) then arm_regions, output_path, date_struct, summary, wl_map_struct, /smdi_igram',1,1)
+;   regmmag=execute('if ( error_status_smdi_maglc eq 0 ) then arm_regions, output_path, date_struct, summary, mag_map_struct, /smdi_maglc',1,1)
 ;	rege171=execute('if ( var_type(eit171_map_struct) eq 8 ) then arm_regions, output_path, date_struct, summary, eit171_map_struct, /seit_00171',1,1)
 ;	rege304=execute('if ( var_type(eit304_map_struct) eq 8 ) then arm_regions, output_path, date_struct, summary, eit304_map_struct, /seit_00304',1,1)
 	regt171=execute('if ( var_type(trce_mosaic171_map_struct) eq 8 ) then arm_regions, output_path, date_struct, summary, trce_mosaic171_map_struct, /trce_m0171',1,1)
@@ -224,7 +224,7 @@ regcrashed=''
 	reg1700=execute('if ( error_status_saia_01700 eq 0 ) then arm_regions, output_path, date_struct, summary, saia1700_map_struct, /saia_01700',1,1)
 	regshmi=execute('if ( error_status_shmi_maglc eq 0 ) then arm_regions, output_path, date_struct, summary, shmimaglc_map_struct, /shmi_maglc',1,1)
 	regshmiss=execute('if ( error_status_shmi_maglc eq 0 ) and ( error_status_saia_04500 eq 0 ) then arm_regions, output_path, date_struct, summary, shmimaglc_map_struct, /shmi_magss,aux_map=saia4500_map_struct',1,1)
-        regchmi6173=execute('if ( error_status_chmi_06173 eq 0 ) then arm_regions, output_path, date_struct, summary,  chmi6173_map_struct, /chmi_06173',1,1)
+    regchmi6173=execute('if ( error_status_chmi_06173 eq 0 ) then arm_regions, output_path, date_struct, summary,  chmi6173_map_struct, /chmi_06173',1,1)
 ;    arm_regions, output_path, date_struct, summary, sxig12_map_struct, /gsxi  
 
 	if not reghxrt then regcrashed=regcrashed+' XRT' & if not regt171 then regcrashed=regcrashed+' TRACE'
@@ -284,5 +284,9 @@ regcrashed=''
   if ( summary[ 0 ] ne 'No data' ) then arm_forecast, output_path=today_dir, date_struct, summary
 
   mmmotd2arm, today_dir, date_struct
- 
+  
+get_utc, completion_time, /ecs
+print,';------------------------------------------------------------------------------;'
+print,'     Solar Monitor IDL processing completed at ' + completion_time+' UT' 
+print,';------------------------------------------------------------------------------;'
 end
