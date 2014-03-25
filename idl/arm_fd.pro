@@ -609,7 +609,8 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ;       if (err ne -1) then begin & filename = ( REVERSE( STR_SEP( filename, '/' ) ) )[0] & kanzel=1 & limb=1 & endif
 ;   endif
      
-    get_halpha_v2, /today, temp_path = TEMP_PATH, filename = FILENAME, err=ERR
+    ;New get h-alpha code. This section of arm_fd is need of a serious cleanup!!!!
+    get_halpha, /today, temp_path = TEMP_PATH, filename = FILENAME, err=ERR
      
      if (err eq -1 or exist eq 1) then begin
      	print,'Found error in Kanz or BBSO'
