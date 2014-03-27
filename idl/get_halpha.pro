@@ -1,26 +1,4 @@
-;--------------------Functions------------------------------;
-function attempt_ping, url, nping, maxping
 
-  while nping le maxping DO BEGIN
-  	sock_ping, url, status
-  	if status eq 1 then begin
-  	    print,' '
-  		print,'Ping to '+ url+' successful.'
-  		nping = maxping+1
-  	endif else begin
-  		print,'Ping to '+ url+' unsuccessful.'
-  		nping = nping + 1
-  		If nping gt maxping then print, string(maxping)+' unsuccesful attmepts to ping '+ url + $
-  									   '. Quiting contact.'
-  		wait,5
-  	endelse
-  endwhile
- 
- return, status
-
-END
-
-;------------------------START MAIN PROCEDURE------------------------------;
 
 pro get_halpha, date, temp_path = TEMP_PATH, filename = FILENAME, today=TODAY, err=ERR
 

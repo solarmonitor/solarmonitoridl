@@ -182,7 +182,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
   if ( keyword_set( gong_igram ) ) then begin
 
-     get_gong2_mag, date, filename, err, /int
+     get_gong2_mag, date, filename, err, /int, out_path=temp_path ;Added out_path to prevent fits download into /idl/ folder. E. Carley.
 ;	get_gong, filename, /int, err=err
 
      if err eq -1 then begin
@@ -592,23 +592,6 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      
      date=date_struct.date
 
-;BBSO archive.
-   ;print,'Searching for BBSO data...'
-     ;get_halpha, date, filename, err, exist,temp_path=temp_path
-
-;Limb corrected Kanzelhohe.
-     ;print,'Searching for KANZELHOHE data...'
-     ;if (err eq -1 and exist eq 0) then $
-        ;get_kanzel, date, filename, err, exist, /frfile,temp_path=temp_path
-     
-     
-     ;print, '!!!!!! Error is: '+string(err)
-;Limb darkened Kanzelhohe.
-;	if (err eq -1) then begin
-;		get_kanzel, date, filename, err, /today
-;       if (err ne -1) then begin & filename = ( REVERSE( STR_SEP( filename, '/' ) ) )[0] & kanzel=1 & limb=1 & endif
-;   endif
-     
     ;New get h-alpha code. This section of arm_fd is need of a serious cleanup!!!!
     get_halpha, /today, temp_path = TEMP_PATH, filename = FILENAME, err=ERR
      
@@ -623,13 +606,13 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      filename = ( REVERSE( STR_SEP( filename, '/' ) ) )[0]
      print, filename
      obsname=strmid(filename,0,4)
-     print, obsname
+  
      case obsname of
         'bbso' : bbso=1
         'kanz' : kanzel=1
      endcase
      limbname=strmid(filename,11,2)
-     print, limbname
+    
      case limbname of 
         'fr' : limb=0
         'fl' : limb=1
@@ -648,15 +631,18 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      add_prop, map, instrument = get_tag_value( index, /ORIGIN ), /replace
                                 ;if ( strmid( map.instrument, 0, 11 ) eq 'KANZELHOEHE' ) then $
      if kanzel eq 1 then add_prop, map, instrument = 'Kanzelhoehe', /replace
+     if bbso eq 1 then add_prop, map, instrument = 'BBSO', /replace
+     
+     
 
-                                ;make sure the bg of image is at 0
+     ;make sure the bg of image is at 0
      wzeropx=where(data eq data[0,0])
-     if min(data) lt 0 then data=data+abs(min(data))
+     if min(data) lt 0. then data=data+abs(min(data))
      data[wzeropx]=0
      add_prop, map, data = data, /replace
 
      if bbso eq 1 then begin
-                                ; Correct columns in BBSO frames
+     ; Correct columns in BBSO frames
         bad_pixels = where( data gt 1e4 )
         if ( bad_pixels[ 0 ] ne -1 ) then begin
            data[ bad_pixels ] = average( data[ 0:10, 0:10 ] )
