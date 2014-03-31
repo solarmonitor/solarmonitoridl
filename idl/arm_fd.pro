@@ -970,7 +970,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      print, 'Getting SWAP Image'
      swap_obj = obj_new('swap')
      swap_obj->set,filt='lv1',prep=0,local=0
-help, swap_obj, /str
+
                                 ;Filter out LED images
      files=reverse(swap_obj->list(time=(str_Sep(utc,' '))[0]))
 ;	nfiles=n_elements(files)
@@ -1467,7 +1467,7 @@ help, swap_obj, /str
 
      print, 'Getting SDO HMI MAG'
      get_hmi_latest, temp_path, filename, err=err
-     help, err
+
      print,'Error from get_hmi_latest: '+string(err)
      
      if err ne '' then begin
@@ -1737,7 +1737,7 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
    image_fts_file = instrument + '_' + filter + '_fd_' + date_time + '.fts'
    image_static_png_file = instrument + '_' + filter + '_fd.png'
 
-   help,zb_plot
+
 
 ; Write fulldisk pngs and fits to /data/yyyymmdd/[png,fits]
 
@@ -1778,7 +1778,7 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
       map_struct = {scaled_map : map, unscaled_map : unscaled_map, scaled_db_map : dB_map, unscaled_db_map : unscaled_dB_map} $
    else $
       map_struct = {scaled_map : map, unscaled_map : unscaled_map} ;,dbmap gong stuff
-   help, map_struct
+
                                 ;Crude IDL error handling.  uses a goto! (eek)
    error_handler:
    

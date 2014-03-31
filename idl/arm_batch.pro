@@ -120,7 +120,6 @@ error_status_saia_01700=1 & error_status_shmi_maglc=1 & error_status_chmi_06173=
 
     didswap=execute('arm_fd, temp_path, output_path, date_struct, summary, swap174_map_struct, /swap_00174, error_status=error_status_swap_00174',1,1) 
     didhxrt=0
-    stop
     didhxrt=0;execute('arm_fd, temp_path, output_path, date_struct, summary, hxrt_map_struct, /hxrt_flter',1,1) 
 ;   dide195=execute('arm_fd, temp_path, output_path, date_struct, summary, eit195_map_struct, /seit_00195, error_status=error_status_seit_00195',1,1) 
 ;   dide284=execute('arm_fd, temp_path, output_path, date_struct, summary, eit284_map_struct, /seit_00284',1,1) 
