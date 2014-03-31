@@ -970,7 +970,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      print, 'Getting SWAP Image'
      swap_obj = obj_new('swap')
      swap_obj->set,filt='lv1',prep=0,local=0
-
+help, swap_obj, /str
                                 ;Filter out LED images
      files=reverse(swap_obj->list(time=(str_Sep(utc,' '))[0]))
 ;	nfiles=n_elements(files)
