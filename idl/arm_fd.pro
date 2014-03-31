@@ -770,14 +770,14 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( gong_farsd ) ) then begin
 
      print, 'Getting GONG Farside Image'
-     get_farside_mag, dummy, filename, err, /today
+     get_farside_mag, dummy, filename, err, /today, temp_path=temp_path ;Added out_path to prevent fits dump in idl/
      if err eq -1 then begin
         error_type = 'gong_farsd'
         goto, error_handler
      endif
      
 ;    mreadfits, filename, index, data
-     data = readfits( filename, head )
+     data = readfits( temp_path+'/'+filename, head )
      index = fitshead2struct( head )
      index = rep_tag_name( index, 'TIME0', 'DATE_OBS' )
      time0_sep = strsplit( index.date_obs, /extract )

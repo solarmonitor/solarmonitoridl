@@ -120,7 +120,7 @@ error_status_saia_01700=1 & error_status_shmi_maglc=1 & error_status_chmi_06173=
 
     didswap=execute('arm_fd, temp_path, output_path, date_struct, summary, swap174_map_struct, /swap_00174, error_status=error_status_swap_00174',1,1) 
     didhxrt=0
-    didhxrt=execute('arm_fd, temp_path, output_path, date_struct, summary, hxrt_map_struct, /hxrt_flter',1,1) 
+    didhxrt=0;execute('arm_fd, temp_path, output_path, date_struct, summary, hxrt_map_struct, /hxrt_flter',1,1) 
 ;   dide195=execute('arm_fd, temp_path, output_path, date_struct, summary, eit195_map_struct, /seit_00195, error_status=error_status_seit_00195',1,1) 
 ;   dide284=execute('arm_fd, temp_path, output_path, date_struct, summary, eit284_map_struct, /seit_00284',1,1) 
 ;   didmigr=execute('arm_fd, temp_path, output_path, date_struct, summary, wl_map_struct, /smdi_igram, error_status=error_status_smdi_igram',1,1) 
@@ -136,7 +136,7 @@ error_status_saia_01700=1 & error_status_shmi_maglc=1 & error_status_chmi_06173=
 	didstra=execute('arm_fd, temp_path, output_path, date_struct, summary, stereoa_map_struct, /stra_00195, error_status=error_status_stra_00195',1,1) 
 	didstrb=execute('arm_fd, temp_path, output_path, date_struct, summary, stereob_map_struct, /strb_00195, error_status=error_status_strb_00195',1,1)
     
-
+	
     ;Free up all the LUN's used in ARM_BATCH etc.
 	free_lun,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31, $
 		32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61, $
@@ -225,7 +225,7 @@ regcrashed=''
 	regshmi=execute('if ( error_status_shmi_maglc eq 0 ) then arm_regions, output_path, date_struct, summary, shmimaglc_map_struct, /shmi_maglc',1,1)
 	regshmiss=execute('if ( error_status_shmi_maglc eq 0 ) and ( error_status_saia_04500 eq 0 ) then arm_regions, output_path, date_struct, summary, shmimaglc_map_struct, /shmi_magss,aux_map=saia4500_map_struct',1,1)
     regchmi6173=execute('if ( error_status_chmi_06173 eq 0 ) then arm_regions, output_path, date_struct, summary,  chmi6173_map_struct, /chmi_06173',1,1)
-;    arm_regions, output_path, date_struct, summary, sxig12_map_struct, /gsxi  
+;   arm_regions, output_path, date_struct, summary, sxig12_map_struct, /gsxi  
 
 	if not reghxrt then regcrashed=regcrashed+' XRT' & if not regt171 then regcrashed=regcrashed+' TRACE'
 ;	if not rege195 then regcrashed=regcrashed+' EIT195' & if not rege284 then regcrashed=regcrashed+' EIT284'
