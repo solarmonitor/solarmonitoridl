@@ -1,9 +1,0 @@
-#! /bin/csh -f
-ftp -A -n gong2.nso.edu << EOF > ftptemp
-user anonymous ptg@bbso.njit.edu
-prompt off
-binary
-cd /QR/iqa/201403/tdiqa140331/
-ls *iqa*.fits*
-bye
-EOF
