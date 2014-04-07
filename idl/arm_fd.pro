@@ -604,7 +604,6 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      
 	 file_loc = filename
      filename = ( REVERSE( STR_SEP( filename, '/' ) ) )[0]
-     print, filename
      obsname=strmid(filename,0,4)
   
      case obsname of

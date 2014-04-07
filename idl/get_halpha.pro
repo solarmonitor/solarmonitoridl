@@ -7,7 +7,7 @@ pro get_halpha, date, temp_path = TEMP_PATH, filename = FILENAME, today=TODAY, e
 ; Name        : get_halpha
 ;
 ; Purpose     : get most recent Global H-alpha Network full-disk 
-;               H-alpha image an return the filename
+;               H-alpha image and return the filename
 ;
 ; Syntax      : get_halpha, date, temp_path, filename, [,/today]
 ;
