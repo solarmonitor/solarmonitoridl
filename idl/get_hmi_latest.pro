@@ -1,4 +1,4 @@
-Pro get_hmi_latest,  temp_path, filename, err=err
+pro get_hmi_latest, temp_path, filename, err=err
 
 ;+
 ; Name    : GET_HMI_LATEST
@@ -17,32 +17,26 @@ Pro get_hmi_latest,  temp_path, filename, err=err
 
 ;Set to null
 
-            filename= ''
-
-            err=''
-
+filename= ''
+err=''
 
 ; Query JSOC Database for last 2 hours to download HMI Mag. fits file
 
-            ssw_jsoc_time2data, anytim(systim(/utc))-7200., anytim(systim(/utc)), index, data, $
-                                ds='hmi.M_720s_nrt', max_files=1, locfiles= locfiles, outdir_top=temp_path
+ssw_jsoc_time2data, anytim(systim(/utc))-7200., anytim(systim(/utc)), index, data, $
+                     ds='hmi.M_720s_nrt', max_files=1, locfiles= locfiles, outdir_top=temp_path
 
- filename = temp_path + '/HMI' + time2file(index.date_obs, /sec) + '_6173.fits'
+filename = temp_path + '/HMI' + time2file(index.date_obs, /sec) + '_6173.fits'
 
- 
- ;Check that file exists
-
-            if file_search(filename) eq '' then begin 
-               err = -1
-               print, 'file does not exist'
-               return
-            endif
+;Check that file exists
+print,'HMI FILENAME PRINT !!!!!!!!!'
+print,'Filename location: '+string(filename)
 
 
-end
+if file_search(filename) eq '' then begin 
+   err = -1
+   ;print, 'File '+filename+' does not exist'
+   return
+endif
 
 
-
- 
-
-
+END

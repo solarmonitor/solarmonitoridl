@@ -30,7 +30,7 @@ pro get_chmi_latest, temp_path, filename, err=err
 
             ssw_jsoc_time2data, anytim(systim(/utc))-7200., anytim(systim(/utc)), index, data, $
                                 ds='hmi.Ic_noLimbDark_720s_nrt', max_files=1, locfiles= locfiles, outdir_top=temp_path
-
+			
 
 ; Error Status
 

@@ -1,4 +1,4 @@
-pro get_farside_mag, date, filename, err, today = today
+pro get_farside_mag, date, filename, err, today = today, temp_path = temp_path
 
 err=0
 
@@ -59,7 +59,7 @@ if filename eq '' then begin
 	return
 endif
 
-sock_copy,filename	
+sock_copy, filename	, out_dir = temp_path ;Added this to prevent fits dump in idl/
 
 filename=(reverse(str_sep(filename,'/')))[0]
 
