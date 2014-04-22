@@ -72,7 +72,7 @@ case select of
 8: begin  ; 304
    r=r0
    g=g0
-   b=c2
+   b=b0 ; changed from c2 on 2010/06/01, now to show standard IDL color table 3
    end
 9: begin  ; 355
    r=c2

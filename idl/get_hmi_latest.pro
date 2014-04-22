@@ -20,9 +20,14 @@ pro get_hmi_latest, temp_path, filename, err=err
 filename= ''
 err=''
 
-; Query JSOC Database for last 2 hours to download HMI Mag. fits file
+; Query JSOC Database for last 12 hours to download HMI Mag. fits file
 
-ssw_jsoc_time2data, anytim(systim(/utc))-7200., anytim(systim(/utc)), index, data, $
+start_time = anytim(systim(/utc)) - 12.0*60.0*60.0
+end_time = anytim(systim(/utc))
+print,'Searching for latest HMI data between: ' + anytim(start_time, /yoh, /trun) + ' and '+ anytim(end_time, /yoh, /trun) 
+
+
+ssw_jsoc_time2data, start_time, end_time, index, data, $
                      ds='hmi.M_720s_nrt', max_files=1, locfiles= locfiles, outdir_top=temp_path
 
 filename = temp_path + '/HMI' + time2file(index.date_obs, /sec) + '_6173.fits'
