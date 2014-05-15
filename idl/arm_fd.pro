@@ -989,6 +989,11 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      filename=files[0]
      
 ;    swap_obj -> latest
+     if filename eq '' then begin
+        error_type = 'swap_00174'
+        goto, error_handler
+     endif
+
      sock_copy,filename,err=err, passive=0,out_dir=temp_path
      swappath = temp_path + (reverse(str_sep(filename,'/')))[0]
      if file_search(swappath) ne '' then begin
