@@ -821,7 +821,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( slis_chrom ) ) then begin
 
      print, 'Getting SOLIS Chromosphere Image'
-     get_solis_mag, filename, dummy, err, /today, /chrom,temp_path=temp_path
+     get_solis_mag, filename, dummy, err, /today, /chrom, temp_path=temp_path
      if err eq -1 then begin
         error_type = 'slis_chrom'
         goto, error_handler
@@ -1792,5 +1792,4 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
 
 
 end
-
 

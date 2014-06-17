@@ -36,7 +36,6 @@ pro arm_batch, temp_path, output_path
 ; Directory where to save everything
     today_dir = output_path + date_struct.date_dir+'/'
     print, 'Saving files into: '+string(today_dir)
-
 ; Retrieve any new bakeout dates
 
     didbakeout=execute('get_bakeout_dates',1,1)
@@ -132,7 +131,7 @@ error_status_saia_01700=1 & error_status_shmi_maglc=1 & error_status_chmi_06173=
     didgigr=execute('arm_fd, temp_path, output_path, date_struct, summary, gongint_map_struct, /gong_igram, error_status=error_status_gong_igram',1,1) 
     didbbso=execute('arm_fd, temp_path, output_path, date_struct, summary, ha_map_struct, /bbso_halph, error_status=error_status_bbso_halph',1,1) 
 	didgfar=execute('arm_fd, temp_path, output_path, date_struct, summary, gongfar_map_struct, /gong_farsd, error_status=error_status_gong_farsd',1,1) 
-	didslis=execute('arm_fd, temp_path, output_path, date_struct, summary, slischrom_map_struct, /slis_chrom, error_status=error_status_slis_chrom',1,1) 
+	didslis=0;execute('arm_fd, temp_path, output_path, date_struct, summary, slischrom_map_struct, /slis_chrom, error_status=error_status_slis_chrom',1,1) 
 	didstra=execute('arm_fd, temp_path, output_path, date_struct, summary, stereoa_map_struct, /stra_00195, error_status=error_status_stra_00195',1,1) 
 	didstrb=execute('arm_fd, temp_path, output_path, date_struct, summary, stereob_map_struct, /strb_00195, error_status=error_status_strb_00195',1,1)
     
@@ -282,8 +281,8 @@ regcrashed=''
 ; Execute the forecast last as its prone to crashing
 
   if ( summary[ 0 ] ne 'No data' ) then arm_forecast, output_path=today_dir, date_struct, summary
-
-  mmmotd2arm, today_dir, date_struct
+  
+mmmotd2arm, today_dir, date_struct
   
 get_utc, completion_time, /ecs
 print,';------------------------------------------------------------------------------;'
