@@ -24,7 +24,7 @@ err=''
 
 start_time = anytim(systim(/utc)) - 12.0*60.0*60.0
 end_time = anytim(systim(/utc))
-print,'Searching between: ' + anytim(start_time, /yoh, /trun) + ' and '+ anytim(end_time, /yoh, /trun) 
+print,'Searching for latest HMI data between: ' + anytim(start_time, /yoh, /trun) + ' and '+ anytim(end_time, /yoh, /trun) 
 
 
 ssw_jsoc_time2data, start_time, end_time, index, data, $
