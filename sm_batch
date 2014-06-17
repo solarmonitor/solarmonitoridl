@@ -169,7 +169,7 @@ sm_sswscript
 # Resize and stamps the images with the perl scripts
 sm_processimages $OUTPUT_PATH/$TODAYS_DATE_DIR
 
- #sm_upload
- #sm_cleanup
+sm_upload
+sm_cleanup
 
 echo "everything sounds good!"
