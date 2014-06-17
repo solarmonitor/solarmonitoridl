@@ -989,14 +989,21 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      filename=files[0]
      
 ;    swap_obj -> latest
-     map = swap_obj -> getmap(filelist=filename,index)    
-     
-     if var_type(map) ne 8 then begin
+     if filename eq '' then begin
         error_type = 'swap_00174'
         goto, error_handler
      endif
-     
-     smart_index2map,index,map.data,map
+
+     sock_copy,filename,err=err, passive=0,out_dir=temp_path
+     swappath = temp_path + (reverse(str_sep(filename,'/')))[0]
+     if file_search(swappath) ne '' then begin
+        mreadfits, swappath, index, data
+        smart_index2map,index,data,map
+        if var_type(map) ne 8 then begin
+           error_type = 'swap_00174'
+           goto, error_handler
+        endif
+     endif
      unscaled_map = map
      im = alog10(map.data+.001)>.00001 < max(alog10(map.data+.001))*.95
                                 ;im = alog( ( map.data > 0. ) + 0.1 ) > 1.
