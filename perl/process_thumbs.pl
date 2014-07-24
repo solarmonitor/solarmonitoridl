@@ -48,25 +48,36 @@ close dir;
 ## Stamping!! (added by dps 16/07/2010)
 $dir_use = @ARGV[0] . "/pngs"; 
 #$dir_use = "./" . @ARGV[0] . "/pngs"; 
+print "!!!!!!!!!! \n";
+print " $dir_use \n";
 
-opendir (dir, $dir_use) or die "Couldn't open directory $dir_use, $!";
+
+print "Made it to 54 \n";
+open (dir, $dir_use) or die "Couldn't open directory $dir_use, $!";
+print "Made it to 57 \n";
+print $instname;
 foreach $instname (sort readdir(dir)) {
-  	if ($instname =~ /(\w)([^(ace|goes)])/) {
+  	print "Made it to 59 \n";
+	if ($instname =~ /(\w)([^(ace|goes)])/) {
 	  $inst_path = $dir_use."/".$instname;
+	  print "Instrument path is $inst_path \n";
 	  opendir(Instfold,$inst_path) || die "no $instname?: $!";
 	  print "Stamping new files on $inst_path \n";
 	  foreach $filename (sort readdir(Instfold)){
 	    if ($filename =~ /_pre.png/){
 	      $file_use = "$inst_path/$filename";
 
-	      if ($filename =~ /_fd_/) {
+	      if (($filename =~ /_fd_/) or ($filename =~ /_pr_/)) {
 		$base_file = substr($filename,0,29);
+		print "---------";
+		print $base_file;
+
 		$result_file = $inst_path . "/" . $base_file . ".png";
 		system("convert -size 600x100 xc:none -font AvantGarde-Book -pointsize 50 -gravity center -stroke black -strokewidth 2 -annotate 0 'SolarMonitor.org' -background none -shadow 100x3+0+0 +repage -stroke none -fill white -annotate 0 'SolarMonitor.org' $file_use +swap -gravity southeast -geometry -90+50 -composite $result_file") == 0  || die "Could't create stamped image $base_file .png, $!";
 
 
 	      } # close if fd 
-	      if  ($filename =~ /_ar_/){
+	      if  (($filename =~ /_ar_/) or ($filename =~ /_ap_/)){
 		$base_file = substr($filename,0,35);
 		$result_file = $inst_path . "/" . $base_file . ".png";
 		system("convert -size 600x100 xc:none -font AvantGarde-Book -pointsize 20 -gravity center -stroke black -strokewidth 2 -annotate 0 'SolarMonitor.org' -background none -shadow 100x3+0+0 +repage -stroke none -fill white -annotate 0 'SolarMonitor.org' $file_use +swap -gravity southeast -geometry -208+8 -composite $result_file") == 0 || die "Could't create stamped image $base_file .png, $!";
