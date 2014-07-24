@@ -485,6 +485,25 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 	
 		; Plot the GONG+ data  
 		if keyword_set(gong_maglc) then begin
+			
+			activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob
+			prob_array = strarr(n_elements(mci) , 3)
+		   	prob_array[* , 0] = cprob[*]
+			prob_array[* , 1] = mprob[*]
+			prob_array[* , 2] = xprob[*]
+
+			chart_size = 700
+
+			sub_reg_black_charts = fltarr(n_elements(names) , chart_size , chart_size)
+			sub_reg_white_charts = fltarr(n_elements(names) , chart_size , chart_size)
+			sub_reg_trans_charts = fltarr(n_elements(names) , chart_size , chart_size)
+
+			for k = 0 , n_elements(names) - 1 do begin
+				sub_reg_black_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)
+				sub_reg_white_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)
+				sub_reg_trans_charts[k , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)
+			endfor
+
 			loadct, 0, /silent
 			!p.color = 0
 			!p.background = 255
@@ -519,10 +538,30 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 				endif
 			endfor
 			
-			image = tvrd()         
+			image = tvrd()
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'gong'
 			filter = 'maglc'
+
+			for j = 0, n_elements( names ) - 1 do begin
+				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
+					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
+					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
+					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
+					
+					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
+					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
+					
+					if (prob_array[j , 0] ne '...') then begin 
+						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
+						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
+						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+					endif else begin
+						write_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+					endelse
+				endif
+			endfor
+	
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
                         gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -895,8 +934,8 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			sub_scaled_map.data(0,1)=max(scaled_map.data)
 				
 			plot_map, sub_scaled_map, /square, grid = 10, title = 'SWAP 174 ' + angstrom + ' ' + sub_scaled_map.time, $
-				dmin = min( sub_scaled_map.data ), dmax = max( sub_scaled_map.data ), gcolor=255
-			
+			dmin = min( sub_scaled_map.data ), dmax = max( sub_scaled_map.data ), gcolor=255
+		
 			for j = 0, n_elements( names ) - 1 do begin
 				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
 					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
@@ -1415,10 +1454,29 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 		; Plot the SHMI MAG data  
 		
 		if keyword_set(shmi_maglc) then begin
-		
+			
+			activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob
+			prob_array = strarr(n_elements(mci) , 3)
+   			prob_array[* , 0] = cprob[*]
+			prob_array[* , 1] = mprob[*]
+			prob_array[* , 2] = xprob[*]
+
+			chart_size = 700
+
+			sub_reg_black_charts = fltarr(n_elements(names) , chart_size , chart_size)
+			sub_reg_white_charts = fltarr(n_elements(names) , chart_size , chart_size)
+			sub_reg_trans_charts = fltarr(n_elements(names) , chart_size , chart_size)
+
+			for k = 0 , n_elements(names) - 1 do begin
+				sub_reg_black_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=0  , ch_thick_mod=4 , /AXES , /SUB)
+				sub_reg_white_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=3  , ch_thick_mod=0 , /AXES , /SUB)
+				sub_reg_trans_charts[k , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)
+			endfor
+
 			loadct,0
 			!p.color = 0
 			!p.background = 255
+			tvlct , rr , gg , bb , /GET
 			
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -1439,18 +1497,41 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
 					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
 					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-				
+					
 					xyouts, x( 0 , j), y( 0 , j) + labeloffset, names( j ), align = 0.5, $
 						charthick = charthreg[0], color = 0, charsize = charregsz
 					xyouts, x( 0 , j), y( 0 , j) + labeloffset, names( j ), align = 0.5, $
 						charthick = charthreg[1], color = 255, charsize = charregsz
 				endif
 			endfor
-			
+				
 			image = tvrd()
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'shmi'
 			filter = 'maglc'
+
+			for j = 0, n_elements( names ) - 1 do begin
+				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
+					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
+					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
+					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
+					
+					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
+					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
+					
+					if (prob_array[j , 0] ne '...') then begin 
+						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
+						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
+						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+					endif else begin
+						write_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+					endelse
+				endif
+			endfor
+			
+
+
+
 			print,'Writing png to: ' + output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png'
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
