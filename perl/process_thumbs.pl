@@ -48,16 +48,9 @@ close dir;
 ## Stamping!! (added by dps 16/07/2010)
 $dir_use = @ARGV[0] . "/pngs"; 
 #$dir_use = "./" . @ARGV[0] . "/pngs"; 
-print "!!!!!!!!!! \n";
-print " $dir_use \n";
 
-
-print "Made it to 54 \n";
-open (dir, $dir_use) or die "Couldn't open directory $dir_use, $!";
-print "Made it to 57 \n";
-print $instname;
+opendir (dir, $dir_use) or die "Couldn't open directory $dir_use, $!";
 foreach $instname (sort readdir(dir)) {
-  	print "Made it to 59 \n";
 	if ($instname =~ /(\w)([^(ace|goes)])/) {
 	  $inst_path = $dir_use."/".$instname;
 	  print "Instrument path is $inst_path \n";
