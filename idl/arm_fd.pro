@@ -116,6 +116,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
         data= readfits( filename, head )
         index = head2stc( head )
+		print , 'LALOAAL'
 
                                 ;  DSB - 10-Oct-2008
                                 ;  added this in because index2map crashes out without the correct 
@@ -1512,6 +1513,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ;				        End of image reading 	  					;  
 ;-------------------------------------------------------------------;
 
+tvlct , rr , gg , bb , /get
   
 ;Check to see if map is all 0's etc (prevents plotting map for diff. inst. in wrong file...)
 
@@ -1563,6 +1565,9 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
 ;               title = 'EIT He II (304 ' + string( 197B ) + ') ' + map.time, $
 ;           position = position, center = center, gcolor=255
 
+
+; tag_map_prob
+
       'gsxi_flter':  plot_map, map, /square, fov = fov, grid = 10, $
                                title = map.wavelength + ' ' + map.time, $
                                position = position, center = center, gcolor=255
@@ -1612,6 +1617,7 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
                           title = map.instrument + ' ' + map.wavelength + ' ' + map.time, $
                           position = position, center = center, gcolor=255
    endcase
+
 
 ; Plot region names on full-disk images
 
@@ -1693,7 +1699,6 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
       new_rot_loc = new_rot_lat + new_rot_lng
       
       dum = rot_locations( new_rot_loc, map.time, map.time, solar_xy = solar_xy, stereo_flag = stereo_flag )
-
       for i = 0, n_elements( names ) - 1 do begin
 
          if (strlowcase(names[i]) eq 'none') then continue
@@ -1709,16 +1714,20 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
                xyouts, x + 20, y + 70, names( i ), align = 0.5, charthick = 3, color = 255, charsize = 2.2
             endif
          endelse
-
       endfor
 
                                 ;no_ar: ;JMA 13-may-2008 to correct for when no regions present.
 
    endif
 
+
+
 ; Read plot from Z-buffer and write to file
 
    zb_plot = tvrd()
+
+; MY CODE
+
 
 ; Need to convert solar x and y to device coordinates for html imagemap
 
@@ -1779,11 +1788,30 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
    print, 'Data written to <' + map_coords_file + '>.'
    print, ' '
 
-                                ; write the map_structure
-   if keyword_set(gong_maglc) then $
+ 
+; write the map_structure
+
+	if keyword_set(gong_maglc) then $
       map_struct = {scaled_map : map, unscaled_map : unscaled_map, scaled_db_map : dB_map, unscaled_db_map : unscaled_dB_map} $
-   else $
+   	else $
       map_struct = {scaled_map : map, unscaled_map : unscaled_map} ;,dbmap gong stuff
+
+; Create FD pngs with probabilities attached
+
+  	set_plot , 'z'
+
+	if (keyword_set(shmi_maglc)) then begin
+		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /HMI_MAG
+	endif 
+	if (keyword_set(gong_maglc)) then begin
+		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /GONG_MAG
+	endif
+	if (keyword_set(chmi_06173)) then begin
+		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /HMI_CON
+	endif
+	if (keyword_set(gong_igram)) then begin
+		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter ,/GONG_CON
+	endif
 
                                 ;Crude IDL error handling.  uses a goto! (eek)
    error_handler:

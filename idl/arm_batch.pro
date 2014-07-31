@@ -119,21 +119,21 @@ error_status_saia_01700=1 & error_status_shmi_maglc=1 & error_status_chmi_06173=
 
     didswap=execute('arm_fd, temp_path, output_path, date_struct, summary, swap174_map_struct, /swap_00174, error_status=error_status_swap_00174',1,1) 
     didhxrt=0
-    didhxrt=execute('arm_fd, temp_path, output_path, date_struct, summary, hxrt_map_struct, /hxrt_flter',1,1) 
+    didhxrt=0;('arm_fd, temp_path, output_path, date_struct, summary, hxrt_map_struct, /hxrt_flter',1,1) 
 ;   dide195=execute('arm_fd, temp_path, output_path, date_struct, summary, eit195_map_struct, /seit_00195, error_status=error_status_seit_00195',1,1) 
 ;   dide284=execute('arm_fd, temp_path, output_path, date_struct, summary, eit284_map_struct, /seit_00284',1,1) 
 ;   didmigr=execute('arm_fd, temp_path, output_path, date_struct, summary, wl_map_struct, /smdi_igram, error_status=error_status_smdi_igram',1,1) 
 ;   didmmag=execute('arm_fd, temp_path, output_path, date_struct, summary, mag_map_struct, /smdi_maglc, error_status=error_status_smdi_maglc',1,1) 
 ;   dide171=execute('arm_fd, temp_path, output_path, date_struct, summary, eit171_map_struct, /seit_00171',1,1) 
     ;dide304=execute('arm_fd, temp_path, output_path, date_struct, summary, eit304_map_struct, /seit_00304',1,1) 
-    didt171=execute('arm_fd, temp_path, output_path, date_struct, summary, trce_mosaic171_map_struct, /trce_m0171',1,1) 
+    didt171=0;execute('arm_fd, temp_path, output_path, date_struct, summary, trce_mosaic171_map_struct, /trce_m0171',1,1) 
     didgmag=execute('arm_fd, temp_path, output_path, date_struct, summary, gong_map_struct, /gong_maglc',1,1) 
     didgigr=execute('arm_fd, temp_path, output_path, date_struct, summary, gongint_map_struct, /gong_igram, error_status=error_status_gong_igram',1,1) 
     didbbso=execute('arm_fd, temp_path, output_path, date_struct, summary, ha_map_struct, /bbso_halph, error_status=error_status_bbso_halph',1,1) 
 	didgfar=execute('arm_fd, temp_path, output_path, date_struct, summary, gongfar_map_struct, /gong_farsd, error_status=error_status_gong_farsd',1,1) 
 	didslis=0;execute('arm_fd, temp_path, output_path, date_struct, summary, slischrom_map_struct, /slis_chrom, error_status=error_status_slis_chrom',1,1) 
-	didstra=execute('arm_fd, temp_path, output_path, date_struct, summary, stereoa_map_struct, /stra_00195, error_status=error_status_stra_00195',1,1) 
-	didstrb=execute('arm_fd, temp_path, output_path, date_struct, summary, stereob_map_struct, /strb_00195, error_status=error_status_strb_00195',1,1)
+	didstra=0;execute('arm_fd, temp_path, output_path, date_struct, summary, stereoa_map_struct, /stra_00195, error_status=error_status_stra_00195',1,1) 
+	didstrb=0;execute('arm_fd, temp_path, output_path, date_struct, summary, stereob_map_struct, /strb_00195, error_status=error_status_strb_00195',1,1)
     
 	
     ;Free up all the LUN's used in ARM_BATCH etc.
@@ -190,9 +190,7 @@ endelse
 ;    print, 'Done full-disk thumbs: '
 
 ; Extract each region and write a web page for each
-
   if ( summary[ 0 ] ne 'No data' ) then begin
-
 regcrashed=''
 
 	reghxrt=execute('if ( var_type(hxrt_map_struct) eq 8 ) then arm_regions, output_path, date_struct, summary, hxrt_map_struct, /hxrt_flter',1,1)
