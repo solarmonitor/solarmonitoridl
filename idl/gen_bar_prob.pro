@@ -42,7 +42,7 @@
 
 function gen_bar_prob , summary , bar_size , prob_array , ax_col=col , ch_thick_mod=cthick_mod , AXES=axes , NOLABELS=nolabels , REF=ref , SUB=sub
 
-  if (prob_array[0] ne '...') then begin   ; ARs without sunspots ignored
+  if (string(prob_array[0]) ne '...') then begin   ; ARs without sunspots ignored
 
 	dev_name = !D.NAME
 	device , /close
@@ -55,14 +55,8 @@ function gen_bar_prob , summary , bar_size , prob_array , ax_col=col , ch_thick_
 		cthick_mod = 0
 	endif 
 
-  ; Converts string data in plottable floats
+; Plots a bar-chart using bar_plot , colors = color indexs of slices
 
-  	flare_probs = fltarr(3)
-  	flare_probs[0] = prob_array[0]
- 	flare_probs[1] = prob_array[1]
- 	flare_probs[2] = prob_array[2]
-
-  ; Plots a bar-chart using bar_plot , colors = color indexs of slices
 	csize = 0 ; charsize
 	char_thick = 0 ; char_thickness
 	yti = '' ; ytitle
@@ -106,16 +100,16 @@ function gen_bar_prob , summary , bar_size , prob_array , ax_col=col , ch_thick_
 
   	if (keyword_set(axes)) then begin
 		if (keyword_set(nolabels)) then begin
-  			cgBarPlot , flare_probs  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
+  			cgBarPlot , prob_array  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
   				charsize = csize , charthick = char_thick , axiscolor=col , range=[0,100] , yticks=2 , $
 				position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , ythick = yt , xthick = xt , ytitle=yti 
 		endif else begin
-  			cgBarPlot , flare_probs  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
+  			cgBarPlot , prob_array  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
   				charsize = csize , charthick= char_thick , axiscolor=col , range=[0,100] , yticks=2  , $
 				position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , ytitle=yti , ythick = yt , xthick = xt , barnames = bnames
 		endelse 
   	endif else begin
-  		cgBarPlot , flare_probs  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
+  		cgBarPlot , prob_array  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
   			charsize = csize , charthick = char_thick , axiscolor=col , range=[0,100] , yticks=2  , $
 			position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , xstyle=6 , ystyle=6 , ytitle=yti , barnames = bnames 
   	endelse

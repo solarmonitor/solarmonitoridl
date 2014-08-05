@@ -59,17 +59,17 @@ pro gen_prob_sub_image , img , out_img , label_bar_under_chart , label_bar_over_
 
 ; Error handling to prevent barchart leaving plotspace
 
-  if (new_co_ords[0] + win_size gt 0.98) then begin 
-		offset_x = -0.4
+  if (new_co_ords[0] + win_size gt 0.9) then begin 
+		offset_x = -win_size 
   endif
   if (new_co_ords[1] + win_size gt 0.95) then begin 
-		offset_y = -0.4
+		offset_y = -win_size
   endif
   if (new_co_ords[0] lt 0.1) then begin 
-		offset_x = 0.4
+		offset_x = win_size
   endif
   if (new_co_ords[1] lt 0.05) then begin 
-		offset_y = 0.4
+		offset_y = win_size
   endif
 
 ; Restore old ct
@@ -77,17 +77,19 @@ pro gen_prob_sub_image , img , out_img , label_bar_under_chart , label_bar_over_
   tvlct , red , green , blue
   cgimage , img
 
-;Use altered CT
+; Use altered CT
 
+  print , new_co_ords[0] + win_size + offset_x
+  print , new_co_ords[1] + win_size + offset_y 
   tvlct , r , g , b
-  cgimage , label_bar_under_chart , alphafgposition=[ new_co_ords[0] + offset_x , new_co_ords[1] + offset_y $ 
+  cgimage , label_bar_under_chart , alphafgposition= [new_co_ords[0] + offset_x , new_co_ords[1] + offset_y $ 
   	, new_co_ords[0] + win_size + offset_x , new_co_ords[1] + win_size + offset_y] , transparent = 20. $
 	, missing_value = 1
-  cgimage , label_bar_over_chart , alphafgposition=[ new_co_ords[0] + offset_x , new_co_ords[1] + offset_y $ 
+  cgimage , label_bar_over_chart , alphafgposition=[new_co_ords[0] + offset_x , new_co_ords[1] + offset_y $ 
   	, new_co_ords[0] + win_size + offset_x , new_co_ords[1] + win_size + offset_y] , transparent = 20. $
 	, missing_value = 1
-  cgimage , label_trans_bar_chart , alphafgposition=[ new_co_ords[0] + offset_x , new_co_ords[1] + offset_y $
-  	, new_co_ords[0] + win_size + offset_x , new_co_ords[1] + win_size + offset_y ] , $ 
+  cgimage , label_trans_bar_chart , alphafgposition=[new_co_ords[0] + offset_x , new_co_ords[1] + offset_y $
+  	, new_co_ords[0] + win_size + offset_x , new_co_ords[1] + win_size + offset_y] , $ 
   	transparent = 70. , missing_value = 1 
 
 ; Turns out_img into sub-region with barchart

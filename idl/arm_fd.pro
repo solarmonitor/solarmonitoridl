@@ -1806,13 +1806,6 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
 	if (keyword_set(gong_maglc)) then begin
 		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /GONG_MAG
 	endif
-	if (keyword_set(chmi_06173)) then begin
-		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /HMI_CON
-	endif
-	if (keyword_set(gong_igram)) then begin
-		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter ,/GONG_CON
-	endif
-
                                 ;Crude IDL error handling.  uses a goto! (eek)
    error_handler:
    

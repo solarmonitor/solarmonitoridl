@@ -93,26 +93,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 
 	endfor
 	
-; Grabs the flare probabilities in order to generate barcharts
-
-	activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob
-	prob_array = strarr(n_elements(mci) , 3)
-	prob_array[* , 0] = cprob[*]
-	prob_array[* , 1] = mprob[*]
-	prob_array[* , 2] = xprob[*]
-
-; Chart size in pixels
-
-	chart_size = 700
-	sub_reg_black_charts = fltarr(n_elements(names) , chart_size , chart_size)
-	sub_reg_white_charts = fltarr(n_elements(names) , chart_size , chart_size)
-	sub_reg_trans_charts = fltarr(n_elements(names) , chart_size , chart_size)
-		
-	for i = 0 , n_elements( names ) - 1 do begin
-		sub_reg_black_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)
-		sub_reg_white_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)
-		sub_reg_trans_charts[i , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)
-	endfor
 
 ; Rotate NOAA summary data to the frame times.
 	
@@ -205,6 +185,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'gsxi'
 			filter = 'flter'
+			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
                         gzip, output_path + date_struct.date_dir +  '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -215,7 +196,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			eit_colors, 195
 			!p.color = 0
 			!p.background = 255
-			tvlct , rr , gg , bb , /GET
 			
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -249,25 +229,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'seit'
 			filter = '00195'
-			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
 			
 			wr_png, output_path + date_struct.date_dir +  '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -313,25 +274,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'seit'
 			filter = '00304'
 			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map,  output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
                         gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -342,7 +284,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			eit_colors, 171
 			!p.color = 0
 			!p.background = 255
-			tvlct , rr , gg , bb , /GET
 			
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -375,26 +316,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'seit'
 			filter = '00171'
-			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
+		
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -405,7 +327,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			loadct, 0, /silent
 			!p.color = 0
 			!p.background = 255
-			tvlct , rr , gg , bb , /GET
 			
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -439,25 +360,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'smdi'
 			filter = 'maglc'
 			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
                         gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -469,7 +371,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			gamma_ct,1
 			!p.color = 0
 			!p.background = 255
-			tvlct , rr , gg , bb , /GET
 
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -502,26 +403,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'smdi'
 			filter = 'igram'
-			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
+		
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
                         gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -530,10 +412,9 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 	    ; Plot the H-alpha data  
 	    if keyword_set(bbso_halph) then begin
 			loadct, 3, /silent
-			;gamma_ct, 0.8
+			gamma_ct, 0.8
 			!p.color = 0
 			!p.background = 255
-			tvlct , rrr , ggg , bbb , /GET
 
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -567,25 +448,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'bbso'
 			filter = 'halph'
 			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rrr, ggg , bbb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
                         gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts' 
@@ -596,7 +458,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			eit_colors, 284
 			!p.color = 0
 			!p.background = 255
-			tvlct , rr , gg , bb , /GET
 			
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -630,25 +491,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'seit'
 			filter = '00284'
 			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -656,11 +498,30 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 	
 		; Plot the GONG+ data  
 		if keyword_set(gong_maglc) then begin
-			
+		; Grabs the flare probabilities in order to generate barcharts
+
+			activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob
+			prob_array = strarr(n_elements(mci) , 3)
+			prob_array[* , 0] = cprob[*]
+			prob_array[* , 1] = mprob[*]
+			prob_array[* , 2] = xprob[*]
+
+	   ; Chart size in pixels
+
+			chart_size = 700
+			sub_reg_black_charts = fltarr(n_elements(names) , chart_size , chart_size)
+			sub_reg_white_charts = fltarr(n_elements(names) , chart_size , chart_size)
+			sub_reg_trans_charts = fltarr(n_elements(names) , chart_size , chart_size)
+		
+			for k = 0 , n_elements( names ) - 1 do begin
+				sub_reg_black_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)
+				sub_reg_white_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)
+				sub_reg_trans_charts[k , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)
+			endfor
+
 			loadct, 0, /silent
+			tvlct , rr , gg , bb , /GET
 			
-			; Grabs color table
-			tvlct , rr , bb , gg , /GET
 			!p.color = 0
 			!p.background = 255
 			
@@ -698,26 +559,17 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'gong'
 			filter = 'maglc'
+			file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
+			instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
 
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-	
+			if (string(prob_array[i , 0]) ne '...') then begin 
+				gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , $ 
+					reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb
+					write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+			endif else begin
+				wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+			endelse
+
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
                         gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -732,7 +584,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			
 			!p.color = 0
 			!p.background = 255
-			tvlct , rrr , ggg , bbb , /GET
 				
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -767,25 +618,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'gong'
 			filter = 'igram'
 
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rrr, ggg , bbb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-		
 		wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
                         gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -839,25 +671,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_db_map.time,/seconds)
 			instrument = 'gong'
 			filter = 'bgrad'
-			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rrr, ggg , bbb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
+	
 		
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_db_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -871,7 +685,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			eit_colors, 171
 			!p.color = 0
 			!p.background = 255
-			tvlct , rr , gg , bb , /GET
 		     ;   scaled map
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
 												yrange=[ y( 0, i ) - 5 * 60., y( 0, i ) + 5 * 60. ]
@@ -902,26 +715,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'trce'
 			filter = 'm0171'
 			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
-			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -934,7 +727,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			loadct, 3, /silent
 			!p.color = 3
 			!p.background = 255
-			tvlct , rr , gg , bb , /GET
 
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -968,25 +760,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'hxrt'
 			filter = 'flter'
 
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
                         gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -997,7 +770,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			loadct, 0, /silent
 			!p.color = 3
 			!p.background = 255
-			tvlct , rr , gg , bb , /GET
 			
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -1030,25 +802,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'gong'
 			filter = 'farsd'
-
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
 			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1060,7 +813,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			loadct, 0, /silent
 			!p.color = 3
 			!p.background = 255
-			tvlct , rr , gg , bb , /GET
 			
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -1094,25 +846,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'slis'
 			filter = 'chrom'
 
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
                         gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1123,7 +856,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			eit_colors,195
 			!p.color = 3
 			!p.background = 255
-			tvlct , rr , gg , bb , /GET
 			
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -1157,25 +889,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'stra'
 			filter = '00195'
 
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
                         gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1186,7 +899,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			eit_colors,195
 			!p.color = 3
 			!p.background = 255
-			tvlct , rr , gg , bb , /GET
 			
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -1220,25 +932,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'strb'
 			filter = '00195'
 
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] );image( 22:343, 35:356 )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
                         gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1249,7 +942,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			loadct,1
 			!p.color = 0
 			!p.background = 255
-			tvlct , rr , gg , bb , /GET
 			
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -1283,25 +975,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'swap'
 			filter = '00174'
 
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
 					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1313,7 +987,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			tvlct,rr,gg,bb
 			!p.color = 0
 			!p.background = 255
-			tvlct , rrr , ggg , bbb , /GET
 			
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -1346,28 +1019,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'saia'
 			filter = '00171'
-
-
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rrr, ggg , bbb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
-
+		
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1412,25 +1064,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'saia'
 			filter = '00304'
 			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1474,25 +1107,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'saia'
 			filter = '00193'
-			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
 			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1543,24 +1157,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'saia'
 			filter = '04500'
 			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
 			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1586,7 +1182,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
             b[255]=255 ;added last value to bb range so the background of the image looks white. DPS 5/Nov/2010
 
             tvlct,r,g,b
-			tvlct , rrr , ggg , bbb , /GET
 			!p.color = 0
 			!p.background = 255
 
@@ -1623,24 +1218,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'chmi'
 			filter = '06173'
 
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rrr , ggg , bbb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
 
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1686,24 +1263,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'saia'
 			filter = '00094'
 			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
 			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1749,24 +1308,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'saia'
 			filter = '00131'
 			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
 			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1812,24 +1353,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'saia'
 			filter = '00211'
 			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
 			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1875,24 +1398,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'saia'
 			filter = '00335'
 			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
 			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -1938,24 +1443,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'saia'
 			filter = '01600'
 			
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
 			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -2001,24 +1488,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'saia'
 			filter = '01700'
 
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
 			
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
@@ -2028,7 +1497,27 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 		; Plot the SHMI MAG data  
 		
 		if keyword_set(shmi_maglc) then begin
-				
+			; Grabs the flare probabilities in order to generate barcharts
+
+			activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob
+			prob_array = strarr(n_elements(mci) , 3)
+			prob_array[* , 0] = cprob[*]
+			prob_array[* , 1] = mprob[*]
+			prob_array[* , 2] = xprob[*]
+
+		; Chart size in pixels
+
+			chart_size = 700
+			sub_reg_black_charts = fltarr(n_elements(names) , chart_size , chart_size)
+			sub_reg_white_charts = fltarr(n_elements(names) , chart_size , chart_size)
+			sub_reg_trans_charts = fltarr(n_elements(names) , chart_size , chart_size)
+		
+			for k = 0 , n_elements( names ) - 1 do begin
+				sub_reg_black_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)
+				sub_reg_white_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)
+				sub_reg_trans_charts[k , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)
+	endfor
+	
 			loadct,0
 			!p.color = 0
 			!p.background = 255
@@ -2066,27 +1555,16 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			instrument = 'shmi'
 			filter = 'maglc'
 
-			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
-					
-					file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-					instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-					
-					if (prob_array[j , 0] ne '...') then begin 
-						gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[j , * , *]) , reform(sub_reg_white_charts[j , * , *]) , $ 
-						reform(sub_reg_trans_charts[j , * , *]) , [reform(x(0 , j)) , reform(y(0 , j))] , rr, gg , bb
-						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endif else begin
-						wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-					endelse
-				endif
-			endfor
-			
+			file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
+			instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
 
-
+			if (string(prob_array[i , 0]) ne '...') then begin 
+				gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , $ 
+					reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb
+					write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+			endif else begin
+				wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+			endelse
 
 			print,'Writing png to: ' + output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png'
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
