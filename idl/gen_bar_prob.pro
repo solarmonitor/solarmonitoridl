@@ -42,7 +42,8 @@
 
 function gen_bar_prob , summary , bar_size , prob_array , ax_col=col , ch_thick_mod=cthick_mod , AXES=axes , NOLABELS=nolabels , REF=ref , SUB=sub
 
-  if (prob_array[0] ne '...') then begin   ; ARs without sunspots ignored
+
+if (string(prob_array[0]) ne '...') then begin   ; ARs without sunspots ignored
 
 	device , /close
   	device , set_resolution=[bar_size , bar_size]
