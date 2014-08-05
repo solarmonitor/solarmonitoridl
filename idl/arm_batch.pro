@@ -117,7 +117,7 @@ error_status_saia_00171=1 & error_status_saia_00304=1 & error_status_saia_00193=
 error_status_saia_00131=1 & error_status_saia_00211=1 & error_status_saia_00335=1 & error_status_saia_01600=1
 error_status_saia_01700=1 & error_status_shmi_maglc=1 & error_status_chmi_06173=1
 
-    didswap=execute('arm_fd, temp_path, output_path, date_struct, summary, swap174_map_struct, /swap_00174, error_status=error_status_swap_00174',1,1) 
+    didswap=0;execute('arm_fd, temp_path, output_path, date_struct, summary, swap174_map_struct, /swap_00174, error_status=error_status_swap_00174',1,1) 
     didhxrt=0
     didhxrt=0;('arm_fd, temp_path, output_path, date_struct, summary, hxrt_map_struct, /hxrt_flter',1,1) 
 ;   dide195=execute('arm_fd, temp_path, output_path, date_struct, summary, eit195_map_struct, /seit_00195, error_status=error_status_seit_00195',1,1) 
@@ -127,7 +127,7 @@ error_status_saia_01700=1 & error_status_shmi_maglc=1 & error_status_chmi_06173=
 ;   dide171=execute('arm_fd, temp_path, output_path, date_struct, summary, eit171_map_struct, /seit_00171',1,1) 
     ;dide304=execute('arm_fd, temp_path, output_path, date_struct, summary, eit304_map_struct, /seit_00304',1,1) 
     didt171=0;execute('arm_fd, temp_path, output_path, date_struct, summary, trce_mosaic171_map_struct, /trce_m0171',1,1) 
-    didgmag=0;execute('arm_fd, temp_path, output_path, date_struct, summary, gong_map_struct, /gong_maglc',1,1) 
+    didgmag=execute('arm_fd, temp_path, output_path, date_struct, summary, gong_map_struct, /gong_maglc',1,1) 
     didgigr=0;execute('arm_fd, temp_path, output_path, date_struct, summary, gongint_map_struct, /gong_igram, error_status=error_status_gong_igram',1,1) 
     didbbso=0;execute('arm_fd, temp_path, output_path, date_struct, summary, ha_map_struct, /bbso_halph, error_status=error_status_bbso_halph',1,1) 
 	didgfar=0;execute('arm_fd, temp_path, output_path, date_struct, summary, gongfar_map_struct, /gong_farsd, error_status=error_status_gong_farsd',1,1) 

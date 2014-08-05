@@ -627,10 +627,9 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 		; Plot the magnetic gradient map  
 		if keyword_set(gong_maglc) then begin
 			loadct, 5, /silent
-			gamma_ct, 1.2
+	;		gamma_ct, 1.2
 			!p.color = 0
 			!p.background = 255
-			loadct , rr , gg , bb , /GET
 
 			scaled_db_map = map_struct.scaled_db_map
 			unscaled_db_map = map_struct.unscaled_db_map
@@ -651,8 +650,8 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			plot_map, sub_scaled_db_map, /square, title = 'GONG+ Longitudinal Gradient ' + sub_scaled_db_map.time, $
 				dmin = min( sub_scaled_db_map.data ), dmax = max( sub_scaled_db_map.data ), grid = 10, gcolor=255
 			
-			;arm_colorbar, [ min( sub_scaled_db_map.data ), max( sub_scaled_db_map.data ) ]
-			;xyouts, 0.27, 0.70, 'Gradient [Gauss/km]', /normal, color = 255, charsize = 0.8 
+	;		arm_colorbar, [ min( sub_scaled_db_map.data ), max( sub_scaled_db_map.data ) ]
+			xyouts, 0.27, 0.70, 'Gradient [Gauss/km]', /normal, color = 255, charsize = 0.8 
 			
 			for j = 0, n_elements( names ) - 1 do begin
 				if  ( ( ( x( 1 , j) gt ( x( 1, i ) - 4.5 * 60. ) )   and $
