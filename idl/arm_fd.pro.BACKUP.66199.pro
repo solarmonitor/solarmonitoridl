@@ -116,6 +116,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
         data= readfits( filename, head )
         index = head2stc( head )
+		print , 'LALOAAL'
 
                                 ;  DSB - 10-Oct-2008
                                 ;  added this in because index2map crashes out without the correct 
@@ -1513,7 +1514,10 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ;-------------------------------------------------------------------;
 
 tvlct , rr , gg , bb , /get
+<<<<<<< HEAD
+=======
   
+>>>>>>> tierney/flare_prob_edits
 ;Check to see if map is all 0's etc (prevents plotting map for diff. inst. in wrong file...)
 
 if max(unscaled_map.data) eq min(unscaled_map.data) then begin
@@ -1549,7 +1553,7 @@ endif
    endif
 
 
-   center = [ 0., 0. ]
+   ;center = [ 0., 0. ]
    fov = [ 2200. / 60., 2200. / 60. ]
 
    case full_instrument of
@@ -1792,6 +1796,25 @@ endif
    print, 'Data written to <' + map_coords_file + '>.'
    print, ' '
 
+<<<<<<< HEAD
+; Create FD pngs with probabilities attached
+
+  	set_plot , 'z'
+
+	if (keyword_set(shmi_maglc)) then begin
+		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /HMI_MAG
+	endif 
+	if (keyword_set(gong_maglc)) then begin
+		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /GONG_MAG
+	endif
+	if (keyword_set(chmi_06173)) then begin
+		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /HMI_CON
+	endif
+	if (keyword_set(gong_igram)) then begin
+		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter ,/GONG_CON
+	endif
+=======
+>>>>>>> tierney/flare_prob_edits
  
 ; write the map_structure
 

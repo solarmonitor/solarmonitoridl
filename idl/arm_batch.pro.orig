@@ -25,7 +25,6 @@
 ;-
 
 pro arm_batch, temp_path, output_path
-    use_network
     print,'THE TIME IS NOW '+systim(/utc)
     
     set_plot, 'z'
@@ -130,11 +129,18 @@ error_status_saia_01700=1 & error_status_shmi_maglc=1 & error_status_chmi_06173=
     didgmag=execute('arm_fd, temp_path, output_path, date_struct, summary, gong_map_struct, /gong_maglc',1,1) 
     didgigr=execute('arm_fd, temp_path, output_path, date_struct, summary, gongint_map_struct, /gong_igram, error_status=error_status_gong_igram',1,1) 
     didbbso=execute('arm_fd, temp_path, output_path, date_struct, summary, ha_map_struct, /bbso_halph, error_status=error_status_bbso_halph',1,1) 
+<<<<<<< HEAD
+    didgfar=execute('arm_fd, temp_path, output_path, date_struct, summary, gongfar_map_struct, /gong_farsd, error_status=error_status_gong_farsd',1,1) 
+    didslis=execute('arm_fd, temp_path, output_path, date_struct, summary, slischrom_map_struct, /slis_chrom, error_status=error_status_slis_chrom',1,1) 
+    didstra=execute('arm_fd, temp_path, output_path, date_struct, summary, stereoa_map_struct, /stra_00195, error_status=error_status_stra_00195',1,1) 
+    didstrb=execute('arm_fd, temp_path, output_path, date_struct, summary, stereob_map_struct, /strb_00195, error_status=error_status_strb_00195',1,1)
+=======
 	didgfar=execute('arm_fd, temp_path, output_path, date_struct, summary, gongfar_map_struct, /gong_farsd, error_status=error_status_gong_farsd',1,1) 
 	didslis=execute('arm_fd, temp_path, output_path, date_struct, summary, slischrom_map_struct, /slis_chrom, error_status=error_status_slis_chrom',1,1) 
 	didstra=execute('arm_fd, temp_path, output_path, date_struct, summary, stereoa_map_struct, /stra_00195, error_status=error_status_stra_00195',1,1) 
 	didstrb=execute('arm_fd, temp_path, output_path, date_struct, summary, stereob_map_struct, /strb_00195, error_status=error_status_strb_00195',1,1)
     
+>>>>>>> tierney/flare_prob_edits
 	
     ;Free up all the LUN's used in ARM_BATCH etc.
     free_all
@@ -184,9 +190,13 @@ endelse
 ;    print, 'Done full-disk thumbs: '
 
 ; Extract each region and write a web page for each
+<<<<<<< HEAD
 
 if ( summary[ 0 ] ne 'No data' ) then begin
 
+=======
+  if ( summary[ 0 ] ne 'No data' ) then begin
+>>>>>>> tierney/flare_prob_edits
 regcrashed=''
 
     reghxrt=execute('if ( var_type(hxrt_map_struct) eq 8 ) then arm_regions, output_path, date_struct, summary, hxrt_map_struct, /hxrt_flter',1,1)
