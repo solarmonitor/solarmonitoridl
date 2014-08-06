@@ -93,7 +93,7 @@ foreach $instname (sort readdir(dir)) {
 		if ($filename =~ /.gif/){
 		    $file_use = "$inst_path/$filename";
 		    print "Converting GOES: $filename to png\n"; 
-		    @args1 = ("mogrify", "-format","png", $file_use,);
+		   @args1 = ("mogrify", "-format","png", $file_use,);
 		    system(@args1) == 0 or die "Couldn't open directory, $!";		
 		}
 	    }
