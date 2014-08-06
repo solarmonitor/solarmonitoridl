@@ -25,6 +25,7 @@
 ;-
 
 pro arm_batch, temp_path, output_path
+    use_network
     print,'THE TIME IS NOW '+systim(/utc)
     
     set_plot, 'z'
