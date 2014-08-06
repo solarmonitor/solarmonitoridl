@@ -139,6 +139,7 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
   if (keyword_set(hmi_mag) or keyword_set(hmi_con)) then begin
   	plot_map, map, /square, fov = fov, grid = 10, $
     	            title = 'HMI : Flare probabilities for NOAA Active Regions at ' + map.time, $
+  endif
   if (keyword_set(gong_mag)) then begin
   	plot_map, map, /square, fov = fov, grid = 10, $
     	            title =  'Flare probabilities for NOAA Active Regions at ' + map.time, $
