@@ -240,7 +240,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			eit_colors, 304
 			!p.color = 0
 			!p.background = 255
-			tvlct , rr , gg , bb  , /GET
 			
 			;	scaled map	
 			sub_map, scaled_map, sub_scaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
@@ -412,7 +411,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 	    ; Plot the H-alpha data  
 	    if keyword_set(bbso_halph) then begin
 			loadct, 3, /silent
-			gamma_ct, 0.8
+			;gamma_ct, 0.8
 			!p.color = 0
 			!p.background = 255
 
@@ -508,15 +507,15 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 
 	   ; Chart size in pixels
 
-			chart_size = 700
-			sub_reg_black_charts = fltarr(n_elements(names) , chart_size , chart_size)
-			sub_reg_white_charts = fltarr(n_elements(names) , chart_size , chart_size)
-			sub_reg_trans_charts = fltarr(n_elements(names) , chart_size , chart_size)
-		
+			failed = 0
 			for k = 0 , n_elements( names ) - 1 do begin
-				sub_reg_black_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)
-				sub_reg_white_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)
-				sub_reg_trans_charts[k , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)
+				bl = execute("sub_reg_black_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)") 
+				wh = execute("sub_reg_white_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)") 
+				tr = execute("sub_reg_trans_charts[k , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)")
+				if bl eq 0 or wh eq 0 or tr eq 0 then begin
+					failed = 1 
+					break
+				endif
 			endfor
 
 			loadct, 0, /silent
@@ -559,10 +558,14 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'gong'
 			filter = 'maglc'
+
+			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
+			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
+                        gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 			file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
 			instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
 
-			if (string(prob_array[i , 0]) ne '...') then begin 
+			if (string(prob_array[i , 0]) ne '...' and failed ne 1) then begin 
 				gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , $ 
 					reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb
 					write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
@@ -570,9 +573,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 				wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
 			endelse
 
-			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
-			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
-                        gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 		endif
 
 	    ; Plot the GONG Continuum  
@@ -1510,12 +1510,17 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			sub_reg_black_charts = fltarr(n_elements(names) , chart_size , chart_size)
 			sub_reg_white_charts = fltarr(n_elements(names) , chart_size , chart_size)
 			sub_reg_trans_charts = fltarr(n_elements(names) , chart_size , chart_size)
+			failed = 0
 		
 			for k = 0 , n_elements( names ) - 1 do begin
-				sub_reg_black_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)
-				sub_reg_white_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)
-				sub_reg_trans_charts[k , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)
-	endfor
+				bl = execute("sub_reg_black_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)") 
+				wh = execute("sub_reg_white_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)") 
+				tr = execute("sub_reg_trans_charts[k , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)")
+				if bl eq 0 or wh eq 0 or tr eq 0 then begin
+					failed = 1 
+					break
+				endif
+			endfor
 	
 			loadct,0
 			!p.color = 0
@@ -1553,11 +1558,15 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'shmi'
 			filter = 'maglc'
-
+			print,'Writing png to: ' + output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png'
+			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
+			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
+			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
+			
 			file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
 			instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
 
-			if (string(prob_array[i , 0]) ne '...') then begin 
+			if (string(prob_array[i , 0]) ne '...' and failed ne 1) then begin 
 				gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , $ 
 					reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb
 					write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
@@ -1565,11 +1574,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 				wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
 			endelse
 
-			print,'Writing png to: ' + output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png'
-			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
-			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
-			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
-			
+		
 		endif
 		
 		
