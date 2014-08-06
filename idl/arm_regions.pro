@@ -92,7 +92,25 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 		if ( reg eq 'bd' )  then ar_type( i )   = 'Beta-Delta'  
 
 	endfor
+
+; Grabs the flare probabilities in order to generate barcharts
 	
+	activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob
+	prob_array = strarr(n_elements(mci) , 3)
+	prob_array[* , 0] = cprob[*]
+	prob_array[* , 1] = mprob[*]
+	prob_array[* , 2] = xprob[*]
+
+; Chart size in pixels
+
+	chart_size = 700 
+	sub_reg_black_charts = fltarr(n_elements(names) , chart_size , chart_size)
+	sub_reg_white_charts = fltarr(n_elements(names) , chart_size , chart_size)
+	sub_reg_trans_charts = fltarr(n_elements(names) , chart_size , chart_size)
+
+; error handling for probability regions
+
+	failed = 0
 
 ; Rotate NOAA summary data to the frame times.
 	
@@ -497,26 +515,13 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 	
 		; Plot the GONG+ data  
 		if keyword_set(gong_maglc) then begin
-		; Grabs the flare probabilities in order to generate barcharts
-
-			activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob
-			prob_array = strarr(n_elements(mci) , 3)
-			prob_array[* , 0] = cprob[*]
-			prob_array[* , 1] = mprob[*]
-			prob_array[* , 2] = xprob[*]
-
-	   ; Chart size in pixels
-
-			failed = 0
-			for k = 0 , n_elements( names ) - 1 do begin
-				bl = execute("sub_reg_black_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)") 
-				wh = execute("sub_reg_white_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)") 
-				tr = execute("sub_reg_trans_charts[k , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)")
-				if bl eq 0 or wh eq 0 or tr eq 0 then begin
-					failed = 1 
-					break
-				endif
-			endfor
+	
+			bl = execute("sub_reg_black_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)") 
+			wh = execute("sub_reg_white_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)") 
+			tr = execute("sub_reg_trans_charts[i , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)")
+			if bl eq 0 or wh eq 0 or tr eq 0 then begin
+				failed = 1 
+			endif
 
 			loadct, 0, /silent
 			tvlct , rr , gg , bb , /GET
@@ -565,13 +570,15 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
 			instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
 
-			if (string(prob_array[i , 0]) ne '...' and failed ne 1) then begin 
-				gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , $ 
+			if (failed ne 1) then begin
+				if (string(prob_array[i , 0]) ne '...') then begin 
+					gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , $ 
 					reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb
 					write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-			endif else begin
+				endif else begin
 				wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-			endelse
+				endelse
+			endif
 
 		endif
 
@@ -1496,32 +1503,14 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 		; Plot the SHMI MAG data  
 		
 		if keyword_set(shmi_maglc) then begin
-			; Grabs the flare probabilities in order to generate barcharts
 
-			activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob
-			prob_array = strarr(n_elements(mci) , 3)
-			prob_array[* , 0] = cprob[*]
-			prob_array[* , 1] = mprob[*]
-			prob_array[* , 2] = xprob[*]
+			bl = execute("sub_reg_black_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)") 
+			wh = execute("sub_reg_white_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)") 
+			tr = execute("sub_reg_trans_charts[i , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)")
+			if bl eq 0 or wh eq 0 or tr eq 0 then begin
+				failed = 1 
+			endif
 
-		; Chart size in pixels
-
-			chart_size = 700
-			sub_reg_black_charts = fltarr(n_elements(names) , chart_size , chart_size)
-			sub_reg_white_charts = fltarr(n_elements(names) , chart_size , chart_size)
-			sub_reg_trans_charts = fltarr(n_elements(names) , chart_size , chart_size)
-			failed = 0
-		
-			for k = 0 , n_elements( names ) - 1 do begin
-				bl = execute("sub_reg_black_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)") 
-				wh = execute("sub_reg_white_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)") 
-				tr = execute("sub_reg_trans_charts[k , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)")
-				if bl eq 0 or wh eq 0 or tr eq 0 then begin
-					failed = 1 
-					break
-				endif
-			endfor
-	
 			loadct,0
 			!p.color = 0
 			!p.background = 255
@@ -1566,13 +1555,15 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
 			instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
 
-			if (string(prob_array[i , 0]) ne '...' and failed ne 1) then begin 
-				gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , $ 
+			if (failed ne 1) then begin
+				if (string(prob_array[i , 0]) ne '...') then begin 
+					gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , $ 
 					reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb
 					write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-			endif else begin
-				wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
-			endelse
+				endif else begin
+					wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+				endelse
+			endif
 
 		
 		endif
