@@ -93,13 +93,19 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 
 	endfor
 
+; error handling for probability regions
+
+	prob_state = 0
+
 ; Grabs the flare probabilities in order to generate barcharts
 	
-	activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob
-	prob_array = strarr(n_elements(mci) , 3)
-	prob_array[* , 0] = cprob[*]
-	prob_array[* , 1] = mprob[*]
-	prob_array[* , 2] = xprob[*]
+	prob_state = execute("activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob")
+	if (prob_state) then begin 
+		prob_array = strarr(n_elements(mci) , 3)
+		prob_array[* , 0] = cprob[*]
+		prob_array[* , 1] = mprob[*]
+		prob_array[* , 2] = xprob[*]
+	endif 
 
 ; Chart size in pixels
 
@@ -108,9 +114,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 	sub_reg_white_charts = fltarr(n_elements(names) , chart_size , chart_size)
 	sub_reg_trans_charts = fltarr(n_elements(names) , chart_size , chart_size)
 
-; error handling for probability regions
-
-	failed = 0
 
 ; Rotate NOAA summary data to the frame times.
 	
@@ -520,7 +523,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			wh = execute("sub_reg_white_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)") 
 			tr = execute("sub_reg_trans_charts[i , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)")
 			if bl eq 0 or wh eq 0 or tr eq 0 then begin
-				failed = 1 
+				prob_state = 0 
 			endif
 
 			loadct, 0, /silent
@@ -570,11 +573,12 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
 			instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
 
-			if (failed ne 1) then begin
+			if (prob_state) then begin
 				if (string(prob_array[i , 0]) ne '...') then begin 
-					gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , $ 
-					reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb
-					write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+					success = execute("gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb")
+					if (success) then begin
+						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+					endif
 				endif else begin
 				wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
 				endelse
@@ -634,7 +638,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 		; Plot the magnetic gradient map  
 		if keyword_set(gong_maglc) then begin
 			loadct, 5, /silent
-	;		gamma_ct, 1.2
+			gamma_ct, 1.2
 			!p.color = 0
 			!p.background = 255
 
@@ -657,7 +661,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			plot_map, sub_scaled_db_map, /square, title = 'GONG+ Longitudinal Gradient ' + sub_scaled_db_map.time, $
 				dmin = min( sub_scaled_db_map.data ), dmax = max( sub_scaled_db_map.data ), grid = 10, gcolor=255
 			
-	;		arm_colorbar, [ min( sub_scaled_db_map.data ), max( sub_scaled_db_map.data ) ]
+			arm_colorbar, [ min( sub_scaled_db_map.data ), max( sub_scaled_db_map.data ) ]
 			xyouts, 0.27, 0.70, 'Gradient [Gauss/km]', /normal, color = 255, charsize = 0.8 
 			
 			for j = 0, n_elements( names ) - 1 do begin
@@ -1508,7 +1512,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			wh = execute("sub_reg_white_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)") 
 			tr = execute("sub_reg_trans_charts[i , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)")
 			if bl eq 0 or wh eq 0 or tr eq 0 then begin
-				failed = 1 
+				prob_state = 0
 			endif
 
 			loadct,0
@@ -1555,11 +1559,12 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
 			instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
 
-			if (failed ne 1) then begin
+			if (prob_state) then begin
 				if (string(prob_array[i , 0]) ne '...') then begin 
-					gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , $ 
-					reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb
-					write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+					success = execute("gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb")
+					if (success) then begin 
+						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+					endif
 				endif else begin
 					wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
 				endelse
@@ -1567,8 +1572,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 
 		
 		endif
-		
-		
+			
 	    set_plot, 'x'
 	   
 		print,' Completed: ' + names( i )
