@@ -1473,9 +1473,8 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
      print, 'Getting SDO HMI MAG'
      get_hmi_latest, temp_path, filename, err=err
-     
-     print,'Error from get_hmi_latest: '+string(err)
-     
+  ;   filename='/tmp/EX_SM_201408060912/HMI20140806_082224_6173.fits'
+  ;   err=0
      if err ne '' then begin
         error_type = 'shmi_maglc'
         goto, error_handler
@@ -1805,9 +1804,11 @@ endif
   	set_plot , 'z'
 
 	if (keyword_set(shmi_maglc)) then begin
+		print,'Plotting flare probabilities on HMI Magnetogram'
 		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /HMI_MAG
 	endif 
 	if (keyword_set(gong_maglc)) then begin
+		print,'Plotting flare probabilities on GONG Magnetogram'	
 		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /GONG_MAG
 	endif
                                 ;Crude IDL error handling.  uses a goto! (eek)

@@ -1465,8 +1465,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			prob_array[* , 0] = cprob[*]
 			prob_array[* , 1] = mprob[*]
 			prob_array[* , 2] = xprob[*]
-
-		; Chart size in pixels
+			; Chart size in pixels
 
 			chart_size = 700
 			sub_reg_black_charts = fltarr(n_elements(names) , chart_size , chart_size)
@@ -1477,8 +1476,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 				sub_reg_black_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)
 				sub_reg_white_charts[k , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(k , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)
 				sub_reg_trans_charts[k , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)
-	endfor
-	
+			endfor
 			loadct,0
 			!p.color = 0
 			!p.background = 255
@@ -1491,7 +1489,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			;	unscaled (raw) map
 			sub_map, unscaled_map, sub_unscaled_map, xrange=[ x( 0, i ) - 5 * 60., x( 0, i ) + 5 * 60. ],$
 				yrange=[ y( 0, i ) - 5 * 60., y( 0, i ) + 5 * 60. ]
-							
 			sub_scaled_map.data(0,0)=min(scaled_map.data)
 			sub_scaled_map.data(0,1)=max(scaled_map.data)
 				
@@ -1510,7 +1507,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 						charthick = charthreg[1], color = 255, charsize = charregsz
 				endif
 			endfor
-				
 			image = tvrd()
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'shmi'
@@ -1526,7 +1522,6 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			endif else begin
 				wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
 			endelse
-
 			print,'Writing png to: ' + output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png'
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'

@@ -106,16 +106,10 @@ if (string(prob_array[0]) ne '...') then begin   ; ARs without sunspots ignored
 		bnames = ['' , '' , '']
 		outl = 0
 	endif
-
 ; Plots barcharts depending on AXES and NOLABELS keywords
 
   	if (keyword_set(axes)) then begin
 		if (keyword_set(nolabels)) then begin
-  			cgBarPlot , flare_probs  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
-  				charsize = csize , charthick = char_thick , axiscolor=col , range=[0,100] , yticks=2 , $
-				position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , ythick = yt , xthick = xt , ytitle=yti 
-		endif else begin
-  			cgBarPlot , flare_probs  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
   			cgBarPlot , prob_array  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
   				charsize = csize , charthick = char_thick , axiscolor=col , range=[0,100] , yticks=2 , $
 				position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , ythick = yt , xthick = xt , ytitle=yti 
@@ -125,16 +119,11 @@ if (string(prob_array[0]) ne '...') then begin   ; ARs without sunspots ignored
 				position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , ytitle=yti , ythick = yt , xthick = xt , barnames = bnames
 		endelse 
   	endif else begin
-  		cgBarPlot , flare_probs  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
   		cgBarPlot , prob_array  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
   			charsize = csize , charthick = char_thick , axiscolor=col , range=[0,100] , yticks=2  , $
 			position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , xstyle=6 , ystyle=6 , ytitle=yti , barnames = bnames 
   	endelse
   	im = tvrd()
-  	erase 
-  	device , /close 
-  endif else begin
-    im = fltarr(bar_size , bar_size) ; Array of zeroes
   	device , /close 
 	set_plot , dev_name 
   endif else begin
@@ -143,5 +132,7 @@ if (string(prob_array[0]) ne '...') then begin   ; ARs without sunspots ignored
   endelse
   
   return  , im
+
+end 
 
 end 
