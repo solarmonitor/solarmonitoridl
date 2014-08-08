@@ -98,22 +98,22 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 	prob_state = 0
 
 ; Grabs the flare probabilities in order to generate barcharts
-	
-	prob_state = execute("activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob")
-	if (prob_state) then begin 
-		prob_array = strarr(n_elements(mci) , 3)
-		prob_array[* , 0] = cprob[*]
-		prob_array[* , 1] = mprob[*]
-		prob_array[* , 2] = xprob[*]
-	endif 
+	if (keyword_set(gong_maglc) or keyword_set(shmi_maglc)) then begin	
+		prob_state = execute("activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob")
+		if (prob_state) then begin 
+			prob_array = strarr(n_elements(mci) , 3)
+			prob_array[* , 0] = cprob[*]
+			prob_array[* , 1] = mprob[*]
+			prob_array[* , 2] = xprob[*]
+		endif 
 
-; Chart size in pixels
+		; Chart size in pixels
 
-	chart_size = 700 
-	sub_reg_black_charts = fltarr(n_elements(names) , chart_size , chart_size)
-	sub_reg_white_charts = fltarr(n_elements(names) , chart_size , chart_size)
-	sub_reg_trans_charts = fltarr(n_elements(names) , chart_size , chart_size)
-
+		chart_size = 700 
+		sub_reg_black_charts = fltarr(n_elements(names) , chart_size , chart_size)
+		sub_reg_white_charts = fltarr(n_elements(names) , chart_size , chart_size)
+		sub_reg_trans_charts = fltarr(n_elements(names) , chart_size , chart_size)
+	endif
 
 ; Rotate NOAA summary data to the frame times.
 	
