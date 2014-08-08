@@ -119,7 +119,7 @@ sm_sswscript()
     echo "setenv SSW_INSTR \"gen eit hessi secchi stereo vobs ontology swap\"" >> $SSWCSH_FILE
     echo "source \$SSW/gen/setup/setup.ssw /quiet"          >> $SSWCSH_FILE
     echo "setenv IDL_DIR $IDL_DIR"                          >> $SSWCSH_FILE
-    echo "setenv IDL_PATH $WORKING_PATH/idl"                >> $SSWCSH_FILE
+    echo "setenv IDL_PATH \+$WORKING_PATH/idl"                >> $SSWCSH_FILE
     echo "setenv WORKING_PATH "$WORKING_PATH                >> $SSWCSH_FILE
     echo "sswidl $SMIDL_FILE >& $SMIDLLOG_FILE"             >> $SSWCSH_FILE
     # In the original file was calling sswidl -32; It does not work in linux
@@ -139,16 +139,19 @@ sm_processimages()
 sm_upload()
 {
   tar -cvz -C $OUTPUT_PATH --exclude '*sm_files*.tar.gz' -f $OUTPUT_PATH/sm_files.tar.gz .
-  scp $OUTPUT_PATH/sm_files.tar.gz $REMOTE_HOST:$REMOTE_PATH
-  ssh $REMOTE_HOST "cd $REMOTE_PATH && tar -xvz -f sm_files.tar.gz"
+   cp $OUTPUT_PATH/sm_files.tar.gz ~/Sites/solarmonitor/website/data/
+   cd ~/Sites/solarmonitor/website/data/ && tar -xvz -f sm_files.tar.gz
+   cp $TEMP_PATH/sm_batch.log ~/Sites/solarmonitor/website/
+
 }
 
 sm_cleanup()
 {
+    rm -f /tmp/ssw_gev_locate.geny
     if [ -d $OUTPUT_PATH ]; then
-        rm -rf $OUTPUT_PATH/sm_files.tar.gz
-        rm -rf $OUTPUT_PATH/20*
-        rm -rf $OUTPUT_PATH/latest_images/
+         rm -rf $OUTPUT_PATH/sm_files.tar.gz
+    #    rm -rf $OUTPUT_PATH/20*
+    #    rm -rf $OUTPUT_PATH/latest_images/
     fi
 }
 

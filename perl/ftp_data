@@ -3,7 +3,11 @@ ftp -A -n gong2.nso.edu << EOF > ftptemp
 user anonymous ptg@bbso.njit.edu
 prompt off
 binary
+<<<<<<< HEAD:idl/ftp_data
 cd /QR/bqa/201408/tdbqa140806/
+=======
+cd /QR/bqa/201407/tdbqa140724/
+>>>>>>> Eoin/flare_probs_imgs:perl/ftp_data
 ls *bqa*.fits*
 bye
 EOF

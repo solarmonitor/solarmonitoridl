@@ -51,8 +51,9 @@ $dir_use = @ARGV[0] . "/pngs";
 
 opendir (dir, $dir_use) or die "Couldn't open directory $dir_use, $!";
 foreach $instname (sort readdir(dir)) {
-  	if ($instname =~ /(\w)([^(ace|goes)])/) {
+	if ($instname =~ /(\w)([^(ace|goes)])/) {
 	  $inst_path = $dir_use."/".$instname;
+	  print "Instrument path is $inst_path \n";
 	  opendir(Instfold,$inst_path) || die "no $instname?: $!";
 	  print "Stamping new files on $inst_path \n";
 	  foreach $filename (sort readdir(Instfold)){

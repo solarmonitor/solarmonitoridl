@@ -116,6 +116,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
         data= readfits( filename, head )
         index = head2stc( head )
+		print , 'LALOAAL'
 
                                 ;  DSB - 10-Oct-2008
                                 ;  added this in because index2map crashes out without the correct 
@@ -594,15 +595,15 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
     ;New get h-alpha code. This section of arm_fd is need of a serious cleanup!!!!
     get_halpha, /today, temp_path = TEMP_PATH, filename = FILENAME, err=ERR
-    
+     
      if (err eq -1 or exist eq 1) then begin
      	print,'Found error in Kanz or BBSO'
         error_type = 'bbso_halph'
                                 ; do any other error handling stuff
         goto, error_handler
      endif
-	 
-     file_loc = filename
+     
+	 file_loc = filename
      filename = ( REVERSE( STR_SEP( filename, '/' ) ) )[0]
      obsname=strmid(filename,0,4)
   
@@ -1473,8 +1474,9 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
      print, 'Getting SDO HMI MAG'
      get_hmi_latest, temp_path, filename, err=err
-  ;   filename='/tmp/EX_SM_201408060912/HMI20140806_082224_6173.fits'
-  ;   err=0
+
+     print,'Error from get_hmi_latest: '+string(err)
+     
      if err ne '' then begin
         error_type = 'shmi_maglc'
         goto, error_handler
@@ -1515,13 +1517,7 @@ tvlct , rr , gg , bb , /get
   
 ;Check to see if map is all 0's etc (prevents plotting map for diff. inst. in wrong file...)
 
-if max(unscaled_map.data) eq min(unscaled_map.data) then begin
-   print,'Unexpected data values in the '+instrument+' '+filter+' map.'
-   print,'EXITING WITHOUT PLOTTING.'
-   err=-1 
-   error_type=instrument+'_'+filter 
-   goto, error_handler 
-endif
+if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_type=instrument+'_'+filter & goto, error_handler & endif
 
 ; Plot the data
 
@@ -1759,6 +1755,7 @@ endif
 
 
 ; Write fulldisk pngs and fits to /data/yyyymmdd/[png,fits]
+
    if ( map.id ne 'NO DATA' ) then begin
 
       wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + image_png_file, zb_plot
@@ -1804,11 +1801,9 @@ endif
   	set_plot , 'z'
 
 	if (keyword_set(shmi_maglc)) then begin
-		print,'Plotting flare probabilities on HMI Magnetogram'
 		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /HMI_MAG
 	endif 
 	if (keyword_set(gong_maglc)) then begin
-		print,'Plotting flare probabilities on GONG Magnetogram'	
 		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /GONG_MAG
 	endif
                                 ;Crude IDL error handling.  uses a goto! (eek)

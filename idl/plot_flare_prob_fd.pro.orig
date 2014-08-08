@@ -131,6 +131,7 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
   
   tvlct , rr , gg , bb ; Loads instr CT
 
+<<<<<<< HEAD
   if (keyword_set(gong_mag) or keyword_set(gong_con)) then begin
   	plot_map, map, /square, fov = fov, grid = 10, $
     	            title =  'GONG : Flare probabilities for NOAA Active Regions at ' + map.time, $
@@ -139,8 +140,7 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
   if (keyword_set(hmi_mag) or keyword_set(hmi_con)) then begin
   	plot_map, map, /square, fov = fov, grid = 10, $
     	            title = 'HMI : Flare probabilities for NOAA Active Regions at ' + map.time, $
-		    position = position, center = center, gcolor=0
-  endif
+=======
   if (keyword_set(gong_mag)) then begin
   	plot_map, map, /square, fov = fov, grid = 10, $
     	            title =  'Flare probabilities for NOAA Active Regions at ' + map.time, $
@@ -154,6 +154,7 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
   if (keyword_set(hmi_mag) or keyword_set(hmi_con)) then begin
   	plot_map, map, /square, fov = fov, grid = 10, $
     	            title = 'Flare probabilities for NOAA Active Regions at ' + map.time, $
+>>>>>>> tierney/flare_prob_edits
         	        position = position, center = center, gcolor=255
   endif
   im = tvrd(/true)
@@ -210,7 +211,10 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
   image_png_prob_file = instrument + '_' + filter + '_pr_' + date_time + '_pre.png'
 
   out_im = tvrd(/true)
+<<<<<<< HEAD
   print,'Writing pngs to: '+ OUTPUT + instrument + '/' + image_png_prob_file
+=======
+>>>>>>> tierney/flare_prob_edits
   write_png , OUTPUT + instrument + '/' + image_png_prob_file , out_im
   print , 'PNG output successful'
 
