@@ -17,11 +17,11 @@
 ;
 ;				XY_CO_ORDS - X-Y co-ordinates of the active region on the sun : FLTARR(2)
 ;
-;				RR - Red color table : INTARR
+;				RED - Red color table : INTARR
 ;
-;				GG - Green color table : INTARR
+;				GREEN - Green color table : INTARR
 ;
-;				BB - Blue color table : INTARR
+;				BLUE - Blue color table : INTARR
 ;
 ; OUTPUT:    
 ;               PNG of sub_region with transparent bar-chart displaying probability for that active region -

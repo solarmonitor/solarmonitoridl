@@ -26,8 +26,8 @@
 ;
 ; OUTPUT:    	FLTARR(bar_size , bar_size) image array 
 ;               
-; EXAMPLE: 		IDL> for i = 0 , n_elements(names) - 1 do begin $
-;				IDL> 	ar_bars[i , * , *] = gen_bar_prob(summary , bar_size , reform(prob_array(i , *)))'
+; EXAMPLE: 		IDL> for i = 0 , n_elements(names) - 1 do begin 
+;				IDL> 	ar_bars[i , * , *] = gen_bar_prob(summary , bar_size , reform(prob_array(i , *)))
 ;			    IDL> endfor
 ;
 ; AUTHOR:       29-Jun-2014 Michael Tierney 
@@ -43,9 +43,7 @@
 function gen_bar_prob , summary , bar_size , prob_array , ax_col=col , ch_thick_mod=cthick_mod , AXES=axes , NOLABELS=nolabels , REF=ref , SUB=sub
 
 
-if (string(prob_array[0]) ne '...') then begin   ; ARs without sunspots ignored
-
-  if (string(prob_array[0]) ne '...') then begin   ; ARs without sunspots ignored
+ if (string(prob_array[0]) ne '...') then begin   ; ARs without sunspots ignored
 
 	dev_name = !D.NAME
 	device , /close
@@ -66,7 +64,6 @@ if (string(prob_array[0]) ne '...') then begin   ; ARs without sunspots ignored
  	flare_probs[2] = prob_array[2]
 
   ; Plots a bar-chart using bar_plot , colors = color indexs of slices
-; Plots a bar-chart using bar_plot , colors = color indexs of slices
 
 	csize = 0 ; charsize
 	char_thick = 0 ; char_thickness
@@ -106,6 +103,7 @@ if (string(prob_array[0]) ne '...') then begin   ; ARs without sunspots ignored
 		bnames = ['' , '' , '']
 		outl = 0
 	endif
+
 ; Plots barcharts depending on AXES and NOLABELS keywords
 
   	if (keyword_set(axes)) then begin
@@ -121,18 +119,17 @@ if (string(prob_array[0]) ne '...') then begin   ; ARs without sunspots ignored
   	endif else begin
   		cgBarPlot , prob_array  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
   			charsize = csize , charthick = char_thick , axiscolor=col , range=[0,100] , yticks=2  , $
-			position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , xstyle=6 , ystyle=6 , ytitle=yti , barnames = bnames 
+			position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , xthick=0 , xstyle=8 , ystyle=4 , ytitle=yti , barnames = bnames 
   	endelse
   	im = tvrd()
   	device , /close 
 	set_plot , dev_name 
-  endif else begin
+ endif else begin
     im = fltarr(bar_size , bar_size) ; Array of zeroes
 	im[*,*] = 1
-  endelse
+ endelse
   
   return  , im
 
 end 
 
-end 

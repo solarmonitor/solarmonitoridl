@@ -13,14 +13,16 @@
 ;
 ;				INDEX - Index of the chart that's being checked : INT
 ;
-;				PIX_NUM - Number of pixels in image
+;				PIX_NUM - Number of pixels in image : INT
 ;
-;				PROB_ARRAY - Arrays of flare probabilities
+;				PROB_ARRAY - Arrays of flare probabilities : FLTARR(2)
 ;
 ; OUTPUT:    	Cycles through chart-chart positions and checks for collisions -
-;				If a collision is detected the chart location is pushed away -
-;				from chart-chart its colliding with and then checked again -
-;				While loop ends when no collisions are detected
+;				Works by drawing a circle around the barcharts and checking for -
+;				an overlap using the magnitude of vectors connecting their respective -
+;				centres. If a collision is detected the chart location is pushed away -
+;				from the chart it's colliding with and then checked again -
+;				While loop ends when no collisions are detected.
 ;               
 ; EXAMPLE: 		IDL> for j = 0 , n_elements(names) - 1 do begin $
 ;				IDL>    loc[0] = ((ar_co_ords[j , 0]/range)*(position[2]-position[0])) * pix_num
@@ -46,7 +48,7 @@ pro col_detect , loc , chart_size , chart_co_ords , index , pix_num , prob_array
   while colliding eq 1 do begin
   	  colliding = 0
 	  for j = 0 , (size(chart_co_ords))[1]-1 do begin
-		  if (prob_array[j , 0] ne '...') then begin ; Ignores ARs with no sunspots
+		  if (string(prob_array[j , 0]) ne '...') then begin ; Ignores ARs with no sunspots
 		  	magn = sqrt((loc[0] - chart_co_ords[j , 0])^2 + (loc[1] - chart_co_ords[j , 1])^2) 
 		  		if (magn le chart_size * sqrt(2.)/1.5) then begin
 		  	  		req_magn = chart_size/(magn*4.)

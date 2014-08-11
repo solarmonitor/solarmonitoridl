@@ -150,7 +150,7 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
  	 loc[0] = (1/2. + (ar_co_ords[0 , j]/2200.)*(position[2]-position[0])) * pix_num  ; Converts to device co-ordinates
   	 loc[1] = (1/2. + (ar_co_ords[1 , j]/2200.)*(position[3]-position[1])) * pix_num  ; Converts to device co-ordinates
 	 if (prob_array[j , 0] ne '...') then begin
-	 	col_detect , loc , win_size*pix_num , chart_co_ords , j , pix_num , prob_array ; Checks for collisions, pushes co-ords into pie-co-ords
+	 	col_detect , loc , win_size*pix_num , chart_co_ords , j , pix_num , prob_array ; Checks for collisions, pushes co-ords into chart-co-ords
 	 endif
   endfor
 

@@ -1802,16 +1802,22 @@ endif
 ; Create FD pngs with probabilities attached
 
   	set_plot , 'z'
+	did_prob = 1
 
 	if (keyword_set(shmi_maglc)) then begin
 		print,'Plotting flare probabilities on HMI Magnetogram'
-		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /HMI_MAG
+		did_prob=execute("plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /HMI_MAG")
 	endif 
 	if (keyword_set(gong_maglc)) then begin
 		print,'Plotting flare probabilities on GONG Magnetogram'	
-		plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /GONG_MAG
+		did_prob=execute("plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /GONG_MAG")
 	endif
-                                ;Crude IDL error handling.  uses a goto! (eek)
+
+	if (did_prob eq 0) then begin
+		print, 'Plotting probabilities was unsuccessful'
+	endif
+	  
+   ;Crude IDL error handling.  uses a goto! (eek)
    error_handler:
    
     if (error_type ne '') then error_status = 1

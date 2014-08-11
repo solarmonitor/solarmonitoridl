@@ -57,7 +57,7 @@
 pro tag_ar , name , ar_co_ord , chart_co_ord , ar_chart , prob , pix_num , win_size , scl , position , transparency , $ 
 		r , g , b , CHARTS=charts ,  ARROWS=arrows , NAMES=names
 
-; If chart is far away from AR then arrow is drawn that connects them
+; If chart is far away from AR then an arrow is drawn that connects them
 
   offset_y = 0.012
   offset_x = 0.011
@@ -89,7 +89,7 @@ pro tag_ar , name , ar_co_ord , chart_co_ord , ar_chart , prob , pix_num , win_s
 
 ; Tag the AR with a chart , uses normalised device co-ords 
   
-  if (keyword_set(charts) and  prob[0] ne '...') then begin 
+  if (keyword_set(charts) and prob[0] ne '...') then begin 
 	tvlct , r , g , b
 	win_co_ords = fltarr(4)
 	win_co_ords[0] = chart_co_ord[0]/pix_num - offset_x

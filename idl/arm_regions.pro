@@ -20,6 +20,7 @@
 ; Keywords    : None
 ;
 ; History     : Written 05-feb-2001, Peter Gallagher, BBSO
+;				Modified to do probability images 07/08/2014
 ;
 ; Contact     : ptg@bbso.njit.edu
 ;
@@ -95,12 +96,12 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 
 ; error handling for probability regions
 
-	prob_state = 0
+	did_prob_succeed = 0
 
 ; Grabs the flare probabilities in order to generate barcharts
 	if (keyword_set(gong_maglc) or keyword_set(shmi_maglc)) then begin	
-		prob_state = execute("activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob")
-		if (prob_state) then begin 
+		did_prob_succeed = execute("activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob")
+		if (did_prob_succeed) then begin 
 			prob_array = strarr(n_elements(mci) , 3)
 			prob_array[* , 0] = cprob[*]
 			prob_array[* , 1] = mprob[*]
@@ -510,12 +511,14 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 	
 		; Plot the GONG+ data  
 		if keyword_set(gong_maglc) then begin
-	
-			bl = execute("sub_reg_black_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=0  , ch_thick_mod=5, /AXES , /SUB)") 
-			wh = execute("sub_reg_white_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)") 
-			tr = execute("sub_reg_trans_charts[i , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)")
-			if bl eq 0 or wh eq 0 or tr eq 0 then begin
-				prob_state = 0 
+			
+			if (did_prob_succeed) then begin
+				bl = execute("sub_reg_black_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=0  , ch_thick_mod=5 , /SUB)") 
+				wh = execute("sub_reg_white_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=3  , ch_thick_mod=0, /SUB)") 
+				tr = execute("sub_reg_trans_charts[i , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /SUB)")
+				if bl eq 0 or wh eq 0 or tr eq 0 then begin
+					did_prob_succeed = 0 
+				endif
 			endif
 
 			loadct, 0, /silent
@@ -567,7 +570,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
                         gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 		
 			; Generates probability sub-region
-			if (prob_state) then begin
+			if (did_prob_succeed) then begin
 
 				plot_map, sub_scaled_map, /square, grid = 10, title = 'GONG+ Magnetogram ' + sub_scaled_map.time, $
 					dmin = -250, dmax = 250, gcolor=255
@@ -1488,12 +1491,14 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 		; Plot the SHMI MAG data  
 		
 		if keyword_set(shmi_maglc) then begin
-
-			bl = execute("sub_reg_black_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=0  , ch_thick_mod=5, /AXES , /SUB)") 
-			wh = execute("sub_reg_white_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)") 
-			tr = execute("sub_reg_trans_charts[i , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)")
-			if bl eq 0 or wh eq 0 or tr eq 0 then begin
-				prob_state = 0
+			
+			if (did_prob_succeed) then begin
+				bl = execute("sub_reg_black_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=0  , ch_thick_mod=5 , /SUB)") 
+				wh = execute("sub_reg_white_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=3  , ch_thick_mod=0 , /SUB)") 
+				tr = execute("sub_reg_trans_charts[i , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /SUB)")
+				if bl eq 0 or wh eq 0 or tr eq 0 then begin
+					did_prob_succeed = 0
+				endif
 			endif
 
 			loadct,0
@@ -1540,7 +1545,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 
 			; Generates probability sub-region image
 
-			if (prob_state) then begin
+			if (did_prob_succeed) then begin
 
 				plot_map, sub_scaled_map, /square, grid = 10, title = 'HMI Magnetogram ' + sub_scaled_map.time, $
 					dmin = min( sub_scaled_map.data ), dmax = max( sub_scaled_map.data ), gcolor=255
