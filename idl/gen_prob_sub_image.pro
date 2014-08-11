@@ -52,10 +52,10 @@ pro gen_prob_sub_image , img , out_img , label_bar_under_chart , label_bar_over_
   b[3] = 255
   g[3] = 255
 
-  win_size = 0.3
+  win_size = 0.24
   new_co_ords = convert_coord(xy_co_ords[0] , xy_co_ords[1] , /DATA , /TO_NORMAL)
-  offset_x = 0.03
-  offset_y = 0 
+  offset_x = -0.135
+  offset_y = 0.117 
 
 ; Error handling to prevent barchart leaving plotspace
 
@@ -79,8 +79,6 @@ pro gen_prob_sub_image , img , out_img , label_bar_under_chart , label_bar_over_
 
 ; Use altered CT
 
-  print , new_co_ords[0] + win_size + offset_x
-  print , new_co_ords[1] + win_size + offset_y 
   tvlct , r , g , b
   cgimage , label_bar_under_chart , alphafgposition= [new_co_ords[0] + offset_x , new_co_ords[1] + offset_y $ 
   	, new_co_ords[0] + win_size + offset_x , new_co_ords[1] + win_size + offset_y] , transparent = 20. $

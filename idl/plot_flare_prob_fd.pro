@@ -29,10 +29,6 @@
 ;
 ;				/GONG_MAG : Dealing wuth a GONG image
 ;
-;				/HMI_CON : Dealing with HMI continuum image
-;
-;				/GONG_CON : Dealing with GONG continuum image
-;
 ; OUTPUT:    
 ;               PNG of solar image with transparent bar-charts overplottted on active regions -
 ;				These charts give flare probablities for a given active region
@@ -69,7 +65,7 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
 	  print , 'Summary not defined'
 	  goto , TERM
   endif
-  if (keyword_set(hmi_mag) ne 1 and keyword_set(gong_mag) ne 1 and keyword_set(hmi_con) ne 1 and keyword_set(gong_con) ne 1) then begin
+  if (keyword_set(hmi_mag) ne 1 and keyword_set(gong_mag) ne 1) then begin
 	  print , 'Needs either GONG keywords or HMI keywords to be set'
 	  goto , TERM
   endif
@@ -110,7 +106,7 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
     ar_trans_charts[i , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=3)
   endfor
   ref_bar = fltarr(chart_size , chart_size) ; Reference bar-chart
-  ref_bar[* , *] = gen_bar_prob(summary , chart_size , [75. , 50. , 25.] , ax_col=3 , /AXES , /NOLABELS , /REF)
+  ref_bar[* , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=3 , /AXES , /NOLABELS , /REF)
   ref_trans_bar = fltarr(chart_size , chart_size) ; Reference bar-chart
   ref_trans_bar[* , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=3 , /AXES , /NOLABELS , /REF  )
 
@@ -131,27 +127,12 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
   
   tvlct , rr , gg , bb ; Loads instr CT
 
-  if (keyword_set(gong_mag) or keyword_set(gong_con)) then begin
-  	plot_map, map, /square, fov = fov, grid = 10, $
-    	            title =  'GONG : Flare probabilities for NOAA Active Regions at ' + map.time, $
-        	        position = position, center = center, gcolor=255
-  endif
-  if (keyword_set(hmi_mag) or keyword_set(hmi_con)) then begin
-  	plot_map, map, /square, fov = fov, grid = 10, $
-    	            title = 'HMI : Flare probabilities for NOAA Active Regions at ' + map.time, $
-		    position = position, center = center, gcolor=0
-  endif
   if (keyword_set(gong_mag)) then begin
   	plot_map, map, /square, fov = fov, grid = 10, $
     	            title =  'Flare probabilities for NOAA Active Regions at ' + map.time, $
         	        position = position, center = center, gcolor=255
   endif
-  if (keyword_set(gong_con)) then begin
-  	plot_map, map, /square, fov = fov, grid = 10, $
-    	            title = 'Flare probabilities for NOAA Active Regions at ' + map.time, $
-        	        position = position, center = center, gcolor=0
-  endif
-  if (keyword_set(hmi_mag) or keyword_set(hmi_con)) then begin
+  if (keyword_set(hmi_mag)) then begin
   	plot_map, map, /square, fov = fov, grid = 10, $
     	            title = 'Flare probabilities for NOAA Active Regions at ' + map.time, $
         	        position = position, center = center, gcolor=255

@@ -152,7 +152,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
   !p.thick = 2
   charthreg=[4,2]
   charregsz=1.4
-  labeloffset=125 ;60
+  labeloffset=100 ;60
 
   pngcrop=[38, 601, 61, 624] 
     
@@ -511,7 +511,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 		; Plot the GONG+ data  
 		if keyword_set(gong_maglc) then begin
 	
-			bl = execute("sub_reg_black_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)") 
+			bl = execute("sub_reg_black_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=0  , ch_thick_mod=5, /AXES , /SUB)") 
 			wh = execute("sub_reg_white_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)") 
 			tr = execute("sub_reg_trans_charts[i , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)")
 			if bl eq 0 or wh eq 0 or tr eq 0 then begin
@@ -534,9 +534,15 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 							
 			sub_scaled_map.data(0,0)=min(scaled_map.data)
 			sub_scaled_map.data(0,1)=max(scaled_map.data)
+
+			; Generates normal subregion image
 								
 			plot_map, sub_scaled_map, /square, grid = 10, title = 'GONG+ Magnetogram ' + sub_scaled_map.time, $
 				dmin = -250, dmax = 250, gcolor=255
+
+			date_time = time2file(sub_scaled_map.time,/seconds)
+			instrument = 'gong'
+			filter = 'maglc'
 			
 			arm_colorbar, [ -250, 250 ]
 			xyouts, 0.27, 0.70, 'Magnetic Flux [Gauss]', /normal, color = 255, charsize = 0.8 
@@ -554,27 +560,40 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 				endif
 			endfor
 			
-			image = tvrd()
-			date_time = time2file(sub_scaled_map.time,/seconds)
-			instrument = 'gong'
-			filter = 'maglc'
-			file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-			instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
-
+			im_def = tvrd()
+			
+			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', im_def( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
+			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
+                        gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
+		
+			; Generates probability sub-region
 			if (prob_state) then begin
+
+				plot_map, sub_scaled_map, /square, grid = 10, title = 'GONG+ Magnetogram ' + sub_scaled_map.time, $
+					dmin = -250, dmax = 250, gcolor=255
+			
+				arm_colorbar, [ -250, 250 ]
+				xyouts, 0.27, 0.70, 'Magnetic Flux [Gauss]', /normal, color = 255, charsize = 0.8 
+			
+				xyouts, x( 0 , i), y( 0 , i) + labeloffset, names( i ), align = 0.5, $
+						charthick = charthreg[0], color = 0, charsize = charregsz
+				xyouts, x( 0 , i), y( 0 , i) + labeloffset, names( i ), align = 0.5, $
+						charthick = charthreg[1], color = 255, charsize = charregsz
+
+				im_prob = tvrd()
+				file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
+				instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
+
 				if (string(prob_array[i , 0]) ne '...') then begin 
-					success = execute("gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb")
+					success = execute("gen_prob_sub_image , im_prob , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb")
 					if (success) then begin
 						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
 					endif
 				endif else begin
-				wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+				wr_png , file_path , im_prob(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
 				endelse
 			endif
-
-			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
-			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
-                        gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
+		
 		endif
 
 	    ; Plot the GONG Continuum  
@@ -1470,7 +1489,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 		
 		if keyword_set(shmi_maglc) then begin
 
-			bl = execute("sub_reg_black_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=0  , ch_thick_mod=4, /AXES , /SUB)") 
+			bl = execute("sub_reg_black_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=0  , ch_thick_mod=5, /AXES , /SUB)") 
 			wh = execute("sub_reg_white_charts[i , * , *] = gen_bar_prob(summary , chart_size , reform(prob_array(i , *)) , ax_col=3  , ch_thick_mod=0, /AXES , /SUB)") 
 			tr = execute("sub_reg_trans_charts[i , * , *] = gen_bar_prob(summary , chart_size , [100. , 100. , 100.] , ax_col=1 , /AXES , /SUB)")
 			if bl eq 0 or wh eq 0 or tr eq 0 then begin
@@ -1491,7 +1510,9 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 				yrange=[ y( 0, i ) - 5 * 60., y( 0, i ) + 5 * 60. ]
 			sub_scaled_map.data(0,0)=min(scaled_map.data)
 			sub_scaled_map.data(0,1)=max(scaled_map.data)
-				
+			
+			; Generates normal sub-region image
+
 			plot_map, sub_scaled_map, /square, grid = 10, title = 'HMI Magnetogram ' + sub_scaled_map.time, $
 				dmin = min( sub_scaled_map.data ), dmax = max( sub_scaled_map.data ), gcolor=255
 			
@@ -1507,29 +1528,41 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 						charthick = charthreg[1], color = 255, charsize = charregsz
 				endif
 			endfor
-			image = tvrd()
+
+			im_def = tvrd()
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'shmi'
 			filter = 'maglc'
 			print,'Writing png to: ' + output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png'
-			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
+			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', im_def( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
-			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
-			
-			file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-			instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
+			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'			
+
+			; Generates probability sub-region image
 
 			if (prob_state) then begin
+
+				plot_map, sub_scaled_map, /square, grid = 10, title = 'HMI Magnetogram ' + sub_scaled_map.time, $
+					dmin = min( sub_scaled_map.data ), dmax = max( sub_scaled_map.data ), gcolor=255
+			
+				xyouts, x( 0 , i), y( 0 , i) + labeloffset, names( i ), align = 0.5, $
+						charthick = charthreg[0], color = 0, charsize = charregsz
+				xyouts, x( 0 , i), y( 0 , i) + labeloffset, names( i ), align = 0.5, $
+						charthick = charthreg[1], color = 255, charsize = charregsz
+
+				im_prob = tvrd()
+				file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
+				instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
+
 				if (string(prob_array[i , 0]) ne '...') then begin 
-					success = execute("gen_prob_sub_image , image , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb")
-					if (success) then begin 
+					success = execute("gen_prob_sub_image , im_prob , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb")
+					if (success) then begin
 						write_png , file_path , out_img( * , pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
 					endif
 				endif else begin
-					wr_png , file_path , image(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
+				wr_png , file_path , im_prob(pngcrop[0]:pngcrop[1] , pngcrop[2]:pngcrop[3] ) 
 				endelse
 			endif
-
 		
 		endif
 			
@@ -1538,7 +1571,5 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 		print,' Completed: ' + names( i )
 	      
 	endfor
-
    
-	;endfor
 end
