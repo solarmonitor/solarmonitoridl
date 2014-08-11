@@ -119,7 +119,7 @@ error_status_saia_00131=1 & error_status_saia_00211=1 & error_status_saia_00335=
 error_status_saia_01700=1 & error_status_shmi_maglc=1 & error_status_chmi_06173=1
 
 didhxrt=0
-didswap=0;execute('arm_fd, temp_path, output_path, date_struct, summary, swap174_map_struct, /swap_00174, error_status=error_status_swap_00174',1,1) 
+didswap=execute('arm_fd, temp_path, output_path, date_struct, summary, swap174_map_struct, /swap_00174, error_status=error_status_swap_00174',1,1) 
 didhxrt=execute('arm_fd, temp_path, output_path, date_struct, summary, hxrt_map_struct, /hxrt_flter',1,1) 
 ;   dide195=0;execute('arm_fd, temp_path, output_path, date_struct, summary, eit195_map_struct, /seit_00195, error_status=error_status_seit_00195',1,1) 
 ;   dide284=execute('arm_fd, temp_path, output_path, date_struct, summary, eit284_map_struct, /seit_00284',1,1) 
@@ -127,30 +127,30 @@ didhxrt=execute('arm_fd, temp_path, output_path, date_struct, summary, hxrt_map_
 ;   didmmag=execute('arm_fd, temp_path, output_path, date_struct, summary, mag_map_struct, /smdi_maglc, error_status=error_status_smdi_maglc',1,1) 
 ;   dide171=execute('arm_fd, temp_path, output_path, date_struct, summary, eit171_map_struct, /seit_00171',1,1) 
 ;   dide304=execute('arm_fd, temp_path, output_path, date_struct, summary, eit304_map_struct, /seit_00304',1,1) 
-didt171=0;execute('arm_fd, temp_path, output_path, date_struct, summary, trce_mosaic171_map_struct, /trce_m0171',1,1) 
-didgmag=0;execute('arm_fd, temp_path, output_path, date_struct, summary, gong_map_struct, /gong_maglc',1,1) 
-didgigr=0;execute('arm_fd, temp_path, output_path, date_struct, summary, gongint_map_struct, /gong_igram, error_status=error_status_gong_igram',1,1) 
-didbbso=0;execute('arm_fd, temp_path, output_path, date_struct, summary, ha_map_struct, /bbso_halph, error_status=error_status_bbso_halph',1,1) 
-didgfar=0;execute('arm_fd, temp_path, output_path, date_struct, summary, gongfar_map_struct, /gong_farsd, error_status=error_status_gong_farsd',1,1)  
-didslis=0;execute('arm_fd, temp_path, output_path, date_struct, summary, slischrom_map_struct, /slis_chrom, error_status=error_status_slis_chrom',1,1) 
-didstra=0;execute('arm_fd, temp_path, output_path, date_struct, summary, stereoa_map_struct, /stra_00195, error_status=error_status_stra_00195',1,1) 
-didstrb=0;execute('arm_fd, temp_path, output_path, date_struct, summary, stereob_map_struct, /strb_00195, error_status=error_status_strb_00195',1,1)
+didt171=execute('arm_fd, temp_path, output_path, date_struct, summary, trce_mosaic171_map_struct, /trce_m0171',1,1) 
+didgmag=execute('arm_fd, temp_path, output_path, date_struct, summary, gong_map_struct, /gong_maglc',1,1) 
+didgigr=execute('arm_fd, temp_path, output_path, date_struct, summary, gongint_map_struct, /gong_igram, error_status=error_status_gong_igram',1,1) 
+didbbso=execute('arm_fd, temp_path, output_path, date_struct, summary, ha_map_struct, /bbso_halph, error_status=error_status_bbso_halph',1,1) 
+didgfar=execute('arm_fd, temp_path, output_path, date_struct, summary, gongfar_map_struct, /gong_farsd, error_status=error_status_gong_farsd',1,1)  
+didslis=execute('arm_fd, temp_path, output_path, date_struct, summary, slischrom_map_struct, /slis_chrom, error_status=error_status_slis_chrom',1,1) 
+didstra=execute('arm_fd, temp_path, output_path, date_struct, summary, stereoa_map_struct, /stra_00195, error_status=error_status_stra_00195',1,1) 
+didstrb=execute('arm_fd, temp_path, output_path, date_struct, summary, stereob_map_struct, /strb_00195, error_status=error_status_strb_00195',1,1)
 	
 ;Free up all the LUNs used in ARM_BATCH etc.
 free_all
 	
-dids171=0;execute('arm_fd, temp_path, output_path, date_struct, summary, saia171_map_struct, /saia_00171, error_status=error_status_saia_00171',1,1)
-dids304=0;execute('arm_fd, temp_path, output_path, date_struct, summary, saia304_map_struct, /saia_00304, error_status=error_status_saia_00304',1,1)
-dids193=0;execute('arm_fd, temp_path, output_path, date_struct, summary, saia193_map_struct, /saia_00193, error_status=error_status_saia_00193',1,1)
-did4500=0;execute('arm_fd, temp_path, output_path, date_struct, summary, saia4500_map_struct, /saia_04500, error_status=error_status_saia_04500',1,1)
-dids094=0;execute('arm_fd, temp_path, output_path, date_struct, summary, saia94_map_struct, /saia_00094, error_status=error_status_saia_00094',1,1)
-dids131=0;execute('arm_fd, temp_path, output_path, date_struct, summary, saia131_map_struct, /saia_00131, error_status=error_status_saia_00131',1,1)
-dids211=0;execute('arm_fd, temp_path, output_path, date_struct, summary, saia211_map_struct, /saia_00211, error_status=error_status_saia_00211',1,1)
-dids335=0;execute('arm_fd, temp_path, output_path, date_struct, summary, saia335_map_struct, /saia_00335, error_status=error_status_saia_00335',1,1)
-did1600=0;execute('arm_fd, temp_path, output_path, date_struct, summary, saia1600_map_struct, /saia_01600, error_status=error_status_saia_01600',1,1)
-did1700=0;execute('arm_fd, temp_path, output_path, date_struct, summary, saia1700_map_struct, /saia_01700, error_status=error_status_saia_01700',1,1)
+dids171=execute('arm_fd, temp_path, output_path, date_struct, summary, saia171_map_struct, /saia_00171, error_status=error_status_saia_00171',1,1)
+dids304=execute('arm_fd, temp_path, output_path, date_struct, summary, saia304_map_struct, /saia_00304, error_status=error_status_saia_00304',1,1)
+dids193=execute('arm_fd, temp_path, output_path, date_struct, summary, saia193_map_struct, /saia_00193, error_status=error_status_saia_00193',1,1)
+did4500=execute('arm_fd, temp_path, output_path, date_struct, summary, saia4500_map_struct, /saia_04500, error_status=error_status_saia_04500',1,1)
+dids094=execute('arm_fd, temp_path, output_path, date_struct, summary, saia94_map_struct, /saia_00094, error_status=error_status_saia_00094',1,1)
+dids131=execute('arm_fd, temp_path, output_path, date_struct, summary, saia131_map_struct, /saia_00131, error_status=error_status_saia_00131',1,1)
+dids211=execute('arm_fd, temp_path, output_path, date_struct, summary, saia211_map_struct, /saia_00211, error_status=error_status_saia_00211',1,1)
+dids335=execute('arm_fd, temp_path, output_path, date_struct, summary, saia335_map_struct, /saia_00335, error_status=error_status_saia_00335',1,1)
+did1600=execute('arm_fd, temp_path, output_path, date_struct, summary, saia1600_map_struct, /saia_01600, error_status=error_status_saia_01600',1,1)
+did1700=execute('arm_fd, temp_path, output_path, date_struct, summary, saia1700_map_struct, /saia_01700, error_status=error_status_saia_01700',1,1)
 didshmi=execute('arm_fd, temp_path, output_path, date_struct, summary, shmimaglc_map_struct, /shmi_maglc, error_status=error_status_shmi_maglc',1,1)
-didchmi=0;execute('arm_fd, temp_path, output_path, date_struct, summary, chmi6173_map_struct, /chmi_06173, error_status=error_status_chmi_06173',1,1)
+didchmi=execute('arm_fd, temp_path, output_path, date_struct, summary, chmi6173_map_struct, /chmi_06173, error_status=error_status_chmi_06173',1,1)
 ;   didgsxi=0;execute('arm_fd, temp_path, output_path, date_struct, summary, sxig12_map_struct, /gsxi',1,1) 
 
 if not didhxrt then crashed=crashed+' XRT' & if not didt171 then crashed=crashed+' TRACE'
@@ -274,11 +274,11 @@ if ( summary[ 0 ] ne 'No data' ) then arm_forecast, output_path=today_dir, date_
 mmmotd2arm, today_dir, date_struct
   
 get_utc, completion_time, /ecs
-total_runtime = anytim(completion_time, /utim) - anytim(sm_begin_time, /utim)
-
+total_runtime = (anytim(completion_time, /utim) - anytim(sm_begin_time, /utim))/60.0 ;minutes
 print,';------------------------------------------------------------------------------;'
 print,'     Solar Monitor IDL processing completed at ' + completion_time+' UT' 
-print,'     Total IDL runtime: ' + string(total_runtime/3600.0, format = '(f4.2)')+' hours.'
+print,'     Total IDL runtime: ' + string(total_runtime/60.0, format = '(I02)')+' hrs ' $
+				 + string(total_runtime mod 60.0, format = '(I02)' )+' minutes'
 print,';------------------------------------------------------------------------------;'
 
 end
