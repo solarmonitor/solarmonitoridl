@@ -65,6 +65,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ;  print, output_path
 
   set_plot, 'z'
+  erase
 
   year = strmid( date, 0, 4 )
 
@@ -632,7 +633,10 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      if kanzel eq 1 then add_prop, map, instrument = 'Kanzelhoehe', /replace
      if bbso eq 1 then add_prop, map, instrument = 'BBSO', /replace
      
-     
+     ; Check whether the data is float as if it's INT will produced
+     ; a 0ed map and fail to plot.
+     data_datatype = (size(data))[3]
+     if data_datatype ne 4 then data = float(data)
 
      ;make sure the bg of image is at 0
      wzeropx=where(data eq data[0,0])
