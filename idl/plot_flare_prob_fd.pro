@@ -47,7 +47,7 @@
 ;- 
 ;---------------------------------------------------------------------->
 
-pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , instrument , filter , HMI_MAG=hmi_mag , GONG_MAG=gong_mag , HMI_CON=hmi_con , GONG_CON=gong_con
+pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , instrument , filter , SHMI_MAGLC=shmi_maglc , GONG_MAGLC=gong_maglc , HMI_CON=hmi_con , GONG_CON=gong_con
 
   set_plot , 'z'
 
@@ -65,7 +65,7 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
 	  print , 'Summary not defined'
 	  goto , TERM
   endif
-  if (keyword_set(hmi_mag) ne 1 and keyword_set(gong_mag) ne 1) then begin
+  if (keyword_set(shmi_maglc) ne 1 and keyword_set(gong_maglc) ne 1) then begin
 	  print , 'Needs either GONG keywords or HMI keywords to be set'
 	  goto , TERM
   endif
@@ -127,14 +127,9 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
   
   tvlct , rr , gg , bb ; Loads instr CT
 
-  if (keyword_set(gong_mag)) then begin
+  if (keyword_set(gong_maglc)) or (keyword_set(shmi_maglc)) then begin
   	plot_map, map, /square, fov = fov, grid = 10, $
     	            title =  'Flare probabilities for NOAA Active Regions at ' + map.time, $
-        	        position = position, center = center, gcolor=255
-  endif
-  if (keyword_set(hmi_mag)) then begin
-  	plot_map, map, /square, fov = fov, grid = 10, $
-    	            title = 'Flare probabilities for NOAA Active Regions at ' + map.time, $
         	        position = position, center = center, gcolor=255
   endif
   im = tvrd(/true)
@@ -160,12 +155,15 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
   cgimage , ref_bar , alphafgpos=[[0.09 , 0.82] , [0.09+(win_size*2) , 0.82+(win_size*2)]] , missing_value = 1 , transparent=2
   cgimage , ref_trans_bar , alphafgpos=[[0.09 , 0.82] , [0.09+(win_size*2) , 0.82+(win_size*2)]] , missing_value = 1 , transparent=50
   loadct , 0 , /silent
-  cgtext , -862 , 765, 'M' , color=0 , charthick = 7 , charsize=3
-  cgtext , -776, 765 , 'X' , color=0 , charthick = 7 , charsize=3
-  cgtext , -937 , 765 , 'C' , color=0 , charthick = 7 , charsize=3
-  cgtext , -862 , 765 , 'M' , color=254 , charthick = 3 , charsize=3 
-  cgtext , -776 , 765 , 'X' , color=254 , charthick = 3 , charsize=3
-  cgtext , -937 , 765 , 'C' , color=254 , charthick = 3 , charsize=3
+  cordx =[ -862, -776, -937] 
+  class =[ 'M', 'X', 'C']
+  color = [0, 254]
+  charth = [7, 3]
+  for i = 0,1 do begin
+	for j = 0,2 do begin
+        	cgtext, cordx[j], 765, class[j], color=color[i], charthick = charth[i], charsize = 3
+	endfor
+  endfor
   cgtext , -1040 , 835 , 'Probability' , color=254 , charthick = 3 , charsize=2 , orientation=90
 
 ; Tags active regions and places the charts

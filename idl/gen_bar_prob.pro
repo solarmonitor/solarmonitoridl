@@ -26,9 +26,7 @@
 ;
 ; OUTPUT:    	FLTARR(bar_size , bar_size) image array 
 ;               
-; EXAMPLE: 		IDL> for i = 0 , n_elements(names) - 1 do begin 
-;				IDL> 	ar_bars[i , * , *] = gen_bar_prob(summary , bar_size , reform(prob_array(i , *)))
-;			    IDL> endfor
+; EXAMPLE:      ar_bar = gen_bar_prob(summary , 10 , [25, 30, 15])
 ;
 ; AUTHOR:       29-Jun-2014 Michael Tierney 
 ;
@@ -65,11 +63,11 @@ function gen_bar_prob , summary , bar_size , prob_array , ax_col=col , ch_thick_
 
   ; Plots a bar-chart using bar_plot , colors = color indexs of slices
 
-	csize = 0 ; charsize
-	char_thick = 0 ; char_thickness
+	csize = 2 ; charsize
+	char_thick = 4+cthick_mod ; char_thickness
 	yti = '' ; ytitle
-	yt = 0 ; ythick
-	xt = 0 ; xthick
+	yt = 1 ; ythick
+	xt = 1 ; xthick
 	outl = 0 ; Outlines 
 	bnames = ['' , '' , ''] ; x-axis labels
   	loadct , 0 , /silent
@@ -81,27 +79,12 @@ function gen_bar_prob , summary , bar_size , prob_array , ax_col=col , ch_thick_
 		char_thick = 6+cthick_mod
 		yt = 1
 		xt = 1
-		yti = ''
-		bnames = ['' , '' , '']
-		outl = 0
 	endif
 	if (keyword_set(sub)) then begin
 		csize = 4
 		char_thick = 8+cthick_mod
-		yti = ''
 		yt = 5
 		xt = 5
-		bnames = ['C' , 'M' , 'X']
-		outl = 1
-	endif
-	if (keyword_set(ref) ne 1 and keyword_set(sub) ne 1) then begin
-		csize = 2
-		char_thick = 4+cthick_mod
-		yti = ''
-		yt = 1
-		xt = 1
-		bnames = ['' , '' , '']
-		outl = 0
 	endif
 
 ; Plots barcharts depending on AXES and NOLABELS keywords

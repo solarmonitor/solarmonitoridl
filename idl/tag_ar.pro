@@ -96,8 +96,8 @@ pro tag_ar , name , ar_co_ord , chart_co_ord , ar_chart , prob , pix_num , win_s
 	win_co_ords[1] = chart_co_ord[1]/pix_num + offset_y 
 	win_co_ords[2] = chart_co_ord[0]/pix_num - offset_x + win_size
 	win_co_ords[3] = chart_co_ord[1]/pix_num + offset_y + win_size
-	if (win_co_ords[0] gt 0 and win_co_ords[1] gt 0 and win_co_ords[2] lt 1. and win_co_ords[3] lt 1.) then begin 
-  		cgImage , ar_chart  ,  alphafgpos=win_co_ords , transparent=transparency , missing_value=1 , /device
+  	if array_equal((win_co_ords gt 0) and (win_co_ords lt 1), 1) then begin	
+		cgImage , ar_chart  ,  alphafgpos=win_co_ords , transparent=transparency , missing_value=1 , /device
 	endif
   endif
 

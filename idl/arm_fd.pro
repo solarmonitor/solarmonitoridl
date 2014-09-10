@@ -31,8 +31,10 @@
 ;          2004-07-12 Russ Hewett: updated path information, changed to png, added fits
 ;          2005-07-13 Russ Hewett: added status keyword
 ;   	   2005-08-23 James McAteer: changed to SXI level 2 data
+;	   2014-09-22 Eoin Carley and Micheal Tierney (TCD). Added flare probability plot on HMI and GONG.
 ;
 ; Contact     : ptg@bbso.njit.edu
+;		info@solarmonitor.org
 ;
 ;-
 
@@ -1473,8 +1475,6 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
      print, 'Getting SDO HMI MAG'
      get_hmi_latest, temp_path, filename, err=err
-  ;   filename='/tmp/EX_SM_201408060912/HMI20140806_082224_6173.fits'
-  ;   err=0
      if err ne '' then begin
         error_type = 'shmi_maglc'
         goto, error_handler
@@ -1570,7 +1570,6 @@ endif
 ;           position = position, center = center, gcolor=255
 
 
-; tag_map_prob
 
       'gsxi_flter':  plot_map, map, /square, fov = fov, grid = 10, $
                                title = map.wavelength + ' ' + map.time, $
@@ -1730,8 +1729,6 @@ endif
 
    zb_plot = tvrd()
 
-; MY CODE
-
 
 ; Need to convert solar x and y to device coordinates for html imagemap
 
@@ -1803,21 +1800,15 @@ endif
 
   	set_plot , 'z'
 	did_prob = 1
-
-	if (keyword_set(shmi_maglc)) then begin
-		print,'Plotting flare probabilities on HMI Magnetogram'
-		did_prob=execute("plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /HMI_MAG")
+	if (keyword_set(shmi_maglc)) or (keyword_set(gong_maglc)) then begin
+    		print,'Plotting flare probabilities on ' + instrument + filter  ; I would make this print statement inside plot_flare_prob_fd
+    		did_prob=execute("plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /"+instrument+"_"+filter)
+    		if (did_prob eq 0) then begin
+        		print, 'Plotting probabilities ' + instrument + filter + ' was unsuccessful'
+    		endif
 	endif 
-	if (keyword_set(gong_maglc)) then begin
-		print,'Plotting flare probabilities on GONG Magnetogram'	
-		did_prob=execute("plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /GONG_MAG")
-	endif
-
-	if (did_prob eq 0) then begin
-		print, 'Plotting probabilities was unsuccessful'
-	endif
-	  
-   ;Crude IDL error handling.  uses a goto! (eek)
+   
+;Crude IDL error handling.  uses a goto! (eek)
    error_handler:
    
     if (error_type ne '') then error_status = 1
