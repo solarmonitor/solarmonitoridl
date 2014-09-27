@@ -65,6 +65,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ;  print, output_path
 
   set_plot, 'z'
+  erase
 
   year = strmid( date, 0, 4 )
 
@@ -617,7 +618,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
         'fl' : limb=1
      endcase
      
-     mreadfits, file_loc, index, data
+     mreadfits, file_loc, index, data_orig
      ;if limb eq 1 then kanzel_prep, data, localfile=file_loc ; kanzel_prep,data,local=filetrunc
 
 ;   if ( n_elements( data ) eq 0 ) then begin
@@ -625,14 +626,17 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ;      unscaled_map = map
 ;   endif else begin
 
-     smart_index2map, index, data, map
+     smart_index2map, index, data_orig, map
      unscaled_map = map
      add_prop, map, instrument = get_tag_value( index, /ORIGIN ), /replace
                                 ;if ( strmid( map.instrument, 0, 11 ) eq 'KANZELHOEHE' ) then $
      if kanzel eq 1 then add_prop, map, instrument = 'Kanzelhoehe', /replace
      if bbso eq 1 then add_prop, map, instrument = 'BBSO', /replace
      
-     
+     ; Check whether the data is float as if it's INT will produced
+     ; a 0ed map and fail to plot.
+     data_datatype = (size(data_orig))[3]
+     if data_datatype ne 4 then data = float(data_orig)
 
      ;make sure the bg of image is at 0
      wzeropx=where(data eq data[0,0])
@@ -642,7 +646,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
      if bbso eq 1 then begin
      ; Correct columns in BBSO frames
-        bad_pixels = where( data gt 1e4 )
+        bad_pixels = where( data_orig gt 3.2e4 )
         if ( bad_pixels[ 0 ] ne -1 ) then begin
            data[ bad_pixels ] = average( data[ 0:10, 0:10 ] )
            add_prop, map, data = data, /replace
@@ -667,7 +671,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      sz=size(map.data)
      dd=map.data[sz[1]*.3:sz[1]*2./3.,sz[2]*.3:sz[2]*2./3.]
      mdd=median(dd)
-     if bbso eq 1 then add_prop, map, data = bytscl( map.data, mdd*.3, mdd*1.5 ), /replace
+     if bbso eq 1 then add_prop, map, data = bytscl( map.data, mdd*.3, mdd*2.25 ), /replace
      if kanzel eq 1 then add_prop, map, data = bytscl( map.data, mdd*.3, mdd*1.5 ), /replace
 
      add_prop, map, wavelength = 'H-alpha', /replace
