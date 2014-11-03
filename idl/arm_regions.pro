@@ -969,7 +969,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			sub_scaled_map.data(0,1)=max(scaled_map.data)
 				
 			plot_map, sub_scaled_map, /square, grid = 10, title = 'SWAP 174 ' + angstrom + ' ' + sub_scaled_map.time, $
-			dmin = min( sub_scaled_map.data ), dmax = max( sub_scaled_map.data ), gcolor=255
+			         dmin = min( sub_scaled_map.data ), dmax = max( sub_scaled_map.data ), gcolor=255
 		
 			for j = 0, n_elements( names ) - 1 do begin
 				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
@@ -1518,14 +1518,14 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 				dmin = min( sub_scaled_map.data ), dmax = max( sub_scaled_map.data ), gcolor=255
 			
 			for j = 0, n_elements( names ) - 1 do begin
-				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
-					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
-					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
-					( y( 0 , j) lt ( y( 0, i ) + 4.5 * 60. ) ) ) ) then begin
+				if  ( ( ( x[ 0 , j] gt ( x[ 0, i ] - 4.5 * 60. ) )   and $
+					( x[ 0 , j] lt ( x[ 0, i ] + 4.5 * 60. ) ) ) and $  
+					( ( y[ 0 , j] gt ( y[ 0, i ] - 4.5 * 60. ) )   and $
+					( y[ 0 , j] lt ( y[ 0, i ] + 4.5 * 60. ) ) ) ) then begin
 					
-					xyouts, x( 0 , j), y( 0 , j) + labeloffset, names( j ), align = 0.5, $
+					xyouts, x[ 0 , j], y[0 , j] + labeloffset, names[ j ], align = 0.5, $
 						charthick = charthreg[0], color = 0, charsize = charregsz
-					xyouts, x( 0 , j), y( 0 , j) + labeloffset, names( j ), align = 0.5, $
+					xyouts, x[ 0 , j], y[ 0 , j] + labeloffset, names[ j ], align = 0.5, $
 						charthick = charthreg[1], color = 255, charsize = charregsz
 				endif
 			endfor
@@ -1534,10 +1534,10 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'shmi'
 			filter = 'maglc'
-			print,'Writing png to: ' + output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png'
-			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', im_def( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
-			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
-			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'			
+			print,'Writing png to: ' + output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names[ i ] + '_' + date_time + '_pre.png'
+			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names[ i ] + '_' + date_time + '_pre.png', im_def( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
+			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names[ i ] + '_' + date_time + '.fts'
+			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names[ i ] + '_' + date_time + '.fts'			
 
 			; Generates probability sub-region image
 
@@ -1546,14 +1546,14 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 				plot_map, sub_scaled_map, /square, grid = 10, title = 'HMI Magnetogram ' + sub_scaled_map.time, $
 					dmin = min( sub_scaled_map.data ), dmax = max( sub_scaled_map.data ), gcolor=255
 			
-				xyouts, x( 0 , i), y( 0 , i) + labeloffset, names( i ), align = 0.5, $
+				xyouts, x[ 0 , i], y[ 0 , i] + labeloffset, names[ i ], align = 0.5, $
 						charthick = charthreg[0], color = 0, charsize = charregsz
-				xyouts, x( 0 , i), y( 0 , i) + labeloffset, names( i ), align = 0.5, $
+				xyouts, x[ 0 , i], y[ 0 , i] + labeloffset, names[ i ], align = 0.5, $
 						charthick = charthreg[1], color = 255, charsize = charregsz
 
 				im_prob = tvrd()
 				file_path =  output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + $
-				instrument + '_' + filter + '_ap_' + names( i ) + '_' + date_time + '_pre.png'
+				instrument + '_' + filter + '_ap_' + names[ i ] + '_' + date_time + '_pre.png'
 
 				if (string(prob_array[i , 0]) ne '...') then begin 
 					success = execute("gen_prob_sub_image , im_prob , out_img , reform(sub_reg_black_charts[i , * , *]) , reform(sub_reg_white_charts[i , * , *]) , reform(sub_reg_trans_charts[i , * , *]) , [reform(x(0 , i)) , reform(y(0 , i))] , rr, gg , bb")
@@ -1569,7 +1569,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			
 	    set_plot, 'x'
 	   
-            print,' Completed: ' + names( i )
+            print,' Completed: ' + names[ i ]
 	      
 	endfor
    

@@ -26,7 +26,17 @@
 ;-
 
 pro arm_batch, temp_path, output_path
-    use_network
+  use_network                   ; 
+    ;; There were some pretty bad problems with the new version of IDL 
+    ;; sockets. It may also have been an issue with the TCD firewall. 
+    ;; Dominic Zarro recommended that use_network be used. 
+    ;; Here's what he said:
+    ;; "The program use_network sets a system variable !use_network 
+    ;; that I use to switch between IDL's old socket routine and
+    ;; the new network object IDLnetURL. The old socket routine has 
+    ;; issues on Mac OS systems running recent versions of IDL 8.2 and
+    ;; above. For backwards compatibility, I have to maintain both old 
+    ;; and new versions. Things are a bit of a mess under the hood."
     sm_begin_time = systim(/utc)
     print,'Solar Monitor IDL processing start time: '+sm_begin_time
     
@@ -122,7 +132,7 @@ error_status_saia_01700=1 & error_status_shmi_maglc=1 & error_status_chmi_06173=
 didhxrt=0
 didswap=execute('arm_fd, temp_path, output_path, date_struct, summary, swap174_map_struct, /swap_00174, error_status=error_status_swap_00174',1,1) 
 didhxrt=execute('arm_fd, temp_path, output_path, date_struct, summary, hxrt_map_struct, /hxrt_flter',1,1) 
-;   dide195=0;execute('arm_fd, temp_path, output_path, date_struct, summary, eit195_map_struct, /seit_00195, error_status=error_status_seit_00195',1,1) 
+;   dide195=execute('arm_fd, temp_path, output_path, date_struct, summary, eit195_map_struct, /seit_00195, error_status=error_status_seit_00195',1,1) 
 ;   dide284=execute('arm_fd, temp_path, output_path, date_struct, summary, eit284_map_struct, /seit_00284',1,1) 
 ;   didmigr=execute('arm_fd, temp_path, output_path, date_struct, summary, wl_map_struct, /smdi_igram, error_status=error_status_smdi_igram',1,1) 
 ;   didmmag=execute('arm_fd, temp_path, output_path, date_struct, summary, mag_map_struct, /smdi_maglc, error_status=error_status_smdi_maglc',1,1) 
@@ -138,7 +148,7 @@ didstra=execute('arm_fd, temp_path, output_path, date_struct, summary, stereoa_m
 didstrb=execute('arm_fd, temp_path, output_path, date_struct, summary, stereob_map_struct, /strb_00195, error_status=error_status_strb_00195',1,1)
 	
 ;Free up all the LUNs used in ARM_BATCH etc.
-for i=1, 128 do free_lun,i
+close, /all
 	
 dids171=execute('arm_fd, temp_path, output_path, date_struct, summary, saia171_map_struct, /saia_00171, error_status=error_status_saia_00171',1,1)
 dids304=execute('arm_fd, temp_path, output_path, date_struct, summary, saia304_map_struct, /saia_00304, error_status=error_status_saia_00304',1,1)
@@ -178,11 +188,6 @@ endif else begin
 	spawn,'echo "'+systim(/utc)+' These instruments have crashed!: '+strjoin(crashed,' ')+'" > '+temp_path+'arm_crash_summary.txt'
 endelse
 
-
-; Create the thumbnails
-; print, 'Doing full-disk thumbs: ' + 'perl process_thumbs.pl ' + date
-; spawn, 'perl process_thumbs.pl ' + date, errpl
-; print, 'Done full-disk thumbs: '
 
 ; Extract each region and write a web page for each
 
@@ -242,25 +247,21 @@ if ( summary[ 0 ] ne 'No data' ) then begin
 		print,'These region instruments have crashed!: '+strjoin(regcrashed,' ')
 		spawn,'echo "'+systim(/utc)+' These region instruments have crashed!: '+strjoin(regcrashed,' ')+'" >> '+temp_path+'/arm_crash_summary.txt'
 	endelse
-	; Create the thumbnails
-	;        print, 'Doing AR zoom-in thumbs: ' + 'perl process_thumbs.pl ' + date
-	;        spawn, '/usr/bin/perl /Users/solmon/Sites/idl/process_thumbs.pl ' + date, errpl
-	;        print, 'Done AR zoom-in thumbs: '
 endif else spawn,'echo "'+systim(/utc)+' No regions." >>' +temp_path+'/arm_crash_summary.txt'
 
 ; Do Ionosphere stuff
-; didaurora=execute('get_aurora, date_str=date_struct, /write_meta, err=err, /forecast,output_path=output_path',1,1)
-; didauroranowcast=execute('get_aurora, date_str=date_struct, /write_meta, err=err, /nowcast,output_path=output_path',1,1)
-; didionosphere=execute('get_ionosphere, outpath=today_dir,/tec, /kyoto, /poes, /ovation, err=err,temp_path=temp_path',1,1) 
-; didionosphere=execute('get_ionosphere, outpath=today_dir,/tec, /kyoto, /poes, /ovation, /kpind, err=err,temp_path=temp_path',1,1)
-; didpoesmovie=execute('get_poes_movie, /north, date=date_struct.date, err=err, outpath=today_dir,temp_path=temp_path',1,1)
-; didplasmovie=execute('get_plasmasph_movie, date=date_struct.date, err=err, outpath=output_path,temp_path=temp_path',1,1)
-; ionomodule=''
-; if not didaurora then ionomodule=ionomodule+' AURORA_FORECAST' & if not didauroranowcast then ionomodule=ionomodule+' AURORA_NOWCAST'
-; if not didionosphere then ionomodule=ionomodule+' IONOSPHERE_PLOTS' & if not didpoesmovie then ionomodule=ionomodule+' POES_MOVIE'
-; if not didplasmovie then ionomodule=ionomodule+'  PLASMASPHERE_MOVIE'
-; if ionomodule eq '' then spawn,'echo "'+systim(/utc)+' No ionosphere crashes." >> '+temp_path+'arm_ionosphere_crash_summary.txt' $
-;	else spawn,'echo "'+systim(/utc)+' These IONOSPHERE Modules crashed: '+ionomodule+'" >> '+temp_path+'arm_ionosphere_crash_summary.txt'
+didaurora=execute('get_aurora, date_str=date_struct, /write_meta, err=err, /forecast,output_path=output_path',1,1)
+didauroranowcast=execute('get_aurora, date_str=date_struct, /write_meta, err=err, /nowcast,output_path=output_path',1,1)
+didionosphere=execute('get_ionosphere, outpath=today_dir,/tec, /kyoto, /poes, /ovation, err=err,temp_path=temp_path',1,1) 
+didionosphere=execute('get_ionosphere, outpath=today_dir,/tec, /kyoto, /poes, /ovation, /kpind, err=err,temp_path=temp_path',1,1)
+didpoesmovie=execute('get_poes_movie, /north, date=date_struct.date, err=err, outpath=today_dir,temp_path=temp_path',1,1)
+didplasmovie=execute('get_plasmasph_movie, date=date_struct.date, err=err, outpath=output_path,temp_path=temp_path',1,1)
+ionomodule=''
+if not didaurora then ionomodule=ionomodule+' AURORA_FORECAST' & if not didauroranowcast then ionomodule=ionomodule+' AURORA_NOWCAST'
+if not didionosphere then ionomodule=ionomodule+' IONOSPHERE_PLOTS' & if not didpoesmovie then ionomodule=ionomodule+' POES_MOVIE'
+if not didplasmovie then ionomodule=ionomodule+'  PLASMASPHERE_MOVIE'
+if ionomodule eq '' then spawn,'echo "'+systim(/utc)+' No ionosphere crashes." >> '+temp_path+'arm_ionosphere_crash_summary.txt' $
+	else spawn,'echo "'+systim(/utc)+' These IONOSPHERE Modules crashed: '+ionomodule+'" >> '+temp_path+'arm_ionosphere_crash_summary.txt'
 
 ; Get the latest SOHO Movies
 

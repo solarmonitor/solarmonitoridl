@@ -1,9 +1,9 @@
 
-; PROCEDURE:    COL_DETECT
+; PROCEDURE:    COLLISION_DETECT
 ;
 ; PURPOSE:      Checks for collisions between chart-charts and moves them accordingly
 ;
-; USEAGE:		col_detect , loc , chart_size , chart_co_ords , index , pix_num , prob_array
+; USEAGE:		collision_detect , loc , chart_size , chart_co_ords , index , pix_num , prob_array
 ;
 ; INPUT:   		LOC - Location of the active_region in device co-ordinates : FLTARR(2)
 ;
@@ -27,7 +27,7 @@
 ; EXAMPLE: 		IDL> for j = 0 , n_elements(names) - 1 do begin $
 ;				IDL>    loc[0] = ((ar_co_ords[j , 0]/range)*(position[2]-position[0])) * pix_num
 ;				IDL>    loc[1] = ((ar_co_ords[j , 1]/range)*(position[3]-position[1])) * pix_num
-;		    	IDL> 	col_detect , loc , chart_size , chart_co_ords , j , pix_num , prob_array
+;		    	IDL> 	collision_detect , loc , chart_size , chart_co_ords , j , pix_num , prob_array
 ;			    IDL> endfor
 ;
 ; AUTHOR:       25-Jun-2014 Michael Tierney 
@@ -40,7 +40,7 @@
 ;- 
 ;---------------------------------------------------------------------->
 
-pro col_detect , loc , chart_size , chart_co_ords , index , pix_num , prob_array
+pro collision_detect , loc , chart_size , chart_co_ords , index , pix_num , prob_array
 
   ar_loc = loc   ; active region device co-ordinates  
   colliding = 1  ; collisions assumed to be occurring

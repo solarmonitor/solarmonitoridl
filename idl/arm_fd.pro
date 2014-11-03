@@ -1791,9 +1791,9 @@ endif
  
 ; write the map_structure
 
-	if keyword_set(gong_maglc) then $
+   if keyword_set(gong_maglc) then $
       map_struct = {scaled_map : map, unscaled_map : unscaled_map, scaled_db_map : dB_map, unscaled_db_map : unscaled_dB_map} $
-   	else $
+   else $
       map_struct = {scaled_map : map, unscaled_map : unscaled_map} ;,dbmap gong stuff
 
 ; Create FD pngs with probabilities attached
