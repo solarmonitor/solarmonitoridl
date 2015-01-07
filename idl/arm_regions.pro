@@ -33,7 +33,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 				 SWAP_00174 = swap_00174, saia_00171 = saia_00171, saia_00304=saia_00304, saia_00193=saia_00193, $
                  saia_04500=saia_04500, saia_00094=saia_00094, saia_00131=saia_00131, saia_00211=saia_00211, $
                  saia_00335=saia_00335, saia_01600=saia_01600, saia_01700=saia_01700, shmi_maglc=shmi_maglc, chmi_06173=chmi_06173
-
+                
 	angstrom = string( 197B )  
 	
 	utc       = date_struct.utc
@@ -92,20 +92,18 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 
 	endfor
 
-  
 	; Rotate NOAA summary data to the frame times.
 	
 	;times = [ eit195.time, mag.time, wl.time, halpha.time, eit284.time, $
 	;          gong.time, dB.time, sxig12.time, eit304.time, eit171.time ]
-  
+
   	if keyword_set(gong_maglc) then $
   		times = [map_struct.scaled_map.time, map_struct.scaled_db_map.time] $
   	else $
   		times = [map_struct.scaled_map.time]
-	
 	x = fltarr( n_elements( times ), n_elements( names ) )
 	y = x
-	
+
 	for i = 0, n_elements( times )  - 1 do begin 
   
 		loc = reform( summary( 1, * ) ) ; Added to stop loc being overwritten
@@ -117,7 +115,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 		endfor	
 	
 	endfor
-  
+
   
 	; Extract 10 arcmin regions centred on the NOAA regions and
 	; generate a jpg for each region.
@@ -132,7 +130,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
   labeloffset=125 ;60
 
   pngcrop=[38, 601, 61, 624] 
-
+    
 	for i = 0,  n_elements( names ) - 1 do begin
     	
 		if (strlowcase(names[i]) eq 'none') then continue
@@ -1415,7 +1413,9 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 		endif
 		
 		; Plot the SHMI MAG data  
+		
 		if keyword_set(shmi_maglc) then begin
+		
 			loadct,0
 			!p.color = 0
 			!p.background = 255
@@ -1451,16 +1451,20 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			date_time = time2file(sub_scaled_map.time,/seconds)
 			instrument = 'shmi'
 			filter = 'maglc'
+			print,'Writing png to: ' + output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png'
 			wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '_pre.png', image( pngcrop[0]:pngcrop[1], pngcrop[2]:pngcrop[3] )
 			map2fits, sub_unscaled_map, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
 			gzip, output_path + date_struct.date_dir + '/fits/' + instrument + '/' + instrument + '_' + filter + '_ar_' + names( i ) + '_' + date_time + '.fts'
+			
 		endif
+		
 		
 	    set_plot, 'x'
 	   
 		print,' Completed: ' + names( i )
 	      
 	endfor
+
    
 	;endfor
 end

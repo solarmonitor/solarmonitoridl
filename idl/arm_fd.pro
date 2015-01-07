@@ -47,6 +47,8 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
          error_status = error_status, error_type = error_type
   
 ;set up error stuff (assume no error to begin with)
+
+
   error_type = ''
   error_status = 0
   
@@ -63,6 +65,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ;  print, output_path
 
   set_plot, 'z'
+  erase
 
   year = strmid( date, 0, 4 )
 
@@ -180,7 +183,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
   if ( keyword_set( gong_igram ) ) then begin
 
-     get_gong2_mag, date, filename, err, /int
+     get_gong2_mag, date, filename, err, /int, out_path=temp_path ;Added out_path to prevent fits download into /idl/ folder. E. Carley.
 ;	get_gong, filename, /int, err=err
 
      if err eq -1 then begin
@@ -590,64 +593,60 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      
      date=date_struct.date
 
-;BBSO archive.
-     print,'Searching for BBSO data...'
-     get_halpha, date, filename, err, exist,temp_path=temp_path
-
-;Limb corrected Kanzelhohe.
-     print,'Searching for KANZELHOHE data...'
-     if (err eq -1 and exist eq 0) then $
-        get_kanzel, date, filename, err, exist, /frfile,temp_path=temp_path
+    ;New get h-alpha code. This section of arm_fd is need of a serious cleanup!!!!
+    get_halpha, /today, temp_path = TEMP_PATH, filename = FILENAME, err=ERR
      
-;Limb darkened Kanzelhohe.
-;	if (err eq -1) then begin
-;		get_kanzel, date, filename, err, /today
-;       if (err ne -1) then begin & filename = ( REVERSE( STR_SEP( filename, '/' ) ) )[0] & kanzel=1 & limb=1 & endif
-;   endif
-
      if (err eq -1 or exist eq 1) then begin
+     	print,'Found error in Kanz or BBSO'
         error_type = 'bbso_halph'
                                 ; do any other error handling stuff
         goto, error_handler
      endif
-
-                                ;filename = ( REVERSE( STR_SEP( filename, '/' ) ) )[0]
      
+	 file_loc = filename
+     filename = ( REVERSE( STR_SEP( filename, '/' ) ) )[0]
      obsname=strmid(filename,0,4)
+  
      case obsname of
         'bbso' : bbso=1
         'kanz' : kanzel=1
      endcase
-     
      limbname=strmid(filename,11,2)
+    
      case limbname of 
         'fr' : limb=0
         'fl' : limb=1
      endcase
-
-     mreadfits, filename, index, data
-     if limb eq 1 then kanzel_prep, data, localfile=filename ; kanzel_prep,data,local=filetrunc
+     
+     mreadfits, file_loc, index, data_orig
+     ;if limb eq 1 then kanzel_prep, data, localfile=file_loc ; kanzel_prep,data,local=filetrunc
 
 ;   if ( n_elements( data ) eq 0 ) then begin
 ;      map = dummy_map()
 ;      unscaled_map = map
 ;   endif else begin
 
-     smart_index2map, index, data, map
+     smart_index2map, index, data_orig, map
      unscaled_map = map
      add_prop, map, instrument = get_tag_value( index, /ORIGIN ), /replace
                                 ;if ( strmid( map.instrument, 0, 11 ) eq 'KANZELHOEHE' ) then $
      if kanzel eq 1 then add_prop, map, instrument = 'Kanzelhoehe', /replace
+     if bbso eq 1 then add_prop, map, instrument = 'BBSO', /replace
+     
+     ; Check whether the data is float as if it's INT will produced
+     ; a 0ed map and fail to plot.
+     data_datatype = (size(data_orig))[3]
+     if data_datatype ne 4 then data = float(data_orig)
 
-                                ;make sure the bg of image is at 0
+     ;make sure the bg of image is at 0
      wzeropx=where(data eq data[0,0])
-     if min(data) lt 0 then data=data+abs(min(data))
+     if min(data) lt 0. then data=data+abs(min(data))
      data[wzeropx]=0
      add_prop, map, data = data, /replace
 
      if bbso eq 1 then begin
-                                ; Correct columns in BBSO frames
-        bad_pixels = where( data gt 1e4 )
+     ; Correct columns in BBSO frames
+        bad_pixels = where( data_orig gt 3.2e4 )
         if ( bad_pixels[ 0 ] ne -1 ) then begin
            data[ bad_pixels ] = average( data[ 0:10, 0:10 ] )
            add_prop, map, data = data, /replace
@@ -672,7 +671,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      sz=size(map.data)
      dd=map.data[sz[1]*.3:sz[1]*2./3.,sz[2]*.3:sz[2]*2./3.]
      mdd=median(dd)
-     if bbso eq 1 then add_prop, map, data = bytscl( map.data, mdd*.3, mdd*1.5 ), /replace
+     if bbso eq 1 then add_prop, map, data = bytscl( map.data, mdd*.3, mdd*2.25 ), /replace
      if kanzel eq 1 then add_prop, map, data = bytscl( map.data, mdd*.3, mdd*1.5 ), /replace
 
      add_prop, map, wavelength = 'H-alpha', /replace
@@ -746,6 +745,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      map=arm_img_pad(map,/loads)
      
      case xrtfilter of
+        'Al_mesh' : im = bytscl(alog10(map.data>10))
         'Ti_poly' : im = bytscl(abs(map.data))^.5
         'Open'    : im = bytscl(abs(map.data))^.5
         else      : im = bytscl(alog10( abs(map.data) + 1 ))
@@ -773,14 +773,14 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( gong_farsd ) ) then begin
 
      print, 'Getting GONG Farside Image'
-     get_farside_mag, dummy, filename, err, /today
+     get_farside_mag, dummy, filename, err, /today, temp_path=temp_path ;Added out_path to prevent fits dump in idl/
      if err eq -1 then begin
         error_type = 'gong_farsd'
         goto, error_handler
      endif
      
 ;    mreadfits, filename, index, data
-     data = readfits( filename, head )
+     data = readfits( temp_path+'/'+filename, head )
      index = fitshead2struct( head )
      index = rep_tag_name( index, 'TIME0', 'DATE_OBS' )
      time0_sep = strsplit( index.date_obs, /extract )
@@ -808,9 +808,10 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      add_prop, map, instrument = 'GONG', /replace
      add_prop, map, wavelength = 'Farside', /replace
      id = 'gongfarsd'
-     readcol,'./idl/color_tables/blue_farside.dat',bbb
-     readcol,'./idl/color_tables/green_farside.dat',ggg
-     readcol,'./idl/color_tables/red_farside.dat',rrr
+     colortables = getenv('WORKING_PATH') + 'color_tables/'
+     readcol,colortables + 'blue_farside.dat',bbb
+     readcol,colortables + 'green_farside.dat',ggg
+     readcol,colortables + 'red_farside.dat',rrr
      tvlct,rrr,ggg,bbb
 
      instrument = 'gong'
@@ -969,9 +970,6 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
   if ( keyword_set( swap_00174 ) ) then begin
 
-;TEMPORARY!!! should use SSW version of SWAP__define?
-     !Path = './idl/smart_system/objects' + ':' +!Path
-
      print, 'Getting SWAP Image'
      swap_obj = obj_new('swap')
      swap_obj->set,filt='lv1',prep=0,local=0
@@ -995,14 +993,21 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      filename=files[0]
      
 ;    swap_obj -> latest
-     map = swap_obj -> getmap(filelist=filename,index)    
-     
-     if var_type(map) ne 8 then begin
+     if filename eq '' then begin
         error_type = 'swap_00174'
         goto, error_handler
      endif
-     
-     smart_index2map,index,map.data,map
+
+     sock_copy,filename,err=err, passive=0,out_dir=temp_path
+     swappath = temp_path + (reverse(str_sep(filename,'/')))[0]
+     if file_search(swappath) ne '' then begin
+        mreadfits, swappath, index, data
+        smart_index2map,index,data,map
+        if var_type(map) ne 8 then begin
+           error_type = 'swap_00174'
+           goto, error_handler
+        endif
+     endif
      unscaled_map = map
      im = alog10(map.data+.001)>.00001 < max(alog10(map.data+.001))*.95
                                 ;im = alog( ( map.data > 0. ) + 0.1 ) > 1.
@@ -1472,22 +1477,28 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
      print, 'Getting SDO HMI MAG'
      get_hmi_latest, temp_path, filename, err=err
+
+     print,'Error from get_hmi_latest: '+string(err)
+     
      if err ne '' then begin
         error_type = 'shmi_maglc'
         goto, error_handler
      endif
-  
      mreadfits, filename, index, data
 
-     index2map,index,data,map
+     smart_index2map,index,data,map
 
-     map=rot_map(map,180)
+     pixrad = map.rsun/map.cdelt1    
+     mask_index = circle_mask(map.data, map.crpix1, map.crpix2, 'GE', pixrad)   
+     data_tmp = map.data
+     data_tmp[mask_index]  = min(data_tmp)
 
      unscaled_map = map
+    
+     add_prop, map, data = bytscl( data_tmp, min = -150, max = 150 ), /replace
 
      map=map2earth(map)
-
-    ;Pad the image
+     ;Pad the image
 
      map=arm_img_pad(map,/loads)
 
@@ -1496,14 +1507,18 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
      add_prop, map, wavelength = 'Magnetogram', /replace
      id = 'shmimaglc'
      loadct, 0,/silent
-
      instrument = 'shmi'
      filter = 'maglc'
-     print, 'done sdo hmi maglc stuff'
+     print, 'Done sdo hmi maglc stuff'
 
   endif
+;				        				        				    ;
+;				        End of image reading 	  					;  
+;-------------------------------------------------------------------;
 
+  
 ;Check to see if map is all 0's etc (prevents plotting map for diff. inst. in wrong file...)
+
 if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_type=instrument+'_'+filter & goto, error_handler & endif
 
 ; Plot the data
@@ -1732,7 +1747,7 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
    image_fts_file = instrument + '_' + filter + '_fd_' + date_time + '.fts'
    image_static_png_file = instrument + '_' + filter + '_fd.png'
 
-   help,zb_plot
+
 
 ; Write fulldisk pngs and fits to /data/yyyymmdd/[png,fits]
 

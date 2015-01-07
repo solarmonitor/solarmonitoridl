@@ -1,262 +1,295 @@
+
+
+pro get_halpha, date, temp_path = TEMP_PATH, filename = FILENAME, today=TODAY, err=ERR
+
 ;+
 ;
 ; Name        : get_halpha
 ;
 ; Purpose     : get most recent Global H-alpha Network full-disk 
-;               H-alpha image an return the filename
+;               H-alpha image and return the filename
 ;
-; Syntax      : get_halpha, date, filename, [,/today]
+; Syntax      : get_halpha, date, temp_path, filename, [,/today]
 ;
 ; Examples    : IDL> get_halpha, '20000505', file
 ;               IDL> get_halpha, /today
 ;
-; History     : Written 6-feb-2001
+; History     : Written 11-Mar-2014. v1 written by Peter Gallagher 6-Feb-2001.
 ;
-; Contact     : ptg@bbso.njit.edu (Peter Gallagher, NJIT)
+; Contact     : ecarley@tcd.ie (Eoin P. Carley, TCD)
 ;
-;-
+; Comment     : Server search precendence:
+; Kanzelhohe Observatory, University of Graz. http://cesar.kso.ac.at/halpha4M/FITS/normal/
+; Big Bear Solar Observatory. http://www.bbso.njit.edu/pub/archive/
+; Space Weather Research Lab, NJIT, Global H-alpha network. http://swrl.njit.edu/pub/archive/
+; National Solar Observatory, Global H-alpha network. http://halpha.nso.edu/keep/haf/
 ;
-                                                  ;  2009-01-25 - Shaun
-                                                  ;  Duplication of this
-                                                  ;  err variable crashed
-                                                  ;  arm_batch all weekend
-                                                  ;  resulting in no thmbs
-;  
-pro get_halpha, date, filename, err, exist, today = today,temp_path=temp_path;, err = err
-  
-  temp_path=( n_elements(temp_path) eq 0)?'./':temp_path
-  err = ''
+; Method: Search Kanzelhohe, search BBSO, if nothing is returned then search anywhere 
+;         else in Global H-alpha network for up-to-date images.
 
+  err = 0
   if ( keyword_set( today ) ) then begin 
-    
     get_utc, utc, /ecs
-    date = strmid( utc, 0, 4 ) + strmid( utc, 5, 2 ) + strmid( utc, 8, 2 )
-  endif
+    date = time2file(utc, /date_only)
+    date_slash = anytim(utc, /ecs, /date_only) 
+  endif else begin
+    date_slash = anytim(file2time(date), /ecs, /date_only)
+  endelse
   
-  date_i = date
-  calc_date, date_i, -1, prev0
-  calc_date, prev0, -1, prev1
-  calc_date, prev1, -1, prev2
+  ;-----------Ping Kanzelhohe------------;
+  nping = 0
+  maxping = 5
+  url = 'http://cesar.kso.ac.at'
+  status = attempt_ping( url, nping, maxping ) ; See function at top of script. Should make separate
+  											   ; script in actual implementation
 
-;--------------------------------------------------------------
-; SOCK_LIST an BBSO image closest to requested date.
-;
-;  n = 0
-;  jump1:
-;
-;  IF ( n GT 10 ) THEN BEGIN
-;    PRINT, 1, '% GET_HALPHA :  No H-alpha data available for the past 10-days'
-;    err = -1    
-;    GOTO, get_out
-;  ENDIF
-;
-;STOP
-;
-;  IF ( n GT  0 ) THEN date = prev_day
-;
-;  bbso_files = SOCK_FIND( 'http://www.bbso.njit.edu', 'b*halph_fr*'+strmid(date,4,4)+'*.fts*', path='/pub/archive/'+strmid(date,0,4)+'/'+strmid(date,4,2)+'/'+strmid(date,6,2) )
-;  kanz_files = SOCK_FIND( 'http://www.bbso.njit.edu', 'k*halph_fr*'+strmid(date,4,4)+'*.fts*', path='/pub/archive/'+strmid(date,0,4)+'/'+strmid(date,4,2)+'/'+strmid(date,6,2) )
-;
-;STOP
-;
-;  ffile_list = [ bbso_files, kanz_files ]
-;  IF ( N_ELEMENTS(ffile_list) NE 0 ) THEN last_file = ffile_list[ N_ELEMENTS(ffile_list)-1 ]
+  ;---------Search Kanzelhohe Archive------------;
+  if status eq 1 then begin
+  	year=strmid(strtrim(date,2),0,4)
+  	;path = 'halpha4M/FITS/normal/' + year  <----Has *_fc_* files, which arm_fd cannot handle...what are fc files???
+  	path = 'halpha2k/recent/' + year
+  	print,'Searching '+url+path
+  	flist_kanz = sock_find(url, '*fts*', path = path)
+  	if flist_kanz[0] ne '' then begin
+  		times_kanz = anytim(file2time(flist_kanz), /utim)
+  		chosen_time = anytim(file2time(date), /utim)
+  		index_closest = closest(times_kanz, chosen_time)
+  		
+  		print,'Closest file at '+url+' to '+date+' is '+flist_kanz[index_closest]
+  		print,' '
+  	endif else begin
+  		print,'Did not find any files in '+url+path
+  	endelse	
+  endif else begin
+  	flist_kanz = '' ;return empty list if no access to url
+  endelse	
 
-;--------------------------------------------------------------
-; FTP an BBSO image closest to requested date.
+  
+  ;-----------Ping BBSO------------;
+  nping = 0
+  maxping = 5
+  url = 'http://www.bbso.njit.edu'
+  status = attempt_ping( url, nping, maxping )
 
-;  n = 0
-;  jump1:
+  ;---------Search BBSO Archive------------;
+  if status eq 1 then begin   
+  
+      ;Search back as far as 5 days previous
+      i=0.0
+      max_prev_days = 5
+      while i le max_prev_days do begin 
+  		calc_date, date, -1.0*i, prev
+  		path = 'pub/archive/' + anytim(file2time(prev), /ecs, /date_only)
+  		print,'Searching '+url+path
+        flist_bbso = sock_find(url, '*fts*', path = path)
+        
+        if flist_bbso[0] eq '' then print,'Did not find any files in '+url+path
+        if flist_bbso[0] ne '' then begin
+           times_bbso  = anytim(file2time(flist_bbso), /utim)
+           chosen_time = anytim(file2time(date), /utim)
+  		   index_closest = closest(times_bbso, chosen_time)
+           print,'Closest file at '+url+' to '+date+' is '+flist_bbso[index_closest]
+           i = max_prev_days + 1
+        endif  
+        i = i + 1
+      endwhile  
+      if flist_bbso[0] eq '' then print,'Did not find any BBSO files in previous '+string(max_prev_days)+' days'
+  endif else begin
+  	flist_bbso = '' ;return empty list if no access to url
+  endelse	
+   
+  ;If any flist exists then sort it to find latest file. If nothing exists then report no files found.
+  
+  if flist_kanz[0] ne '' or flist_bbso[0] ne '' then begin
+  		all_files = [flist_kanz, flist_bbso]
+  		file_index = where(all_files ne '')
+  		all_files = all_files[file_index]
+        all_file_times = anytim(file2time(all_files), /utim) 
+        
+        sort_index = sort(all_file_times)
+  		all_file_times = all_file_times[sort_index]
+  		all_files = all_files[sort_index]
+  		
+  		if keyword_set(today) then begin
+  			index_closest = n_elements(all_files)-1
+  		endif else begin	
+  			chosen_time = anytim(file2time(date), /utim)
+  			index_closest = closest(all_file_times, chosen_time)
+  		endelse	
+  		
+        print,';------------------------------------------------------------------;'
+  		print,'Downloading H-alpha fits file from: '
+  		print, string( all_files[index_closest] )
+  		print,';------------------------------------------------------------------;'
+  		
+  		download_file = all_files[index_closest]
+  		sock_copy, download_file, out_dir=temp_path, err=err, local_file=local_file
+  		search_other_sites = 0
+  		filename = local_file ;(reverse(str_sep(DOWNLOAD_FILE, '/')))[0]
+  endif else begin
+    	print,'No fits files found at:'
+    	print,'http://cesar.kso.ac.at'
+    	print,'http://www.bbso.njit.edu'
+    	search_other_sites = 1
+    	filename = ''
+    	err=-1
+  endelse	
 
-;  if ( n gt 5 ) then begin
-;    print, 1, '% GET_HALPHA :  No H-alpha data available for the past 5-days'
-;    err = -1    
-;    goto, get_out
-;  endif
-
-;  if ( n gt  0 ) then date = prev_day
-
-filename=''
-;url='bbso.njit.edu'
-url='swrl.njit.edu'
-nping=0
-pingagain1:
-sock_ping,url,status 
-if status ne 1 then begin
-	print,'can not connect to server'
-	wait,5
-	nping=nping+1
-	if nping gt 5 then begin
-		print,'Giving up on BBSO server...'
-		err=-1
-		return
-	endif
-	goto,pingagain1
-endif
-
-path='/pub/archive/'+strmid(date,0,4)+'/'+strmid(date,4,2)+'/'+strmid(date,6,2)+'/'
-path0='/pub/archive/'+strmid(prev0,0,4)+'/'+strmid(prev0,4,2)+'/'+strmid(prev0,6,2)+'/'
-path1='/pub/archive/'+strmid(prev1,0,4)+'/'+strmid(prev1,4,2)+'/'+strmid(prev1,6,2)+'/'
-path2='/pub/archive/'+strmid(prev2,0,4)+'/'+strmid(prev2,4,2)+'/'+strmid(prev2,6,2)+'/'
-filelist=sock_find(url,path=path,'*fr*.fts*')
-;filelist0=sock_find(url,path=path0,'*.fts*')
-;filelist1=sock_find(url,path=path1,'*.fts*')
-;filelist2=sock_find(url,path=path2,'*.fts*')
-;filelist=[filelist,filelist0,filelist1,filelist2]
-
-;ftp_find, filelist,lag, url=url, path=path, file='b*halph_fr*'+strmid(date,4,4)+'*.fts*'
-
-pos = strpos( filelist, 'kanz' )
-if (where(pos ne -1))[0] eq -1 then begin
-	pos = strpos( filelist, 'bbso' )
-	if (where(pos ne -1))[0] eq -1 then begin
-		pos = strpos( filelist, 'ynao' )
-	endif
-endif
-
-if (where(pos ne -1))[0] ne -1 then filelist=filelist[where(pos ne -1)] else begin
-	print,'No H-alpha data found for this date.'
-  	err=-1
-  	filename=''
-  	goto, get_out
-endelse
-
-latest_ha=(reverse(filelist))[0]
-
-ha=(reverse(str_sep(latest_ha,'/')))[0]
-
-;  flen = strlen(latest_ha)
-;  pos = strpos( latest_ha, 'bbso' );['bbso', 'kanz', 'oact'] )
-;  if pos eq -1 then begin
   	
-;  	print,'No H-alpha data found for this date.'
-;  	err=-1
-;  	filename=''
-;  	goto, getout
-;  endif
-;  ha = strmid(latest_ha,pos,flen-pos)
-  fsearch='../data/'+date+'/fits/bbso/bbso_halph_fd_'+strmid(ha,14,15)+'*.gz'
-  is_file = FILE_EXIST( fsearch )
+;---------------------------------------------------------------------------;  	
+;      IF KANZ AND BBSO RETURN NOTHING, SEARCH OTHER SITES IN NETWORK       ;
+;---------------------------------------------------------------------------;
+
+ if search_other_sites eq 1 then begin
+  print,'Found nothing at Kanzelhohe or BBSO, searching other sites in the network.'
+  	
+  	
+  ;-----------Search NSO Archive------------;
+  nping = 0
+  maxping = 5
+  url = 'http://halpha.nso.edu/'
+  status = attempt_ping( url, nping, maxping ) ; See function at top of script. Should make separate
+  											   ; script in actual implementation
+    
+  if status eq 1 then begin
+  	
+  	i=0.0
+      max_prev_days = 5
+      while i le max_prev_days do begin 
+  	  		calc_date, date, -1.0*i, prev
+  	  		
+  	  		yyyymm = strmid( prev, 0, 4 ) + strmid( prev, 4, 2 )
+  	  		
+  	  		path = 'keep/haf/' + yyyymm +'/'+prev
+			flist_nso = sock_find(url, '*fits*', path = path)
+         
+			if flist_nso[0] eq '' then print,'Did not find any files in '+url+path
+			if flist_nso[0] ne '' then begin
+			
+				times_nso = flist_nso
+  		
+  				;--------------NSO files have awkward time format--------------------;
+  				for i = 0, n_elements(flist_nso)-1 do begin
+  					prev_pos = STRPOS(flist_nso[i], prev, /REVERSE_SEARCH)
+					times_nso[i] = prev+'_'+strmid(flist_nso[i], prev_pos+8)
+  				endfor
+				
+				times_nso  = anytim(file2time(times_nso), /utim)
+                chosen_time = anytim(file2time(date), /utim)
+  		        index_closest = closest(times_nso, chosen_time)
+                i = max_prev_days + 1
+				
+				
+				print,'Closest file at '+url+' to '+date+' is: '
+				print,flist_nso[index_closest]
+				i = max_prev_days + 1
+			endif  
+			i = i + 1
+      endwhile  
+	  if flist_nso[0] eq '' then begin
+	  	print,'Did not find any files in previous '+string(max_prev_days)+' days'
+	  	times_nso = ''
+	  endif	
+    endif else begin
+		flist_nso = '' ;return empty list if no access to url or files not found
+	endelse	
+
+
+  	;-----------Search NJIT Archive------------;
+  	nping = 0
+    maxping = 5
+    url = 'http://swrl.njit.edu/'
+    status = attempt_ping( url, nping, maxping ) 
+    
+    if status eq 1 then begin   
   
-  IF (is_file) THEN begin & exist=1 & GOTO, get_out & endif
-  
-sock_copy,url+path+ha, out_dir=temp_path,local_file=local_file,err=err
+      ;Search back as far as 5 days previous
+      i=0.0
+      max_prev_days = 5
+      while i le max_prev_days do begin 
+  	  		calc_date, date, -1.0*i, prev
+  	  		path = 'pub/archive/' + anytim(file2time(prev), /ecs, /date_only)
+			flist_njit = sock_find(url, '*fts*', path = path)
+         
+			if flist_njit[0] eq '' then print,'Did not find any files in '+url+path
+			if flist_njit[0] ne '' then begin
+			
+				times_njit  = anytim(file2time(flist_njit), /utim)
+                chosen_time = anytim(file2time(date), /utim)
+  		        index_closest = closest(times_njit, chosen_time)
+			
+				print,'Closest file at '+url+' to '+date+' is: '
+				print,flist_njit[index_closest]
+				i = max_prev_days + 1
+			endif  
+			i = i + 1
+      endwhile  
+	  if flist_njit[0] eq '' then begin
+	  	print,'Did not find any files in previous '+string(max_prev_days)+' days'
+	  	times_njit = ''
+	  endif	
+    endif else begin
+		flist_njit = '' ;return empty list if no access to url or files not found
+    endelse	
+    
+    
+    ; Sort and download files, or return error if no files found.
+    
+    if flist_nso[0] ne '' or flist_njit[0] ne '' then begin
+  		
+  		all_files = [flist_nso, flist_njit]
+  		all_file_times = [times_nso, times_njit]
+  		
+  		file_index = where(all_files ne '')
+  		all_files = all_files[file_index]
+        all_file_times =  all_file_times[file_index] 
+        
+        
+        ;---------Check for kanz or bbso-----------;
+        kz_or_bb = WHERE(STRMATCH(all_files, '*kanz*fts*', /FOLD_CASE) EQ 1 $
+        				 or STRMATCH(all_files, '*bbso*fts*', /FOLD_CASE) EQ 1 $
+        				 or STRMATCH(all_files, '*Bh*fits*', /FOLD_CASE) EQ 1)
+        if kz_or_bb[0] ne -1 then begin
+        	all_files = all_files[kz_or_bb]
+        	all_file_times =  all_file_times[kz_or_bb] 
+        endif
+        sort_index = sort(all_file_times)
+  		all_file_times = all_file_times[sort_index]
+  		all_files = all_files[sort_index]		  		 		
+  		
+  		IF keyword_set(today) then begin
+  			index_closest = n_elements(all_files)-1
+  		endif else begin	
+  			chosen_time = anytim(file2time(date), /utim)
+  			index_closest = closest(all_file_times, chosen_time)
+  		endelse	
+  		
+        print,';------------------------------------------------------------------;'
+  		print,'Downloading H-alpha fits file from: '
+  		print, string( all_files[index_closest] )
+  		print,';------------------------------------------------------------------;'
+  		download_file = all_files[index_closest]
+  		sock_copy, download_file, out_dir=temp_path, err=err, local_file=local_file
+  		search_other_sites = 0
+  		filename = local_file ;(reverse(str_sep(DOWNLOAD_FILE, '/')))[0]
+  	endif else begin
+    	print,'No fits files found at:'
+    	print,'http://halpha.nso.edu/'
+    	print,'http://swrl.njit.edu/'
+    	print,'--------------------------------'
+    	print,'No H-alpha fits files found anywhere! Quitting....'
+    	print,'--------------------------------'
+    	err = -1
+    	filename = ''
+    	return
+  	endelse	
+    
+    
+ endif	
 
 
+END
 
-;; First find the BBSO images closest to the requested date
-;flist1=sock_find('http://www.bbso.njit.edu/','/pub/archive/'+strmid(date,0,4)+'/'+strmid(date,4,2)+'/'+strmid(date,6,2)+'/bbso*halph_fr*.fts*')
-;flist2=sock_find('http://www.bbso.njit.edu/','/pub/archive/'+strmid(date,0,4)+'/'+strmid(date,4,2)+'/'+strmid(date,6,2)+'/kanz*halph_fr*.fts*')
-;flist3=sock_find('http://www.bbso.njit.edu/','/pub/archive/'+strmid(date,0,4)+'/'+strmid(date,4,2)+'/'+strmid(date,6,2)+'/oact*halph_fr*.fts*')
-;
-;if flist1[0] eq '' then begin
-;	if flist2[0] eq '' then begin
-;		if flist3[0] eq '' then begin
-;			print,'No BBSO Data Found for '+strtrim(date,2)
-;			filename=''
-;			err=-1
-;			return
-;		endif else filename=(reverse(flist3))[0]
-;	endif else filename=(reverse(flist2))[0]
-;endif else filename=(reverse(flist1))[0]
+;------------------END MAIN PROCEDURE------------------------;
 
-;  openw,1,'ftp_data'
 
-;    printf,1,'#! /bin/csh -f'
-;    printf,1,'ftp -q 120 -n bbso.njit.edu << EOF > ftptemp'
-;    printf,1,'user anonymous ptg@bbso.njit.edu'
-;    printf,1,'prompt off'
-;    printf,1,'binary'
-;    printf,1,'cd /pub/archive/'+strmid(date,0,4)+'/'+strmid(date,4,2)+'/'+strmid(date,6,2)
-;    printf,1,'ls [k,b]*halph_fr*' + strmid(date,4,4) + '*' + '.fts*'
-;    printf,1,'ls b*halph_fr*' + strmid(date,4,4) + '*' + '.fts*'
-;    printf,1,'ls k*halph_fr*' + strmid(date,4,4) + '*' + '.fts*'
-;    printf,1,'bye'
-;    printf,1,'EOF'
-
-;  close,1
-  
-;  print, ' '
-;  print, 'Connecting to the BBSO database (bbso.njit.edu) ...'
-;  print, 'Locating file closest to ' + date + ' ...'
-;  spawn, 'chmod 777 ftp_data'
-;  spawn, './ftp_data'
-
-; Find the latest image time - only search for KSO and BBSO data at present
-  
-;  spawn, 'cat ftptemp', ffile_list
-;  spawn, 'cat ftptemp | tail -1', last_file
-;;  pos = strpos( last_file, 'fts' );
-;;  wo = where( pos ne -1 );
-;;  if ( wo( 0 ) eq -1 ) then goto, jump2;
-;;  wo = wo( 0 );
-;;  times = strmid( ffile_list( 0 : n_elements( ffile_list ) - 1 ), pos( wo ) - 7, 6 );
-;;  ffile_list = ffile_list( 0 : n_elements( ffile_list ) - 1 );
-;;  last_time = reverse( sort( times ) );
-;;  last_time = last_time( 0 );
-;;  latest_halpha = ffile_list( last_time );
-;;  pos = strpos( latest_halpha, 'halph' );
-;;  halpha = strmid( latest_halpha( wo ), pos( wo ) - 5, 36 );
-
-;  PRINT, 'H-alpha data found for ' + date
-;  sock_copy,filename
-;  filename=(reverse(str_sep(filename,'/')))[0]
-  
-;  SOCK_COPY, latest_halpha, err = err, /verb
-;  halpha = (reverse(str_sep((reverse(last_file))[0],' ')))[0]
-;  sock_copy,'bbso.njit.edu/pub/archive/'+strmid(date,0,4)+'/'+strmid(date,4,2)+'/'+strmid(date,6,2)+'/'+halpha
- 
-;;  openw,1,'ftp_data'
-
-;;    printf, 1, '#! /bin/csh -f'
-;;    printf, 1, 'ftp -n bbso.njit.edu << EOF > ftptemp'
-;;    printf, 1, 'user anonymous ptg@bbso.njit.edu'
-;;    printf, 1, 'prompt off'
-;;    printf, 1, 'binary'
-;;    printf, 1, 'cd /pub/archive/'+strmid(date,0,4)+'/'+strmid(date,4,2)+'/'+strmid(date,6,2)
-;;    printf, 1, 'get ' + halpha
-;;    printf, 1, 'bye'
-;;    printf, 1, 'EOF'
-
-;;  close,1
-
-;;  PRINT, 'Transferring H-alpha data for ' + date
-;;  spawn,'chmod 777 ftp_data'
-;;  spawn,'./ftp_data'
-
-;Check to see if data for the given date has been transferred.
-
- ffile_list = strlen( findfile( temp_path+ha[0] ) )
-
- if ( ffile_list[ 0 ] ne 0 ) then begin
-
-   print, 'H-alpha data for ' + date + ' transferred.'
-   print, ' '
-
- endif else begin
-
-;   jump2:
-   print,'No H-alpha data available for ' + date + '.'
-  	err=-1
-  	filename=''
-  	goto, get_out
-
-;   calc_date, date, -1, prev_day
-;   print, 'Searching for data on ' + prev_day + '...'
-;   print, ' '
-;   n = n + 1 
-;   goto, jump1
-
- endelse
-  
-;  date = date_i
-;  filename = halpha
-
-  filename=ha
-  filename=local_file
-  get_out:
-             
-;;  spawn, 'rm -f ftp_data ftptemp'
-;  spawn, 'rm -f ftptemp'
-  
-end 

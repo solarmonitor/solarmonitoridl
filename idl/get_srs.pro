@@ -65,7 +65,7 @@ fls=file_search(today_dir+'*SRS.txt',count=flsn)
      sock_copy, SERVER+ftp_forecast_dir+ strmid( date_struct.prev_date, 4, 4 ) +$
                 'SRS.txt', out_dir=today_dir
      
-     if ( srs_today[ 5 ] eq '<H1>Not Found</H1>' ) then begin
+     if ( srs_today[0] eq '' ) then begin
 
         srs_today = 'No data'
         srs_yesterday = 'No data'
