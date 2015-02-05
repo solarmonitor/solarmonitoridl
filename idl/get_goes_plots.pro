@@ -3,11 +3,11 @@ pro get_goes_plots, temp_path, output_path, date
   out_goes = output_path + '/pngs/goes/'
 
 ;Static plot filenames from http://w1.sec.noaa.gov/ftpdir/plots/README
-  SERVER='www.swpc.noaa.gov'
+  SERVER='services.swpc.noaa.gov'
 
-  xray=SERVER+'/rt_plots/Xray.gif'
-  proton=SERVER+'/rt_plots/Proton.gif'
-  electron=SERVER+'/rt_plots/Electron.gif'
+  xray=SERVER+'/images/goes-xray-flux.gif'
+  proton=SERVER+'/images/goes-proton-flux.gif'
+  electron=SERVER+'/images/goes-electron-flux.gif'
 
   sock_ping, SERVER, status
   if (status eq 1) then begin
