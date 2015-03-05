@@ -15,8 +15,8 @@ endelse
 fdate=strtrim(fdate,2)  ;What is this doing?
 
 if keyword_set(latest) then begin
-   furl='http://www.swpc.noaa.gov/ace/'
-   fname=['Mag_24h.gif','Swepam_24h.gif']
+   furl='http://services.swpc.noaa.gov/images/'
+   fname=['ace-mag-24-hour.gif','ace-swepam-24-hour.gif']
    ftype=['bfield','plasma']
    for i=0,n_elements(fname)-1 do begin
       is_file = FILE_EXIST( output_path+date_dir+'/pngs/ace/sace_'+ftype[i]+'_'+fdate+'.gif' )
