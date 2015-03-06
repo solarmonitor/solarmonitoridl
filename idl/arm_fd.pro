@@ -31,8 +31,10 @@
 ;          2004-07-12 Russ Hewett: updated path information, changed to png, added fits
 ;          2005-07-13 Russ Hewett: added status keyword
 ;   	   2005-08-23 James McAteer: changed to SXI level 2 data
+;	   2014-09-22 Eoin Carley and Micheal Tierney (TCD). Added flare probability plot on HMI and GONG.
 ;
 ; Contact     : ptg@bbso.njit.edu
+;		info@solarmonitor.org
 ;
 ;-
 
@@ -595,15 +597,15 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
     ;New get h-alpha code. This section of arm_fd is need of a serious cleanup!!!!
     get_halpha, /today, temp_path = TEMP_PATH, filename = FILENAME, err=ERR
-     
+    
      if (err eq -1 or exist eq 1) then begin
      	print,'Found error in Kanz or BBSO'
         error_type = 'bbso_halph'
                                 ; do any other error handling stuff
         goto, error_handler
      endif
-     
-	 file_loc = filename
+	 
+     file_loc = filename
      filename = ( REVERSE( STR_SEP( filename, '/' ) ) )[0]
      obsname=strmid(filename,0,4)
   
@@ -825,7 +827,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
   if ( keyword_set( slis_chrom ) ) then begin
 
      print, 'Getting SOLIS Chromosphere Image'
-     get_solis_mag, filename, dummy, err, /today, /chrom,temp_path=temp_path
+     get_solis_mag, filename, dummy, err, /today, /chrom, temp_path=temp_path
      if err eq -1 then begin
         error_type = 'slis_chrom'
         goto, error_handler
@@ -1477,9 +1479,6 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
      print, 'Getting SDO HMI MAG'
      get_hmi_latest, temp_path, filename, err=err
-
-     print,'Error from get_hmi_latest: '+string(err)
-     
      if err ne '' then begin
         error_type = 'shmi_maglc'
         goto, error_handler
@@ -1516,10 +1515,17 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 ;				        End of image reading 	  					;  
 ;-------------------------------------------------------------------;
 
+tvlct , rr , gg , bb , /get
   
 ;Check to see if map is all 0's etc (prevents plotting map for diff. inst. in wrong file...)
 
-if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_type=instrument+'_'+filter & goto, error_handler & endif
+if max(unscaled_map.data) eq min(unscaled_map.data) then begin
+   print,'Unexpected data values in the '+instrument+' '+filter+' map.'
+   print,'EXITING WITHOUT PLOTTING.'
+   err=-1 
+   error_type=instrument+'_'+filter 
+   goto, error_handler 
+endif
 
 ; Plot the data
 
@@ -1566,6 +1572,8 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
 ;    'seit_00304':  plot_map, map, /square, fov = fov, grid = 10, $
 ;               title = 'EIT He II (304 ' + string( 197B ) + ') ' + map.time, $
 ;           position = position, center = center, gcolor=255
+
+
 
       'gsxi_flter':  plot_map, map, /square, fov = fov, grid = 10, $
                                title = map.wavelength + ' ' + map.time, $
@@ -1616,6 +1624,7 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
                           title = map.instrument + ' ' + map.wavelength + ' ' + map.time, $
                           position = position, center = center, gcolor=255
    endcase
+
 
 ; Plot region names on full-disk images
 
@@ -1697,7 +1706,6 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
       new_rot_loc = new_rot_lat + new_rot_lng
       
       dum = rot_locations( new_rot_loc, map.time, map.time, solar_xy = solar_xy, stereo_flag = stereo_flag )
-
       for i = 0, n_elements( names ) - 1 do begin
 
          if (strlowcase(names[i]) eq 'none') then continue
@@ -1713,16 +1721,18 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
                xyouts, x + 20, y + 70, names( i ), align = 0.5, charthick = 3, color = 255, charsize = 2.2
             endif
          endelse
-
       endfor
 
                                 ;no_ar: ;JMA 13-may-2008 to correct for when no regions present.
 
    endif
 
+
+
 ; Read plot from Z-buffer and write to file
 
    zb_plot = tvrd()
+
 
 ; Need to convert solar x and y to device coordinates for html imagemap
 
@@ -1750,7 +1760,6 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
 
 
 ; Write fulldisk pngs and fits to /data/yyyymmdd/[png,fits]
-
    if ( map.id ne 'NO DATA' ) then begin
 
       wr_png, output_path + date_struct.date_dir + '/pngs/' + instrument + '/' + image_png_file, zb_plot
@@ -1783,18 +1792,31 @@ if max(unscaled_map.data) eq min(unscaled_map.data) then begin & err=-1 & error_
    print, 'Data written to <' + map_coords_file + '>.'
    print, ' '
 
-                                ; write the map_structure
+ 
+; write the map_structure
+
    if keyword_set(gong_maglc) then $
       map_struct = {scaled_map : map, unscaled_map : unscaled_map, scaled_db_map : dB_map, unscaled_db_map : unscaled_dB_map} $
    else $
       map_struct = {scaled_map : map, unscaled_map : unscaled_map} ;,dbmap gong stuff
 
-                                ;Crude IDL error handling.  uses a goto! (eek)
+; Create FD pngs with probabilities attached
+
+  	set_plot , 'z'
+	did_prob = 1
+	if (keyword_set(shmi_maglc)) or (keyword_set(gong_maglc)) then begin
+    		print,'Plotting flare probabilities on ' + instrument + filter  ; I would make this print statement inside plot_flare_prob_fd
+    		did_prob=execute("plot_flare_prob_fd , output_path + date_struct.date_dir + '/pngs/' , map , summary , solar_xy , rr , gg , bb , instrument , filter , /"+instrument+"_"+filter)
+    		if (did_prob eq 0) then begin
+        		print, 'Plotting probabilities ' + instrument + filter + ' was unsuccessful'
+    		endif
+	endif 
+   
+;Crude IDL error handling.  uses a goto! (eek)
    error_handler:
    
     if (error_type ne '') then error_status = 1
 
 
 end
-
 
