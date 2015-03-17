@@ -24,6 +24,7 @@ sock_copy,remotefile,out_dir=temp_path,local_file=local_file,err=err
 
 if err ne '' then begin
    print,'SOCK_COPY failed.'
+   print,err
    return 
 endif
 

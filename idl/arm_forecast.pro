@@ -43,7 +43,7 @@ names  = reform( summary( 0, * ) )
 
 ; Read in the most recent flare probabilities from NOAA
 
-  sock_list, 'www.swpc.noaa.gov/ftpdir/latest/daypre.txt', noaa_prob
+  sock_list, 'http://services.swpc.noaa.gov/text/3-day-solar-geomag-predictions.txt', noaa_prob
   st = where( strmatch( noaa_prob, ':Reg_Prob*' ) ne 0 )
   IF ( st[ 0 ] EQ N_ELEMENTS( noaa_prob )-1 ) THEN GOTO, no_ar
   st = st( 0 ) + 1
