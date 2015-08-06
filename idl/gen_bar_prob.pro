@@ -69,7 +69,6 @@ function gen_bar_prob , summary , bar_size , prob_array , ax_col=col , ch_thick_
 	yt = 1 ; ythick
 	xt = 1 ; xthick
 	outl = 0 ; Outlines 
-	bnames = [' ' , ' ' , ' '] ; x-axis labels
   	loadct , 0 , /silent
 
 ; Changes barchart style depending on keywords SUB and REF
@@ -97,12 +96,12 @@ function gen_bar_prob , summary , bar_size , prob_array , ax_col=col , ch_thick_
 		endif else begin
   			cgBarPlot , prob_array  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
   				charsize = csize , charthick= char_thick , axiscolor=col , range=[0,100] , yticks=2  , $
-				position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , ytitle=yti , ythick = yt , xthick = xt; , barnames = bnames
+				position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , ytitle=yti , ythick = yt , xthick = xt
 		endelse 
   	endif else begin
   		cgBarPlot , prob_array  , background=1 , colors=[160 , 80 , 240] , barthick=4 , $
   			charsize = csize , charthick = char_thick , axiscolor=col , range=[0,100] , yticks=2  , $
-			position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , xthick=0 , xstyle=8 , ystyle=4 , ytitle=yti ;, barnames = bnames 
+			position = [0.2 , 0.2 , 0.9 , 0.9] , outline=outl , xthick=0 , xstyle=8 , ystyle=4 , ytitle=yti 
   	endelse
   	im = tvrd()
   	device , /close 
