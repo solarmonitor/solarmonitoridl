@@ -136,11 +136,21 @@ sm_processimages()
 
 }
 
-sm_upload()
+sm_package()
 {
    tar -cvz -C $OUTPUT_PATH --exclude '*sm_files*.tar.gz' -f $OUTPUT_PATH/sm_files.tar.gz .
-   scp $OUTPUT_PATH/sm_files.tar.gz $REMOTE_HOST:$REMOTE_PATH
-   ssh $REMOTE_HOST "cd $REMOTE_PATH && tar -xvz -f sm_files.tar.gz"
+}
+
+sm_upload()
+{
+    if [ -z "$1" ]
+    then
+        SM_HOST=$REMOTE_HOST
+    else
+        SM_HOST=$1
+    fi
+    scp $OUTPUT_PATH/sm_files.tar.gz $SM_HOST:$REMOTE_PATH
+    ssh $SM_HOST "cd $REMOTE_PATH && tar -xvz -f sm_files.tar.gz"
 }
 
 sm_cleanup()
@@ -169,7 +179,9 @@ sm_sswscript
 # Resize and stamps the images with the perl scripts
 sm_processimages $OUTPUT_PATH/$TODAYS_DATE_DIR
 
+sm_package
 sm_upload
+sm_upload "dperezsuarez@solarmonitor.dias.ie"
 sm_cleanup
 
 echo "everything sounds good!"
