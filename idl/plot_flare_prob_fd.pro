@@ -152,19 +152,19 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
 ; Plot the reference bar-chart
 
   tvlct , r , g , b
-  cgimage , ref_bar , alphafgpos=[[0.09 , 0.82] , [0.09+(win_size*2) , 0.82+(win_size*2)]] , missing_value = 1 , transparent=2
-  cgimage , ref_trans_bar , alphafgpos=[[0.09 , 0.82] , [0.09+(win_size*2) , 0.82+(win_size*2)]] , missing_value = 1 , transparent=50
+  cgimage , ref_bar , alphafgpos=[[0.095 , 0.82] , [0.095+(win_size*1.75) , 0.82+(win_size*1.75)]] , missing_value = 1 , transparent=2
+  cgimage , ref_trans_bar , alphafgpos=[[0.095 , 0.82] , [0.095+(win_size*1.75) , 0.82+(win_size*1.75)]] , missing_value = 1 , transparent=50
   loadct , 0 , /silent
-  cordx =[ -862, -776, -937] 
+  cordx =[ -882, -796, -957] 
   class =[ 'M', 'X', 'C']
   color = [0, 254]
   charth = [7, 3]
   for i = 0,1 do begin
 	for j = 0,2 do begin
-        	cgtext, cordx[j], 765, class[j], color=color[i], charthick = charth[i], charsize = 3
+        	cgtext, cordx[j], 745, class[j], color=color[i], charthick = charth[i], charsize = 3
 	endfor
   endfor
-  cgtext , -1040 , 835 , 'Probability' , color=254 , charthick = 3 , charsize=2 , orientation=90
+  cgtext , -1055 , 815 , 'Probability' , color=254 , charthick = 3 , charsize=2 , orientation=90
 
 ; Tags active regions and places the charts
 
