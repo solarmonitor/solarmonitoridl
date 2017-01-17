@@ -1394,7 +1394,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
      print, 'Doing prop stuff'
      add_prop, map, instrument = 'SDO AIA', /replace
-     add_prop, map, wavelength = 'He II (335 '+string( 197B )+')', /replace
+     add_prop, map, wavelength = 'Fe XVI (335 '+string( 197B )+')', /replace
      id = 'saia00335'
      aia_lct,rr,gg,bb,wave=335
      tvlct,rr,gg,bb
