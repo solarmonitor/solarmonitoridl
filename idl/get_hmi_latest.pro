@@ -11,6 +11,7 @@ pro get_hmi_latest, temp_path, filename, err=err
 ;           err      - Error Status          
 ;
 ; History : Written 12-08-2013, Aoife McCloskey (Summer Project)
+;		    06-02-2017, Tadhg Garton (TCD): Added a copy procedure to prevent file overwriting
 ;
 ;-
 
@@ -26,11 +27,13 @@ start_time = anytim(systim(/utc)) - 12.0*60.0*60.0
 end_time = anytim(systim(/utc))
 print,'Searching for latest HMI data between: ' + anytim(start_time, /yoh, /trun) + ' and '+ anytim(end_time, /yoh, /trun) 
 
-
 ssw_jsoc_time2data, start_time, end_time, index, data, $
                      ds='hmi.M_720s_nrt', max_files=1, locfiles= locfiles, outdir_top=temp_path
 
 filename = temp_path + '/HMI' + time2file(index.date_obs, /sec) + '_6173.fits'
+
+;included a file copy of hmi magnetic data to avoid get_chmi_latest downloading a continuum .fits file with the same file name 
+File_copy, filename, temp_path + '/HMI' + time2file(index.date_obs, /sec) + '_mag.fits'
 
 ;Check that file exists
 print,'HMI FILENAME PRINT !!!!!!!!!'
