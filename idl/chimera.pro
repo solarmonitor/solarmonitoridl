@@ -182,7 +182,7 @@ def=msk*mak*mas
 ax=indgen(s[1])
 ay=indgen(s[2])
 !p.multi=[0,1,1]
-plot_image,truecolorimage,title='SDO AIA 171,193,211 !3'+STRING(197B)+'!X '+map[1].time,xstyle=5,ystyle=5,charsize=2,charthick=3
+plot_image,truecolorimage,title='CHIMERA Coronal Holes at '+map[1].time+' UT',xstyle=5,ystyle=5,charsize=2,charthick=3
 Contour,lon,ax,ay,/over,levels=[-90,-80,-70,-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60,70,80,90],color='FFFFFF'xL,c_linestyle=1
 Contour,lat,ax,ay,/over,levels=[-90,-80,-70,-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60,70,80,90],color='FFFFFF'xL,c_linestyle=1
 xx=0
@@ -500,7 +500,7 @@ endfor
 Contour,offarr,ax,ay,/over,levels=[0.5],color='FFFFFF'xL
 
 ;====create image in output folder=======
-void = cgSnapshot(File=outpath+'/pngs/saia/saia_chimr_ch_'+time2file(map[1].time,/seconds), /PNG, /NoDialog)
+void = cgSnapshot(File=outpath+'/pngs/saia/saia_chimr_ch_'+time2file(map[1].time,/seconds)+'_pre', /PNG, /NoDialog)
 
 ;====create structure containing simple CH location information======
 chim={date:ind.date_obs,index:ind,ch:ch[1:ident],n:n,x:float(x[1:n_elements(x)-1]),y:float(y[1:n_elements(y)-1]),mxseg:mxseg}
