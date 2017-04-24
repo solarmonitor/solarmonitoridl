@@ -1,9 +1,9 @@
 ;+
 ; Project     : Coronal Hole Identification via Multi-thermal Emission Reconition Algorithm (CHIMERA)
 ;
-; Name        : chimeracln
+; Name        : chimera
 ;
-; Purpose     : Generate a coronal hole segmented tricolour image
+; Purpose     : Generate a coronal hole segmented tricolour image and corresponding property .txt file
 ;
 ; Syntax      : chimera
 ;
@@ -12,7 +12,12 @@
 ;		211A .fits file
 ;		hmi .fits file
 ;
-; Keywords    : none
+; Outputs     : chimera.png
+;	      : chimera.txt
+;
+; Keywords    : temp= input directory
+;		outpath= output directory
+;		track= directory containing tracking information
 ;
 ; Example    : IDL> chimera,temp='location/string/', outpath='location/string/', track='location/string/'
 ;
@@ -214,7 +219,7 @@ circ[w] = 1.0
 def=def*circ
 
 ;====open file for property storage=====
-openw,2,outpath+'/meta/arm_ch_summary_'+time2file(map[1].time)+'.txt'
+openw,2,outpath+'/meta/arm_ch_summary_'+strmid(time2file(map[1].time),0,8)+'.txt'
 printf,2,formtab[0]
 printf,2,formtab[1]
 
@@ -455,8 +460,8 @@ if max(prevrot) gt 0 then begin
 			x=[x,xco[where(segarr eq max(segarr))]]
 			y=[y,yco[where(segarr eq max(segarr))]]
 
-			XYOUTS, precen[0], precen[1], 'CHIM'+strcompress(long(max(segarr)),/remove_all),alignment=0.5,color='000000'xL,charthick=7,charsize=2
-			XYOUTS, precen[0], precen[1], 'CHIM'+strcompress(long(max(segarr)),/remove_all),alignment=0.5,color='FFFFFF'xL,charthick=3,charsize=2
+			XYOUTS, precen[0], precen[1], 'CH'+strcompress(long(max(segarr)),/remove_all),alignment=0.5,color='000000'xL,charthick=7,charsize=2
+			XYOUTS, precen[0], precen[1], 'CH'+strcompress(long(max(segarr)),/remove_all),alignment=0.5,color='FFFFFF'xL,charthick=3,charsize=2
 			props[0,loc[0]+1]=strcompress(long(max(segarr)),/remove_all)
 
 		endif
@@ -485,8 +490,8 @@ for i=1,ident do begin
 		x=[x,xco[where(segarr eq max(segarr))]]
 		y=[y,yco[where(segarr eq max(segarr))]]
 
-		XYOUTS, precen[0], precen[1], 'CHIM'+strcompress(long(max(segarr)),/remove_all),alignment=0.5,color='000000'xL,charthick=7,charsize=2
-		XYOUTS, precen[0], precen[1], 'CHIM'+strcompress(long(max(segarr)),/remove_all),alignment=0.5,color='FFFFFF'xL,charthick=3,charsize=2
+		XYOUTS, precen[0], precen[1], 'CH'+strcompress(long(max(segarr)),/remove_all),alignment=0.5,color='000000'xL,charthick=7,charsize=2
+		XYOUTS, precen[0], precen[1], 'CH'+strcompress(long(max(segarr)),/remove_all),alignment=0.5,color='FFFFFF'xL,charthick=3,charsize=2
 		props[0,i+1]=strcompress(long(max(segarr)),/remove_all)
 	endif
 endfor
