@@ -62,8 +62,6 @@ pro arm_batch, temp_path, output_path
 	
 ; Get latest events from SSW database	    
     print, 'concating AR summary'
-    help, date_struct
-    help, events
     last_events2arm2, date_struct, events
     print, 'done concating AR summary'
 
@@ -273,9 +271,7 @@ arm_movies, today_dir, date_struct
 
 if ( summary[ 0 ] ne 'No data' ) then arm_forecast, output_path=today_dir, date_struct, summary
 
-yest=anytim(date_struct.date_dir)-findgen(2)*3600.*24.
-yestarr=anytim(yest,/date_only,/ecs)
-chimera,temp=temp_path,outpath=output_path+yestarr[0]
+chimera,temp=temp_path,outpath=output_path+date_struct.date_dir
 
 mmmotd2arm, today_dir, date_struct
   
