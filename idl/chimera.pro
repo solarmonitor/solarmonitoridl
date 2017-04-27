@@ -52,7 +52,7 @@ fil[2]=f211
 set_plot,'z'
 !p.color=0
 !p.background='FFFFFF'xL
-Device, Set_Resolution=[1500,1500], Decomposed=1, Set_Pixel_Depth=24, set_font='helvetica'
+Device, Set_Resolution=[1588,1588], Decomposed=1, Set_Pixel_Depth=24, set_font='helvetica'
 
 ;=====Reads in data=====
 read_sdo,fhmi,hin,hd
@@ -114,10 +114,10 @@ garr=psf_gaussian(npixel=s[1],FWHM=[2000,2000])
 garr[where(circ eq 1)]=1.
 
 ;======creation of array for CH properties==========
-props=strarr(23,15)
+props=strarr(24,15)
 formtab=strarr(15)
-formtab[0]='ID      XCEN       YCEN       X_EB       Y_EB       X_WB       Y_WB       X_NB       Y_NB       X_SB       Y_SB       AREA      Area%        <B>       <B+>       <B->       BMAX       BMIN     TOT_B+     TOT_B-      <PHI>     <PHI+>     <PHI->'
-formtab[1]='num        "          "          "          "          "          "          "          "          "          "       Mm^2          %          G          G          G          G          G          G          G         Mx         Mx         Mx'
+formtab[0]='ID      XCEN       YCEN       X_EB       Y_EB       X_WB       Y_WB       X_NB       Y_NB       X_SB       Y_SB      WIDTH       AREA      AREA%        <B>       <B+>       <B->       BMAX       BMIN     TOT_B+     TOT_B-      <PHI>     <PHI+>     <PHI->'
+formtab[1]='num        "          "          "          "          "          "          "          "          "          "          °       Mm^2          %          G          G          G          G          G          G          G         Mx         Mx         Mx'
 
 ;=====Sort data by wavelength=====
 reord=sort(ind.wavelnth)
@@ -260,6 +260,10 @@ for i=0L,(n_elements(info)-1) do begin
 				Ysb=coord[1,0,(min(xy[1,info(i).offset+chpts]))]
 				Xsb=coord[0,xy[0,info(i).offset+min(where((xy[1,info(i).offset+chpts]) eq min(xy[1,info(i).offset+chpts])))],(min(xy[1,info(i).offset+chpts]))]
 
+				eastl=lon[where(coord[0,*,0] eq xeb),where(coord[1,0,*] eq yeb)]
+				westl=lon[where(coord[0,*,0] eq xwb),where(coord[1,0,*] eq ywb)]
+				width=westl-eastl
+
 ;====classifies off limb CH regions========
 				if (arccent0^(2)+arccent1^(2)) gt rs^(2) or (coord[0,xy(0,INFO(I).OFFSET),0]^(2) + (coord[1,0,xy(1,INFO(I).OFFSET)])^(2)) gt rs^(2) then begin
 					subscripts=POLYFILLV(xy(0,INFO(I).OFFSET + chpts ),xy(1,INFO(I).OFFSET + chpts ),s[1],s[2])
@@ -336,18 +340,25 @@ for i=0L,(n_elements(info)-1) do begin
 							props[8,ident+1]=string(strcompress(Ynb,/remove_all),format='(I10.0)')
 							props[9,ident+1]=string(strcompress(Xsb,/remove_all),format='(I10.0)')
 							props[10,ident+1]=string(strcompress(Ysb,/remove_all),format='(I10.0)')
-							props[11,ident+1]=string(strcompress((trummar/(1e+12)),/remove_all),format='(e10.1)')
-							props[12,ident+1]=string(strcompress((arcar*100/(!PI*rs^(2))),/remove_all),format='(F10.1)')
-							props[13,ident+1]=string(strcompress(mB,/remove_all),format='(F10.1)')
-							props[14,ident+1]=string(strcompress(mBpos,/remove_all),format='(F10.1)')
-							props[15,ident+1]=string(strcompress(mBneg,/remove_all),format='(F10.1)')
-							props[16,ident+1]=string(strcompress(max(magpol),/remove_all),format='(F10.1)')
-							props[17,ident+1]=string(strcompress(min(magpol),/remove_all),format='(F10.1)')
-							props[18,ident+1]=string(strcompress(total(npix[where(magpol gt 0)]),/remove_all),format='(e10.1)')
-							props[19,ident+1]=string('-'+strcompress(total(npix[where(magpol lt 0)]),/remove_all),format='(e9.1)')
-							props[20,ident+1]=string(strcompress(mB*trummar*1e+16,/remove_all),format='(e10.1)')
-							props[21,ident+1]=string(strcompress(mBpos*trummar*1e+16,/remove_all),format='(e10.1)')
-							props[22,ident+1]=string('-'+strcompress(abs(mBneg*trummar*1e+16),/remove_all),format='(e9.1)')
+							props[11,ident+1]=string(strcompress(width,/remove_all),format='(I10.0)')
+							armm=string(strcompress((trummar/(1e+12)),/remove_all),format='(e11.1)')
+							props[12,ident+1]=strmid(armm,0,8)+strmid(armm,9,2)
+							props[13,ident+1]=string(strcompress((arcar*100/(!PI*rs^(2))),/remove_all),format='(F10.1)')
+							props[14,ident+1]=string(strcompress(mB,/remove_all),format='(F10.1)')
+							props[15,ident+1]=string(strcompress(mBpos,/remove_all),format='(F10.1)')
+							props[16,ident+1]=string(strcompress(mBneg,/remove_all),format='(F10.1)')
+							props[17,ident+1]=string(strcompress(max(magpol),/remove_all),format='(F10.1)')
+							props[18,ident+1]=string(strcompress(min(magpol),/remove_all),format='(F10.1)')
+							tbpos=string(strcompress(total(npix[where(magpol gt 0)]),/remove_all),format='(e11.1)')
+							props[19,ident+1]=strmid(tbpos,0,8)+strmid(tbpos,9,2)
+							tbneg=string('-'+strcompress(total(npix[where(magpol lt 0)]),/remove_all),format='(e10.1)')
+							props[20,ident+1]=strmid(tbneg,0,7)+strmid(tbneg,8,2)
+							phi=string(strcompress(mB*trummar*1e+16,/remove_all),format='(e11.1)')
+							props[21,ident+1]=strmid(phi,0,8)+strmid(phi,9,2)
+							phipos=string(strcompress(mBpos*trummar*1e+16,/remove_all),format='(e11.1)')
+							props[22,ident+1]=strmid(phipos,0,8)+strmid(phipos,9,2)
+							phineg=string('-'+strcompress(abs(mBneg*trummar*1e+16),/remove_all),format='(e10.1)')
+							props[23,ident+1]=strmid(phineg,0,7)+strmid(phineg,8,2)
 
 ;=====sets up code for next possible coronal hole=====
 							ident=ident+1
@@ -500,14 +511,14 @@ endfor
 Contour,offarr,ax,ay,/over,levels=[0.5],color='FFFFFF'xL
 
 ;====create image in output folder=======
-void = cgSnapshot(File=outpath+'/pngs/saia/saia_chimr_ch_'+time2file(map[1].time,/seconds)+'_pre', /PNG, /NoDialog)
+void = cgSnapshot(Position=[0.035,0.035,0.98,0.98],File=outpath+'/pngs/saia/saia_chimr_ch_'+time2file(map[1].time,/seconds)+'_pre', /PNG, /NoDialog)
 
 ;====create structure containing simple CH location information======
 chim={date:ind.date_obs,index:ind,ch:ch[1:ident],n:n,x:float(x[1:n_elements(x)-1]),y:float(y[1:n_elements(y)-1]),mxseg:mxseg}
 
 ;====stores all CH properties in a text file=====
 for i=2,ident+1 do begin
-	formtab[i]=props[0,i]+' '+props[1,i]+' '+props[2,i]+' '+props[3,i]+' '+props[4,i]+' '+props[5,i]+' '+props[6,i]+' '+props[7,i]+' '+props[8,i]+' '+props[9,i]+' '+props[10,i]+' '+props[11,i]+' '+props[12,i]+' '+props[13,i]+' '+props[14,i]+' '+props[15,i]+' '+props[16,i]+' '+props[17,i]+' '+props[18,i]+' '+props[19,i]+' '+props[20,i]+' '+props[21,i]+' '+props[22,i]
+	formtab[i]=props[0,i]+' '+props[1,i]+' '+props[2,i]+' '+props[3,i]+' '+props[4,i]+' '+props[5,i]+' '+props[6,i]+' '+props[7,i]+' '+props[8,i]+' '+props[9,i]+' '+props[10,i]+' '+props[11,i]+' '+props[12,i]+' '+props[13,i]+' '+props[14,i]+' '+props[15,i]+' '+props[16,i]+' '+props[17,i]+' '+props[18,i]+' '+props[19,i]+' '+props[20,i]+' '+props[21,i]+' '+props[22,i]+' '+props[23,i]
 	printf,2,formtab[i]
 endfor
 close,2

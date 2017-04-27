@@ -282,5 +282,4 @@ print,'     Solar Monitor IDL processing completed at ' + completion_time+' UT'
 print,'     Total IDL runtime: ' + string(total_runtime/60.0, format = '(I02)')+' hrs ' $
 				 + string(total_runtime mod 60.0, format = '(I02)' )+' minutes'
 print,';------------------------------------------------------------------------------;'
-
 end
