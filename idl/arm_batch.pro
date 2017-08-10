@@ -270,7 +270,9 @@ arm_movies, today_dir, date_struct
 ; Execute the forecast last as its prone to crashing
 
 if ( summary[ 0 ] ne 'No data' ) then arm_forecast, output_path=today_dir, date_struct, summary
-  
+
+chimera,temp=temp_path,outpath=output_path+date_struct.date_dir
+
 mmmotd2arm, today_dir, date_struct
   
 get_utc, completion_time, /ecs
@@ -280,5 +282,4 @@ print,'     Solar Monitor IDL processing completed at ' + completion_time+' UT'
 print,'     Total IDL runtime: ' + string(total_runtime/60.0, format = '(I02)')+' hrs ' $
 				 + string(total_runtime mod 60.0, format = '(I02)' )+' minutes'
 print,';------------------------------------------------------------------------------;'
-
 end
