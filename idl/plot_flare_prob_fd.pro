@@ -43,7 +43,9 @@
 ;
 ; CONTACT:      info@solarmonitor.org
 ;
-; VERSION       1.0
+; VERSION:       1.0
+;
+; HISTORY: Added in MCEVOL forecast probabilities to replace MCSTAT - Aoife McCloskey May 2017
 ;- 
 ;---------------------------------------------------------------------->
 
@@ -81,8 +83,15 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
 
 ; Grabs the flare probabilities
   
-  activity_forecast , OUTPUT , summary , names , mci , cprob , mprob , xprob
+  activity_forecast_evol , OUTPUT , summary , names , mci , cprob , mprob , xprob
+
+; Use MCSTAT probabilities instead of MCEVOL for plotting bars if no forecast
   
+  if (cprob eq '...' or mprob eq '...' or xprob eq '...') then begin
+	  print , 'MCEVOL has no forecast for this region'
+          activity_forecast, output_path, summary, names, mci, cprob, mprob, xprob
+  endif
+
   if (n_elements(cprob) eq 0 or n_elements(mprob) eq 0 or n_elements(xprob) eq 0) then begin
 	  print , 'Activity forecast is not working'
 	  goto , TERM

@@ -70,22 +70,25 @@ pro get_srs, date_struct, srs_today, srs_yesterday, issued, t_noaa,output_path=o
 ; yesterday
 
      if (solmon_status eq 1) then begin
-        
+        print, 'solarmonitor is working'
         sock_list, solmon_server+'/data/'+y_date_yyyy+'/'+y_date_mm+'/'+y_date_dd+'/meta/'+$
                    strmid(date_struct.prev_date, 4, 4)+'SRS.txt', srs_yesterday
         
         sock_copy, solmon_server+'/data/'+y_date_yyyy+'/'+y_date_mm+'/'+y_date_dd+'/meta/'+$
                    strmid(date_struct.prev_date, 4, 4)+'SRS.txt', y_date_mm+y_date_dd+'SRS.txt',out_dir=today_dir
         
-        if ( srs_yesterday[0] eq '' ) then begin
 
-           srs_yesterday = 'No data'
+     endif else begin 
+        print, 'Solarmonitor is down .. uh oh'
+        if backup_status EQ 1 then begin
+           print, 'Trying backup SWPC for SRS data'
+           sock_list, back_up+'ftpdir/forecasts/SRS/'+y_date_mm+y_date_dd+'SRS.txt', srs_yesterday
+           sock_copy, back_up+'ftpdir/forecasts/SRS/'+y_date_mm+y_date_dd+'SRS.txt',y_date_mm+y_date_dd+'SRS.txt',  out_dir=today_dir
+        endif
+     endelse
+     if ( srs_yesterday[0] eq '' ) then begin
 
-        endif else begin
-           if backup_status EQ 1 then begin
-              sock_copy, back_up+'ftpdir/forecasts/SRS/'+y_date_mm+y_date_dd+'SRS.txt', srs_yesterday
-           endif
-        endelse
+        srs_yesterday = 'No data'
 
      endif
 
