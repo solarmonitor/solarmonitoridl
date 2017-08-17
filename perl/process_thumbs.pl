@@ -60,7 +60,7 @@ foreach $instname (sort readdir(dir)) {
 	    if ($filename =~ /_pre.png/){
 	      $file_use = "$inst_path/$filename";
 
-	      if (($filename =~ /_fd_/) or ($filename =~ /_pr_/)) {
+	      if (($filename =~ /_fd_/) or ($filename =~ /_pr_/) or ($filename =~ /_ch_/)) {
 		$base_file = substr($filename,0,29);
 		$result_file = $inst_path . "/" . $base_file . ".png";
 		system("convert -size 600x100 xc:none -font AvantGarde-Book -pointsize 50 -gravity center -stroke black -strokewidth 2 -annotate 0 'SolarMonitor.org' -background none -shadow 100x3+0+0 +repage -stroke none -fill white -annotate 0 'SolarMonitor.org' $file_use +swap -gravity southeast -geometry -90+50 -composite $result_file") == 0  || die "Could't create stamped image $base_file .png, $!";

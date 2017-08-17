@@ -188,7 +188,6 @@ endif else begin
 	spawn,'echo "'+systim(/utc)+' These instruments have crashed!: '+strjoin(crashed,' ')+'" > '+temp_path+'arm_crash_summary.txt'
 endelse
 
-
 ; Extract each region and write a web page for each
 
 if ( summary[ 0 ] ne 'No data' ) then begin

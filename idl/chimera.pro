@@ -33,7 +33,6 @@ pro chimera,TEMP=temp,OUTPATH=outpath,TRACK=track
 ;=============defines location of .fits files=======================
 if keyword_set(outpath) then outpath=outpath else cd, current=outpath
 if keyword_set(temp) then temp=temp else cd, current=temp
-loadct,39,/silent
 
 ;==============Finds all fits files==============
 f171=findfile(temp+'/AIAsynoptic0171.f*')
@@ -53,6 +52,7 @@ fil[2]=f211
 
 ;============set plots for z buffer=======================
 set_plot,'z'
+loadct,39,/silent
 !p.color=0
 !p.background='FFFFFF'xL
 Device, Set_Resolution=[1588,1588], Decomposed=1, Set_Pixel_Depth=24, set_font='helvetica'
