@@ -86,11 +86,18 @@ pro plot_flare_prob_fd , OUTPUT , map , summary , ar_co_ords , rr , gg , bb , in
   activity_forecast_evol , OUTPUT , summary , names , mci , cprob , mprob , xprob
 
 ; Use MCSTAT probabilities instead of MCEVOL for plotting bars if no forecast
-  
-  if (cprob eq '...' or mprob eq '...' or xprob eq '...') then begin
-	  print , 'MCEVOL has no forecast for this region'
-          activity_forecast, output_path, summary, names, mci, cprob, mprob, xprob
-  endif
+  n_prob = n_elements(cprob)
+
+  for i = 0,n_prob-1 do begin
+     
+     if (cprob[i] eq '...' or mprob[i] eq '...' or xprob[i] eq '...') then begin
+        print , 'MCEVOL has no forecast for this region'
+        activity_forecast, output_path, summary, names, mci, cprob_stat, mprob_stat, xprob_stat
+        cprob[i] = cprob_stat[i] 
+        mprob[i]= mprob_stat[i]
+        xprob[i] = xprob_stat[i]
+     endif
+  endfor
 
   if (n_elements(cprob) eq 0 or n_elements(mprob) eq 0 or n_elements(xprob) eq 0) then begin
 	  print , 'Activity forecast is not working'
