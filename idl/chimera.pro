@@ -34,6 +34,7 @@ pro chimera,TEMP=temp,OUTPATH=outpath,TRACK=track
 if keyword_set(outpath) then outpath=outpath else cd, current=outpath
 if keyword_set(temp) then temp=temp else cd, current=temp
 
+
 ;==============Finds all fits files==============
 f171=findfile(temp+'/AIAsynoptic0171.f*')
 f193=findfile(temp+'/AIAsynoptic0193.f*')

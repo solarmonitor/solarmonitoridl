@@ -22,25 +22,27 @@
 
 pro get_srs, date_struct, srs_today, srs_yesterday, issued, t_noaa,output_path=output_path
 
-output_path = (n_elements(output_path) eq 0)?'./':output_path
-today_dir=output_path+'meta/'
-date_yyyy=strmid(date_struct.date, 4, 2)
-date_mm=strmid(date_struct.date, 4, 2)
-date_dd=strmid(date_struct.date, 6,2)
-y_date_yyyy=strmid(date_struct.prev_date, 0, 4) 
-y_date_mm=strmid(date_struct.prev_date, 4, 2)
-y_date_dd=strmid(date_struct.prev_date, 6,2)
+  output_path = (n_elements(output_path) eq 0)?'./':output_path
+  today_dir=output_path+'meta/'
+  date_yyyy=strmid(date_struct.date, 4, 2)
+  date_mm=strmid(date_struct.date, 4, 2)
+  date_dd=strmid(date_struct.date, 6,2)
+  y_date_yyyy=strmid(date_struct.prev_date, 0, 4) 
+  y_date_mm=strmid(date_struct.prev_date, 4, 2)
+  y_date_dd=strmid(date_struct.prev_date, 6,2)
 
 ;Does exist the file from previous call?
-fls=file_search(today_dir+'*SRS.txt',count=flsn)
+  fls=file_search(today_dir+'*SRS.txt',count=flsn)
 
 ; Test if website is active
 
   SERVER='services.swpc.noaa.gov'
   solmon_server='solarmonitor.org'
-
+  back_up = 'http://legacy-www.swpc.noaa.gov/'
   sock_ping, SERVER,site_status
   sock_ping, solmon_server, solmon_status
+  sock_ping, back_up,backup_status
+  
 
 
 ; Create 'No data' when server is not reachable
@@ -67,21 +69,28 @@ fls=file_search(today_dir+'*SRS.txt',count=flsn)
 
 ; yesterday
 
- if (solmon_status eq 1) then begin
- 
-     sock_list, solmon_server+'/data/'+y_date_yyyy+'/'+y_date_mm+'/'+y_date_dd+'/meta/'+$
-     strmid(date_struct.prev_date, 4, 4)+'SRS.txt', srs_yesterday
-     
-     sock_copy, solmon_server+'/data/'+y_date_yyyy+'/'+y_date_mm+'/'+y_date_dd+'/meta/'+$
-     strmid(date_struct.prev_date, 4, 4)+'SRS.txt', y_date_mm+y_date_dd+'SRS.txt',out_dir=today_dir
-      
+     if (solmon_status eq 1) then begin
+        print, 'solarmonitor is working'
+        sock_list, solmon_server+'/data/'+y_date_yyyy+'/'+y_date_mm+'/'+y_date_dd+'/meta/'+$
+                   strmid(date_struct.prev_date, 4, 4)+'SRS.txt', srs_yesterday
+        
+        sock_copy, solmon_server+'/data/'+y_date_yyyy+'/'+y_date_mm+'/'+y_date_dd+'/meta/'+$
+                   strmid(date_struct.prev_date, 4, 4)+'SRS.txt', y_date_mm+y_date_dd+'SRS.txt',out_dir=today_dir
+        
+
+     endif else begin 
+        print, 'Solarmonitor is down .. uh oh'
+        if backup_status EQ 1 then begin
+           print, 'Trying backup SWPC for SRS data'
+           sock_list, back_up+'ftpdir/forecasts/SRS/'+y_date_mm+y_date_dd+'SRS.txt', srs_yesterday
+           sock_copy, back_up+'ftpdir/forecasts/SRS/'+y_date_mm+y_date_dd+'SRS.txt',y_date_mm+y_date_dd+'SRS.txt',  out_dir=today_dir
+        endif
+     endelse
      if ( srs_yesterday[0] eq '' ) then begin
 
         srs_yesterday = 'No data'
 
      endif
-
-  endif
 
      if ( srs_today[0] eq '' ) then begin
 
@@ -90,7 +99,7 @@ fls=file_search(today_dir+'*SRS.txt',count=flsn)
         issued = 'No data'
         t_noaa = 'No data'
 
-        endif else begin
+     endif else begin
 
         srs_today = strupcase( srs_today )
         srs_yesterday  = strupcase( srs_yesterday )
@@ -104,14 +113,14 @@ fls=file_search(today_dir+'*SRS.txt',count=flsn)
      endelse
 
 
-     endif else begin
+  endif else begin
 
      fls=file_search(today_dir+'*SRS.txt',count=srs_max)
      srs_today = strupcase( rd_tfile(fls[ srs_max - 1 ] ))
      srs_yesterday  = strupcase( rd_tfile(fls[ srs_max - 2 ] ))
-   
+     
      print, srs_max, srs_today, srs_yesterday,  strpos( srs_today, 'ISSUED AT' )
-	
+     
      date_noaa = srs_today( where( strpos( srs_today, 'ISSUED AT' ) ne -1 ) )
      date_noaa = str_sep( date_noaa( 0 ), ' ' )
      issued    = date_noaa( 7 ) + '-' + date_noaa( 8 ) + '-' + date_noaa( 9 ) + ' ' +$

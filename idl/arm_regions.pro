@@ -99,8 +99,22 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 
 ; Grabs the flare probabilities in order to generate barcharts
 	if (keyword_set(gong_maglc) or keyword_set(shmi_maglc)) then begin	
-		did_prob_succeed = execute("activity_forecast , output_path , summary , names , mci , cprob , mprob , xprob")
-		if (did_prob_succeed) then begin 
+		did_prob_succeed = execute("activity_forecast_evol , output_path , summary , names , mci , cprob , mprob , xprob")
+               	if (did_prob_succeed) then begin 
+
+                	n_prob = n_elements(cprob)
+
+               		for i = 0,n_prob-1 do begin
+     
+				if (cprob[i] eq '...' or mprob[i] eq '...' or xprob[i] eq '...') then begin
+					print , 'MCEVOL has no forecast for this region'
+					activity_forecast, output_path, summary, names, mci, cprob_stat, mprob_stat, xprob_stat
+					cprob[i] = cprob_stat[i] 
+					mprob[i]= mprob_stat[i]
+					xprob[i] = xprob_stat[i]
+				endif
+                	endfor
+	
 			prob_array = strarr(n_elements(mci) , 3)
 			prob_array[* , 0] = cprob[*]
 			prob_array[* , 1] = mprob[*]
@@ -231,7 +245,7 @@ pro arm_regions, output_path, date_struct, summary,  map_struct,  $
 			plot_map, sub_scaled_map, /square,fov=fov, grid = 10, title = 'EIT 195 ' + angstrom + ' ' + sub_scaled_map.time , $
 				dmin = min( sub_scaled_map.data ), dmax = max( sub_scaled_map.data ), gcolor=255
 		    
-		    for j = 0, n_elements( names ) - 1 do begin
+		    	for j = 0, n_elements( names ) - 1 do begin
 				if  ( ( ( x( 0 , j) gt ( x( 0, i ) - 4.5 * 60. ) )   and $
 					( x( 0 , j) lt ( x( 0, i ) + 4.5 * 60. ) ) ) and $  
 					( ( y( 0 , j) gt ( y( 0, i ) - 4.5 * 60. ) )   and $
