@@ -108,14 +108,14 @@ names  = reform( summary( 0, * ) )
 	openw,lun,out_file,/get_lun
 	
     	for i = 0, n_elements( names ) - 1 do begin
-			index = where( names( i ) eq noaa_name )
-			index = index( 0 )
+			index = where( names[i] eq noaa_name )
+			index = index[0]
 
 			if ( index eq -1 ) then continue ;index = n_elements( noaa_name ) ; i.e., set to an empty string
 			
-    		printf, lun, names( i ) + ' ' + strtrim(mci( i ),2) + ' ' + strtrim(cprob_evol( i ),2)  + '(' + strtrim(cprob( i ),2) + ')' + '(' + c_prob_noaa( index ) + ')' + ' ' + $
-			 strtrim(mprob_evol( i ),2)  + '(' + strtrim(mprob( i ),2) + ')' + '(' + m_prob_noaa( index ) + ')' + ' ' +strtrim(xprob_evol( i ),2)  + '(' + strtrim(xprob( i ),2) + ')'$
-                        + '(' + x_prob_noaa( index ) + ')'
+    		printf, lun, names[i] + ' ' + strtrim(mci[i],2) + ' ' + strtrim(cprob_evol[i],2)  + '(' + strtrim(cprob[i],2) + ')' + '(' + c_prob_noaa[index] + ')' + ' ' + $
+			 strtrim(mprob_evol[i],2)  + '(' + strtrim(mprob[i],2) + ')' + '(' + m_prob_noaa[index] + ')' + ' ' +strtrim(xprob_evol[i],2)  + '(' + strtrim(xprob[i],2) + ')'$
+                        + '(' + x_prob_noaa[index] + ')'
 
 		endfor
 	close,lun
