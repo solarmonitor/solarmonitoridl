@@ -21,7 +21,10 @@
 ;
 ; Example    : IDL> chimera,temp='location/string/', outpath='location/string/', track='location/string/'
 ;
-; History     : Written 01-jun-2016, Tadhg Garton, TCD
+; History     : v1.0, Written 01-jun-2016, Tadhg Garton, TCD
+;	      : v1.0.1, Corrected flux calculation and added thumbnail capabilities 13-apr-2018, Tadhg Garton, TCD
+;
+; Version     : 1.0.1
 ;
 ; Contact     : gartont@tcd.ie
 ;		info@solarmonitor.org
@@ -33,7 +36,7 @@ pro chimera,TEMP=temp,OUTPATH=outpath,TRACK=track
 ;=============defines location of .fits files=======================
 if keyword_set(outpath) then outpath=outpath else cd, current=outpath
 if keyword_set(temp) then temp=temp else cd, current=temp
-loadct,39,/silent
+
 
 ;==============Finds all fits files==============
 f171=findfile(temp+'/AIAsynoptic0171.f*')
@@ -53,6 +56,7 @@ fil[2]=f211
 
 ;============set plots for z buffer=======================
 set_plot,'z'
+loadct,39,/silent
 !p.color=0
 !p.background='FFFFFF'xL
 Device, Set_Resolution=[1588,1588], Decomposed=1, Set_Pixel_Depth=24, set_font='helvetica'
@@ -63,11 +67,6 @@ read_sdo,fil,ind,data
 
 ;=====Rotates magnetogrames if necessary======
 if hin.crota2 gt 90 then hd=rotate(temporary(hd),2)
-
-;=====Attempts to verify data is level 1.5=====
-;if ind[1].lvl_num ne 1.5 then begin
-;	aia_prep,fil,-1,ind,data
-;endif
 
 ;=====Resize and smooth image=====
 data=float(data)
@@ -124,16 +123,19 @@ formtab[0]='ID      XCEN       YCEN   CENTROID       X_EB       Y_EB       X_WB 
 formtab[1]='num        "          "         H°          "          "          "          "          "          "          "          "         H°          °       Mm^2          %          G          G          G          G          G          G          G         Mx         Mx         Mx'
 
 ;=====Sort data by wavelength=====
-reord=sort(ind.wavelnth)
-ind[*]=ind[reord]
-data[*,*,*]=data[*,*,reord]
+;reord=sort(ind.wavelnth)
+;ind[*]=ind[reord]
+;data[*,*,*]=data[*,*,reord]
 
 
 ;=====Normalises data with respect to exposure time=====
 for i=0,2 do data[*,*,i]=data[*,*,i]/ind[i].exptime
 
 ;=====removes negative data values=====
-data[where(data lt 0)]=0
+www=where(data lt 0,count)
+if count gt 0 then begin
+	data[www]=0
+endif
 
 ;=====Readies maps, specifies solar radius and calculates conversion value of pixel to arcsec=====
 index2map,ind,data,map
@@ -154,7 +156,7 @@ dat1=data[*,*,1]
 dat2=data[*,*,2]
 
 ;======Get pixels with useful intensities and on disk======
-r = ind[0].r_sun
+r = rs
 w = where((xgrid-center[0])^2+(ygrid-center[1])^2 lt r^2 and dat0 lt 4000 and dat1 lt 4000 and dat2 lt 4000)
 
 ;=====create intensity ratio arrays=============
@@ -249,6 +251,8 @@ for i=0L,(n_elements(info)-1) do begin
 				offarr[subscripts]=1
 			endif else begin
 
+				if ident ge 15 then break
+
 ;=====classifies on disk coronal holes=======
 				subscripts=POLYFILLV(xy(0,offs + chpts ),xy(1,offs + chpts ),s[1],s[2])
 
@@ -319,14 +323,14 @@ for i=0L,(n_elements(info)-1) do begin
 				Ysb=coord[1,0,(min(xy[1,offs+chpts]))]
 				Xsb=coord[0,xy[0,offs+min(where((xy[1,offs+chpts]) eq min(xy[1,offs+chpts])))],(min(xy[1,offs+chpts]))]
 
-				eastl=lon[where(coord[0,*,0] eq xeb),where(coord[1,0,*] eq yeb)]
-				westl=lon[where(coord[0,*,0] eq xwb),where(coord[1,0,*] eq ywb)]
+				eastl=lon[where(coord[0,*,0] eq xeb),(where(coord[1,*,*] eq yeb))[0]/4096]
+				westl=lon[where(coord[0,*,0] eq xwb),(where(coord[1,*,*] eq ywb))[0]/4096]
 				width=round(westl)-round(eastl)
 				if eastl ge 0.0 then eastl='W'+strcompress(string(round(eastl),format='(I3.2)'),/remove_all) else eastl='E'+strcompress(string(abs(round(eastl)),format='(I3.2)'),/remove_all)
 				if westl ge 0.0 then westl='W'+strcompress(string(round(westl),format='(I3.2)'),/remove_all) else westl='E'+strcompress(string(abs(round(westl)),format='(I3.2)'),/remove_all)
 
-				centlat=lat[where(coord[0,*,0] eq arccent0),where(coord[1,0,*] eq arccent1)]
-				centlon=lon[where(coord[0,*,0] eq arccent0),where(coord[1,0,*] eq arccent1)]
+				centlat=lat[xpos,ypos]
+				centlon=lon[xpos,ypos]
 
 				if centlat ge 0.0 then centlat='N'+strcompress(string(round(centlat),format='(I3.2)'),/remove_all) else centlat='S'+strcompress(string(abs(round(centlat)),format='(I3.2)'),/remove_all)
 				if centlon ge 0.0 then centlon='W'+strcompress(string(round(centlon),format='(I3.2)'),/remove_all) else centlon='E'+strcompress(string(abs(round(centlon)),format='(I3.2)'),/remove_all)
@@ -358,11 +362,11 @@ for i=0L,(n_elements(info)-1) do begin
 				props[21,ident+1]=string(strmid(tbpos,0,8)+strmid(tbpos,9,2),format='(A10)')
 				tbneg=string('-'+strcompress(total(npix[where(magpol lt 0)]),/remove_all),format='(e10.1)')
 				props[22,ident+1]=string(strmid(tbneg,0,7)+strmid(tbneg,8,2),format='(A11)')
-				phi=string(strcompress(mB*trummar*1e+16,/remove_all),format='(e11.1)')
+				phi=string(strcompress(mB*armm*1e+16,/remove_all),format='(e11.1)')
 				props[23,ident+1]=string(strmid(phi,0,8)+strmid(phi,9,2),format='(A10)')
-				phipos=string(strcompress(mBpos*trummar*1e+16,/remove_all),format='(e11.1)')
+				phipos=string(strcompress(mBpos*armm*1e+16,/remove_all),format='(e11.1)')
 				props[24,ident+1]=string(strmid(phipos,0,8)+strmid(phipos,9,2),format='(A10)')
-				phineg=string('-'+strcompress(abs(mBneg*trummar*1e+16),/remove_all),format='(e10.1)')
+				phineg=string('-'+strcompress(abs(mBneg*armm*1e+16),/remove_all),format='(e10.1)')
 				props[25,ident+1]=string(strmid(phineg,0,7)+strmid(phineg,8,2),format='(A11)')
 
 ;=====sets up code for next possible coronal hole=====
@@ -515,9 +519,10 @@ Contour,offarr,ax,ay,/over,levels=[0.5],color='FFFFFF'xL
 
 ;====create image in output folder=======
 void = cgSnapshot(Position=[0.035,0.035,0.98,0.98],File=outpath+'/pngs/saia/saia_chimr_ch_'+time2file(map[1].time,/seconds)+'_pre', /PNG, /NoDialog)
+void = cgSnapshot(Position=[0.035,0.035,0.98,0.98],File=outpath+'/pngs/thmb/saia_chimr_thumb_pre', /PNG, /NoDialog)
 
 ;====create structure containing simple CH location information======
-chim={date:ind.date_obs,index:ind,ch:ch[1:ident],n:n,x:float(x[1:n_elements(x)-1]),y:float(y[1:n_elements(y)-1]),mxseg:mxseg}
+;chim={date:ind.date_obs,index:ind,ch:ch[1:ident],n:n,x:float(x[1:n_elements(x)-1]),y:float(y[1:n_elements(y)-1]),mxseg:mxseg}
 
 ;====stores all CH properties in a text file=====
 for i=2,ident+1 do begin
