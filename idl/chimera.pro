@@ -45,7 +45,19 @@ f211=findfile(temp+'/AIAsynoptic0211.f*')
 fhmi=findfile(temp+'/HMI*mag.f*')
 
 if f171 eq '' or f193 eq '' or f211 eq '' or fhmi eq '' then begin
-	print, 'Not all files are present.'
+	print, 'CHIMERA: Not all files are present.'
+	if f171 eq '' then begin
+		print, '171 Angstrom .fits file not present'
+	endif
+	if f193 eq '' then begin
+		print, '193 Angstrom .fits file not present'
+	endif
+	if f211 eq '' then begin
+		print, '211 Angstrom .fits file not present'
+	endif
+	if fhmi eq '' then begin
+		print, 'HMI .fits file not present'
+	endif
 	return
 endif
 
