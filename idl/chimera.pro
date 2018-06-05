@@ -388,7 +388,7 @@ ident=ident-1
 
 ;=====looks for a previous segmentation array==========
 if keyword_set(track) then begin
-	predat=read_ascii(track+'/meta/*ch_loc*.txt',header=head,data_start=2)
+	predat=read_ascii(track+'/meta/*ch_loc*.txt',header=head,data_start=3)
 	preseg=lonarr(s[1],s[2])
 	idloc=(where(finite(predat.field1[0,*]) eq 0))
 
