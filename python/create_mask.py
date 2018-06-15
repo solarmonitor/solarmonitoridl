@@ -36,19 +36,19 @@ import os.path as op
 
 #=====Check python version=====
 
-if sys.version[0] != '3'
+if sys.version[0] != '3':
     raise NameError('=====   Python version 3 must be used for create_mask.py   =====')
 
 #=====Establish pathing=====
 path = ''
 if len(sys.argv) > 1:
     path = sys.argv[1]
-    exis = op.exists(op.join(path,'/meta/'))
+    exis = op.exists(op.join(path,'meta/'))
     if exis == 0:
         raise NameError('===== Path to CH location file does not exist =====')
 
 #=====Find CH location file=====
-f = glob.glob(op.join(path,"/meta/*ch_location*.txt"))
+f = glob.glob(op.join(path,"meta/*ch_location*.txt"))
 
 #=====Establish variables and arrays=====
 siz = 4096
@@ -134,5 +134,5 @@ cs = plt.contour(xgrid, ygrid, slate, colors = 'black', linewidths = 0.5)
 cs = plt.contour(xgrid, ygrid, circ, colors = 'black', linewidths = 1.0)
 
 #=====Save plot=====
-plt.savefig(op.join(path, '/pngs/saia/saia_masks_ch_{:%Y%m%d_%H%M%S}_pre.png'.format(date) ), \
+plt.savefig(op.join(path, 'pngs/saia/saia_masks_ch_{:%Y%m%d_%H%M%S}_pre.png'.format(date) ), \
 transparent = True)

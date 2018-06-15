@@ -131,6 +131,7 @@ sm_sswscript()
 sm_pyscript()
 {
     dat=$OUTPUT_PATH`date -u +%Y/%m/%d`'/'
+    echo $dat
     python $WORKING_PATH/python/create_mask.py $dat
 }
 
