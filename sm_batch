@@ -131,7 +131,6 @@ sm_sswscript()
 sm_pyscript()
 {
     dat=$OUTPUT_PATH`date -u +%Y/%m/%d`'/'
-    echo $dat
     python $WORKING_PATH/python/create_mask.py $dat
 }
 
@@ -191,7 +190,7 @@ sm_processimages $OUTPUT_PATH/$TODAYS_DATE_DIR
 
 sm_package
 sm_upload
-#sm_upload "dperezsuarez@solarmonitor.dias.ie"
+sm_upload "dperezsuarez@solarmonitor.dias.ie"
 sm_cleanup
 
 echo "everything sounds good!"
