@@ -34,13 +34,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os.path as op
 
+#=====Check python version=====
+
+if sys.version[0] != '3'
+    raise NameError('=====   Python version 3 must be used for create_mask.py   =====')
+
 #=====Establish pathing=====
 path = ''
 if len(sys.argv) > 1:
     path = sys.argv[1]
     exis = op.exists(op.join(path,'/meta/'))
     if exis == 0:
-        sys.exit(0)
+        raise NameError('===== Path to CH location file does not exist =====')
 
 #=====Find CH location file=====
 f = glob.glob(op.join(path,"/meta/*ch_location*.txt"))
