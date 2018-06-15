@@ -128,6 +128,13 @@ sm_sswscript()
     $SSWCSH_FILE
 }
 
+sm_pyscript()
+{
+    dat=$OUTPUT_PATH`date -u +%Y/%m/%d`'/'
+    echo $dat
+    python3 $WORKING_PATH/python/create_mask.py $dat
+}
+
 sm_processimages()
 {
     # It runs the perl scripts for the date
@@ -176,12 +183,15 @@ sm_dirtree5 $OUTPUT_PATH     # Future directories for forecasting data
 # Create the scripts for running IDL SM batch and Run SM batch
 sm_sswscript
 
+# Create the scripts for running Python scripts
+sm_pyscript
+
 # Resize and stamps the images with the perl scripts
 sm_processimages $OUTPUT_PATH/$TODAYS_DATE_DIR
 
 sm_package
 sm_upload
-sm_upload "dperezsuarez@solarmonitor.dias.ie"
+#sm_upload "dperezsuarez@solarmonitor.dias.ie"
 sm_cleanup
 
 echo "everything sounds good!"
