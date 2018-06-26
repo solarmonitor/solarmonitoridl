@@ -12,8 +12,8 @@
 ;		211A .fits file
 ;		hmi .fits file
 ;
-; Outputs     : chimera.png
-;	      : chimera.txt
+; Outputs     : chimera.png segmented png image
+;	      : chimera.txt properties of segmented coronal holes
 ;
 ; Keywords    : temp= input directory
 ;		outpath= output directory
@@ -25,7 +25,7 @@
 ;	      : v1.0.1, Corrected flux calculation and added thumbnail capabilities 13-apr-2018, Tadhg Garton, TCD
 ;	      : v1.1.0, Enabled feature tracking and CH location information storage 21-may-2018, Tadhg Garton, TCD
 ;
-; Version     : 1.0.1
+; Version     : 1.1.0
 ;
 ; Contact     : gartont@tcd.ie
 ;		info@solarmonitor.org
@@ -40,6 +40,7 @@ if keyword_set(temp) then temp=temp else cd, current=temp
 
 
 ;==============Finds all fits files==============
+print, 'CHIMERA: Starting.'
 f171=findfile(temp+'/AIAsynoptic0171.f*')
 f193=findfile(temp+'/AIAsynoptic0193.f*')
 f211=findfile(temp+'/AIAsynoptic0211.f*')
@@ -188,6 +189,7 @@ mak[where(float(t0)+t1 lt (0.7*(mean(dat1)+mean(dat2))))]=1
 mas[where(float(t2)/t1 ge ((mean(dat0)*1.5102)/(mean(dat1))))]=1
 
 ;====plot tricolour image with lon/lat conotours=======
+print, 'CHIMERA: Creating tri-color image.'
 ax=indgen(s[1])
 ay=indgen(s[2])
 !p.multi=[0,1,1]
@@ -223,6 +225,7 @@ printf,2,formtab[0]
 printf,2,formtab[1]
 
 ;=====contours the identified datapoints=======
+print, 'CHIMERA: Identifying and verifying CHs.'
 Contour,def,ax,ay,/over,levels=[0.5,1.5],path_xy=xy,path_info=info,/path_data_coords
 
 ;=====cycles through contours=========
@@ -388,6 +391,7 @@ ident=ident-1
 
 ;=====looks for a previous segmentation array==========
 if keyword_set(track) then begin
+	print, 'CHIMERA: Tracking CHs.'
 	predat=read_ascii(track+'/meta/*ch_loc*.txt',header=head,data_start=3)
 	preseg=lonarr(s[1],s[2])
 	idloc=(where(finite(predat.field1[0,*]) eq 0))
@@ -556,6 +560,7 @@ endif
 Contour,offarr,ax,ay,/over,levels=[0.5],color='FFFFFF'xL
 
 ;====create image in output folder=======
+print, 'CHIMERA: Storing pngs and txts.'
 void = cgSnapshot(Position=[0.035,0.035,0.98,0.98],File=outpath+'/pngs/saia/saia_chimr_ch_'+time2file(map[1].time,/seconds)+'_pre', /PNG, /NoDialog)
 void = cgSnapshot(Position=[0.035,0.035,0.98,0.98],File=outpath+'/pngs/thmb/saia_chimr_thumb_pre', /PNG, /NoDialog)
 
@@ -573,5 +578,6 @@ close,2
 loadct,0,/silent
 set_plot,'x'
 
+print, 'CHIMERA: Finished, images stored at '+outpath+'/pngs/'
 ;====EOF====
 end
