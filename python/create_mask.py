@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 
 ; Project     : Coronal Hole Identification via Multi-thermal Emission Reconition Algorithm (CHIMERA)
@@ -36,6 +38,7 @@ import os.path as op
 
 #=====Check python version=====
 
+print("PYTHON: Starting to create CH masks.")
 if sys.version[0] != '3':
     raise NameError('=====   Python version 3 must be used for create_mask.py   =====')
 
@@ -48,6 +51,7 @@ if len(sys.argv) > 1:
         raise NameError('===== Path to CH location file does not exist =====')
 
 #=====Find CH location file=====
+print("PYTHON: Finding CHIMERA files.")
 f = glob.glob(op.join(path,"meta/*ch_location*.txt"))
 
 #=====Establish variables and arrays=====
@@ -59,7 +63,10 @@ x, y = np.array([]), np.array([])
 fill = 0
 
 #=====Cycle through lines in file=====
+print("PYTHON: Reading files ...")
 with open(f[0],"r") as file:
+
+    print("PYTHON: File opened.")
 
     for line in file:
         if line[0:3] != 'Dat':
@@ -99,6 +106,8 @@ with open(f[0],"r") as file:
         else:
             dat = line[13:-1]
 
+
+
 #=====Create datetime object=====
 date=datetime.strptime(dat, '%Y%m%d_%H%M%S')
 
@@ -111,6 +120,7 @@ slate[chs] = 1
 slate = np.array(slate,dtype=np.uint8)
 
 #=====Create mask of solar disk=====
+print("PYTHON: Creating mask.")
 w = np.where((xgrid-center[0])**2+(ygrid-center[1])**2 <= (float(r)*pix2arc)**2)
 circ[w] = 1.0
 
@@ -136,3 +146,5 @@ cs = plt.contour(xgrid, ygrid, circ, colors = 'black', linewidths = 1.0)
 #=====Save plot=====
 plt.savefig(op.join(path, 'pngs/saia/saia_masks_ch_{:%Y%m%d_%H%M%S}_pre.png'.format(date) ), \
 transparent = True)
+
+print("PYTHON: Done!")
