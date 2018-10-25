@@ -16,11 +16,11 @@
 ; Keywords:     None
 ;
 ; History :     Written 05-may-2005, Peter Gallagher, TCD
-;
+;		        25-oct-2018, name changed from get_srs. Procedure with identical name was added to SolaSoft. E.Carley
 ; Contact :     peter.gallagher@tcd.ie
 ;-
 
-pro get_srs, date_struct, srs_today, srs_yesterday, issued, t_noaa,output_path=output_path
+pro get_srs_solmon, date_struct, srs_today, srs_yesterday, issued, t_noaa,output_path=output_path
 
   output_path = (n_elements(output_path) eq 0)?'./':output_path
   today_dir=output_path+'meta/'

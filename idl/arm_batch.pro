@@ -56,7 +56,7 @@ pro arm_batch, temp_path, output_path
 
 ; Read the active region summary for the requested and previous days.
     print, 'getting srs'
-    get_srs, date_struct, srs_today, srs_yesterday, issued, t_noaa,$
+    get_srs_solmon, date_struct, srs_today, srs_yesterday, issued, t_noaa,$
              output_path=today_dir
     print, 'done getting srs'
 	
@@ -187,7 +187,6 @@ endif else begin
 	print,'These instruments have crashed!: '+strjoin(crashed,' ') 
 	spawn,'echo "'+systim(/utc)+' These instruments have crashed!: '+strjoin(crashed,' ')+'" > '+temp_path+'arm_crash_summary.txt'
 endelse
-
 
 ; Extract each region and write a web page for each
 
