@@ -109,9 +109,6 @@ offarr=iarr
 mas=fltarr(s[1],s[2])
 mak=fltarr(s[1],s[2])
 msk=fltarr(s[1],s[2])
-tem=fltarr(4000,4000)
-tmp=fltarr(4000,4000)
-tep=fltarr(4000,4000)
 def=fltarr(s[1],s[2])
 circ=intarr(s[1],s[2])
 n=lonarr(1)
@@ -165,13 +162,6 @@ dat2=data[*,*,2]
 
 ;======Get pixels with useful intensities and on disk======
 w = where((xgrid-center[0])^2+(ygrid-center[1])^2 lt r_sun^2 and dat0 lt 4000 and dat1 lt 4000 and dat2 lt 4000)
-
-;=====create intensity ratio arrays=============
-for i =0L, n_elements(w)-1 do begin
-	tem[dat0[w[i]],dat1[w[i]]]=tem[dat0[w[i]],dat1[w[i]]]+1
-	tmp[dat0[w[i]],dat2[w[i]]]=tmp[dat0[w[i]],dat2[w[i]]]+1
-	tep[dat1[w[i]],dat2[w[i]]]=tep[dat1[w[i]],dat2[w[i]]]+1
-endfor
 
 ;============make a multi-wavelength image for contours==================
 truecolorimage=bytarr(s[1],s[2],3)
