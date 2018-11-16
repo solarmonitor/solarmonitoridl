@@ -14,11 +14,13 @@
 ;
 ; Outputs     : Transparent CH mask
 ;
-; Keywords    : path = directory path of file	
+; Arguements  : path = directory path of file	
 ;
 ; Example     : ipython> % run -i create_mask.py '/path/to/file/location/'
 ;
 ; Required Packages    : pip install mahotas
+;			 pip install numpy
+;			 pip install matplotlib
 ;
 ; History     : v1.0, Written 14-Jun-2018, Tadhg Garton, TCD
 ;
@@ -30,11 +32,11 @@
 from datetime import datetime
 import glob
 import sys
+import os.path as op
 
 import mahotas
 import numpy as np
 import matplotlib.pyplot as plt
-import os.path as op
 
 #=====Check python version=====
 
@@ -46,17 +48,17 @@ if sys.version[0] != '3':
 path = ''
 if len(sys.argv) > 1:
     path = sys.argv[1]
-    exis = op.exists(op.join(path,'meta/'))
+    exis = op.exists(op.join(path, 'meta'))
     if exis == 0:
         raise NameError('===== Path to CH location file does not exist =====')
 
 #=====Find CH location file=====
 print("PYTHON: Finding CHIMERA files.")
-f = glob.glob(op.join(path,"meta/*ch_location*.txt"))
+f = glob.glob(op.join(path, "meta", "*ch_location*.txt"))
 
 #=====Establish variables and arrays=====
 siz = 4096
-hsiz=siz/2
+hsiz = siz / 2
 iarr = np.zeros((siz, siz) , dtype=np.byte)
 slate, circ = np.array(iarr), np.array(iarr)
 x, y = np.array([]), np.array([])
@@ -64,7 +66,7 @@ fill = 0
 
 #=====Cycle through lines in file=====
 print("PYTHON: Reading files ...")
-with open(f[0],"r") as file:
+with open(f[0], "r") as file:
 
     print("PYTHON: File opened.")
 
@@ -109,7 +111,7 @@ with open(f[0],"r") as file:
 
 
 #=====Create datetime object=====
-date=datetime.strptime(dat, '%Y%m%d_%H%M%S')
+date = datetime.strptime(dat, '%Y%m%d_%H%M%S')
 
 #=====Create arcsecond meshgrid=====
 xgrid, ygrid = np.meshgrid((np.arange(siz)-hsiz)*pix2arc , (np.arange(siz)-hsiz)*pix2arc)
@@ -131,8 +133,8 @@ plt.xlim(-hsiz*pix2arc, hsiz*pix2arc)
 plt.ylim(-hsiz*pix2arc, hsiz*pix2arc)
 
 #=====Plot transparent CH fill=====
-plt.scatter((chs[1]-hsiz)*pix2arc, (chs[0]-hsiz)*pix2arc, marker = 's', \
-s = 0.0183, c = 'black', cmap = 'viridis', edgecolor = 'none', alpha = 0.2)
+plt.scatter((chs[1]-hsiz)*pix2arc, (chs[0]-hsiz)*pix2arc, marker = 's', 
+	s = 0.0183, c = 'black', cmap = 'viridis', edgecolor = 'none', alpha = 0.2)
 
 plt.gca().set_aspect('equal', adjustable = 'box')
 plt.title('CHIMERA Coronal Holes at {:%d-%b-%Y %H:%M:%S} UT'.format(date), fontsize=16)
@@ -140,11 +142,11 @@ plt.xlabel('X (arcsecs)', fontsize=14)
 plt.ylabel('Y (arcsecs)', fontsize=14)
 
 #=====Contour CHs and solar disk=====
-cs = plt.contour(xgrid, ygrid, slate, colors = 'black', linewidths = 0.5)
-cs = plt.contour(xgrid, ygrid, circ, colors = 'black', linewidths = 1.0)
+cs = plt.contour(xgrid, ygrid, slate, colors='black', linewidths=0.5)
+cs = plt.contour(xgrid, ygrid, circ, colors='black', linewidths=1.0)
 
 #=====Save plot=====
-plt.savefig(op.join(path, 'pngs/saia/saia_masks_ch_{:%Y%m%d_%H%M%S}_pre.png'.format(date) ), \
+plt.savefig(op.join(path, 'pngs', 'saia', 'saia_masks_ch_{:%Y%m%d_%H%M%S}_pre.png'.format(date) ), \
 transparent = True)
 
 print("PYTHON: Done!")
