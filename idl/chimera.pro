@@ -77,6 +77,13 @@ Device, Set_Resolution=[1588,1588], Decomposed=1, Set_Pixel_Depth=24, set_font='
 
 ;=====Reads in data=====
 read_sdo,fhmi,hin,hd
+
+if hin.naxis1 ne 4096 then begin
+	hd=rebin(hd,4096,4096)
+	hin.cdelt1=hin.cdelt1*(hin.naxis1/4096.)
+	hin.cdelt2=hin.cdelt2*(hin.naxis2/4096.)
+endif
+
 read_sdo,fil,ind,data
 
 ;=====Rotates magnetogrames if necessary======
@@ -285,7 +292,7 @@ for i=0L,(n_elements(info)-1) do begin
 
 ;======calculate average angle coronal hole is subjected histogramto======
 				dist=sqrt((arccent0)^(2)+(arccent1)^(2))
-				ang=2*asin(SQRT(dist/(2*r_sun)))
+				ang=asin(dist/(r_sun))
 
 ;=====calculate area of CH with minimal projection effects======
 				trupixar=abs(area/cos(ang))
