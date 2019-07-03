@@ -37,10 +37,11 @@ date=anytim(systim(/utc),/ecs)
 
 filename = temp_path + '/HMI.fits'
 
-File_move, filename, temp_path + '/HMI' + time2file(index.date_obs, /sec) + '_6173.fits'
-
 ;included a file copy of hmi magnetic data to avoid get_chmi_latest downloading a continuum .fits file with the same file name 
 File_copy, filename, temp_path + '/HMI' + time2file(index.date_obs, /sec) + '_mag.fits'
+File_move, filename, temp_path + '/HMI' + time2file(index.date_obs, /sec) + '_6173.fits'
+
+filename = temp_path + '/HMI' + time2file(index.date_obs, /sec) + '_mag.fits'
 
 ;Check that file exists
 print,'HMI FILENAME PRINT !!!!!!!!!'
