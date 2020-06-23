@@ -124,8 +124,22 @@ sm_sswscript()
     echo "sswidl $SMIDL_FILE >& $SMIDLLOG_FILE"             >> $SSWCSH_FILE
     # In the original file was calling sswidl -32; It does not work in linux
     
-    chmod 700 $SSWCSH_FILE
+    chmod 777 $SSWCSH_FILE
     $SSWCSH_FILE
+}
+
+sm_pyscript()
+{
+    export PATH=$PYTHON_PATH:$PATH
+    dat=$OUTPUT_PATH`date -u +%Y/%m/%d`'/'
+    echo "##########################################"
+    echo ${0/\/*\//}':sm_pyscript:Running python scripts from '$PATH
+    cd $WORKING_PATH/python/
+    export DISPLAY=:0
+    $PYTHON_PATH/python $WORKING_PATH/python/create_mask.py $dat > $TEMP_PATH/sm_pythn.log 2>&1
+    echo ${0/\/*\//}':sm_pyscript:Finished python scripts'
+    cd ..
+    echo "##########################################"
 }
 
 sm_processimages()
@@ -163,6 +177,7 @@ sm_cleanup()
 }
 
 # Load variables (local for the run, and global for SM)
+
 sm_var
 
 # Write out the info of this run
@@ -175,6 +190,9 @@ sm_dirtree5 $OUTPUT_PATH     # Future directories for forecasting data
 
 # Create the scripts for running IDL SM batch and Run SM batch
 sm_sswscript
+
+# Create the scripts for running Python scripts
+sm_pyscript
 
 # Resize and stamps the images with the perl scripts
 sm_processimages $OUTPUT_PATH/$TODAYS_DATE_DIR
