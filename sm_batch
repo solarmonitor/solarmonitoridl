@@ -163,8 +163,8 @@ sm_upload()
     else
         SM_HOST=$1
     fi
-    scp $OUTPUT_PATH/sm_files.tar.gz $SM_HOST:$REMOTE_PATH
-    ssh $SM_HOST "cd $REMOTE_PATH && tar -xvz -f sm_files.tar.gz"
+    scp -o "ProxyJump eoincarley@ariadne.dias.ie" $OUTPUT_PATH/sm_files.tar.gz $SM_HOST:$REMOTE_PATH
+    ssh -o "ProxyJump eoincarley@ariadne.dias.ie" $SM_HOST "cd $REMOTE_PATH && tar -xvz -f sm_files.tar.gz"
 }
 
 sm_cleanup()
@@ -199,7 +199,7 @@ sm_processimages $OUTPUT_PATH/$TODAYS_DATE_DIR
 
 sm_package
 sm_upload
-sm_upload "dperezsuarez@solarmonitor.dias.ie"
+#sm_upload "dperezsuarez@solarmonitor.dias.ie"
 sm_cleanup
 
 echo "everything sounds good!"

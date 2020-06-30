@@ -1215,7 +1215,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
 
 ; Read in fits file
 
-     mreadfits, filename, index, data
+     read_sdo, filename, index, data
 
      smart_index2map,index,data,map
      
@@ -1483,7 +1483,7 @@ pro arm_fd, temp_path, output_path, date_struct, summary, map_struct, $
         error_type = 'shmi_maglc'
         goto, error_handler
      endif
-     mreadfits, filename, index, data
+     read_sdo, filename, index, data
 
      smart_index2map,index,data,map
 

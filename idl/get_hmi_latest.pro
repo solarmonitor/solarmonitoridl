@@ -28,9 +28,9 @@ end_time = anytim(systim(/utc))
 print,'Searching for latest HMI data between: ' + anytim(start_time, /yoh, /trun) + ' and '+ anytim(end_time, /yoh, /trun) 
 
 date=anytim(systim(/utc),/ecs)
-	files = sock_find('http://jsoc.stanford.edu','hmi*.fits',path='/data/hmi/fits/'+strmid(date,0,10)) 
-	sock_copy, files[-1],'HMI.fits', out_dir=temp_path
-	read_sdo,temp_path+'/HMI.fits',index,data,/nodata
+files = sock_find('http://jsoc.stanford.edu','hmi*.fits',path='/data/hmi/fits/'+strmid(date,0,10)) 
+sock_copy, files[-1],'HMI.fits', out_dir=temp_path
+read_sdo,temp_path+'/HMI.fits',index,data,/nodata
 
 ;ssw_jsoc_time2data, start_time, end_time, index, data, $
 ;                     ds='hmi.M_720s_nrt', max_files=1, locfiles= locfiles, outdir_top=temp_path
